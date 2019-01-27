@@ -1,0 +1,210 @@
+# graphql-php-validation-toolkit
+[![Build Status](https://travis-ci.org/shmax/graphql-php-validation-toolkit.svg?branch=master)](https://travis-ci.org/shmax/graphql-php-validation-toolkit)
+
+GraphQL is great when it comes to validating types and checking syntax, but isn't much help when it comes to providing additional validation on user input. The authors of GraphQL have generally opined that the correct response to bad user input is not to throw an exception, but rather to return any validation feedback along with the result. That's where this small library comes in.
+
+`graphql-php-validation-toolkit` extends the built-in definitions provided by the wonderful [graphql-php](https://github.com/webonyx/graphql-php) library with a new `ValidatedFieldDefinition` class. Simply instantiate one of these in place of the usual field config, add `validate` callback properties to your `args` definitions, and the `type` of your field will be replaced by a new, dynamically-generated `ResultType` with queryable error fields for each of your args. It's a recursive process, so your `args` can have `InputObjectType` types with subfields and `validate` callbacks of their own. Your originally-defined `type` gets moved to the `result` field of the generated type.
+
+## Documentation
+
+- [Basic Usage](#basic-usage)
+- [The Validate Callback](#the-validate-callback)
+- [Custom Error Codes](#custom-error-codes)
+- [Examples](#examples)
+
+### Basic Usage
+In a nutshell, replace your usual vanilla field definition with an instance of `ValidatedFieldDefinition`, and add `validate` callbacks to one or more of the `args` configs. Let's say you want to make a mutation called `updateBook`:
+ 
+ ```php
+ //...
+'updateBook' => new ValidatedFieldDefinition([
+    'name' => 'updateBook',
+    'type' => Types::book(),
+    'args' => [
+        'bookId' => [
+            'type' => Type::id(),
+            'validate' => function ($bookId) {
+                global $books;
+                if (!Book::find($bookId) {
+                    return 0;
+                }
+
+                return [1, 'Unknown book!'];
+            },
+        ],
+    ],
+    'resolve' => static function ($value, $args) : bool {
+        return Book::find($args['bookId']);
+    },
+],
+```
+ 
+In the sample above, the `book` type property of your field definition will be replaced by a new dynamically-generated type called `UpdateBookResultType` type.
+
+The type generation process is recursive, traveling down through any nested `InputObjectType` or `ListOf` types and checking their `fields` for more `validate` callbacks. Every field definition--including the very top one--that has a `validate` callback will be represented by a custom, generated type with the following queryable fields:
+
+| Field       | Type                          | Description                                                                                                                                           |
+|-------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `code`      | `int|<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type.             |
+| `msg`       | `string`                      | A plain, natural language description of the error.                                                                                                   |
+| `suberrors` | `<field-name>_Suberrors`      | If your field has a complex type (eg. `InputObjectType` or `ListOfType`), then a `suberrors` field will be added with its own custom, generated type. |
+
+The top-level `<field-name>ResultType` will have an additional field:
+
+| Field       | Type                          | Description                                                                                                                                           |
+|-------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `valid` | `bool` | Resolves to `true` if all `args` and nested `fields` pass validation, `false` if not. |
+
+You can then simply query for these fields along with `result`:
+```graphql
+mutation {
+    updateAuthor(
+        authorId: 1
+  ) {
+    valid
+    result {
+        id
+        name
+    }
+    code
+    msg
+    suberrors {
+        authorId {
+            code
+            msg
+        }
+    }
+  }
+}
+```
+
+### The Validate Callback
+
+Any field definition can have a `validate` callback. The first argument passed to the `validate` callback will be the value to validate. 
+If the value is valid, return `0`, otherwise `1`. 
+
+```php
+//...
+'updateAuthor' => new ValidatedFieldDefinition([
+  'type' => Types::author(),
+  'args' => [
+    'authorId' => [
+      'validate' => function(string $authorId) {
+        if(Author::find($authorId)) {
+          return 0;
+        }
+        return 1;
+      }
+    ]
+  ]	  
+])
+```
+
+If you want to return an error message, return an array with the message in the second bucket:
+```php
+//...
+'updateAuthor' => new ValidatedFieldDefinition([
+  'type' => Types::author(),
+  'args' => [
+    'authorId' => [
+      'validate' => function(string $authorId) {
+        if(Author::find($authorId)) {
+          return 0;
+        }
+        return [1, "We can't find that author"];
+      }
+    ]
+  ]	  
+])
+```
+Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array. Its generated error type will have an array of suberror types, each with their own `index` field that you can query so you can know exactly which array items failed validation:
+
+```php
+//...
+'setPhoneNumbers' => new ValidatedFieldDefinition([
+  'type' => Types::bool(),
+  'args' => [
+    'phoneNumbers' => [
+      'type' => Type::listOf(Type::string()),  
+      'validate' => function(array $phoneNumbers) {
+        if(!count($phoneNumbers)) {
+          return [1, "At least one phone number is required"];
+        }
+        return 0;
+      },
+      'validateItem' => function(string $phoneNumber) {
+        $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
+        if (!$res) {
+          return [1, 'That does not seem to be a valid phone number'];
+        }
+        return 0;  
+      }
+    ]
+  ]	  
+])  
+```
+
+### Custom Error Codes
+
+If you would like to use custom error codes, add an `errorCodes` property at the same level as your `validate` callback:
+
+```php
+//...
+'updateAuthor' => [
+  'type' => Types::author(),
+  'errorCodes' => [
+    'authorNotFound`
+  ],
+  'validate' => function(string $authorId) {
+    if(Author::find($authorId)) {
+      return 1;
+    }
+    return ['authorNotFound', "We can't find that author"];
+  }
+]   
+```
+
+`ListOf` types are again a special case, and support an additional `suberrorCodes` property for validating their items:
+
+```php
+//...
+'setPhoneNumbers' => new ValidatedFieldDefinition([
+  'type' => Types::bool(),
+  'args' => [
+    'phoneNumbers' => [
+      'errorCodes' => [
+        'atLeastOneRequired`
+      ],
+      'suberrorCodes' => [
+        'invalidPhoneNumber'
+      ],
+      'type' => Type::listOf(Type::string()),  
+      'validate' => function(array $phoneNumbers) {
+        if(!count($phoneNumbers)) {
+          return ['atLeastOneRequired', "At least one phone number is required"];
+        }
+        return 0;
+      },
+      'validateItem' => function(string $phoneNumber) {
+        $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
+        if (!$res) {
+          return ['invalidPhoneNumber', 'That does not seem to be a valid phone number'];
+        }
+        return 0;  
+      }
+    ]
+  ]	  
+])  
+```
+ 
+## Examples
+The best way to understand how all this works is to experiment with it. There are a series of increasingly complex one-page samples in the `/examples` folder. Each is accompanied by its own `README.md`, with instructions for running the code. Run each sample, and be sure to inspect the dynamically-generated types in [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij?hl=en).
+
+01. [basic-scalar-validation](./examples/01-basic-scalar-validation)
+02. [custom-error-types](./examples/02-custom-error-codes)
+03. [input-object-validation](./examples/03-input-object-validation)
+03. [list-of-validation](./examples/04-list-of-validation)
+
+## Contribute
+Contributions are welcome. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
