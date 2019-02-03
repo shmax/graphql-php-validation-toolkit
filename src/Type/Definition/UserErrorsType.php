@@ -137,7 +137,7 @@ class UserErrorsType extends ObjectType
         }
 
         parent::__construct([
-            'name' => $name ?? $this->_nameFromPath(array_merge($path)) . ucfirst('error'),
+            'name' => $this->_nameFromPath(array_merge($path)) . ucfirst('error'),
             'description' => 'User errors for ' . ucfirst($path[count($path)-1]),
             'fields' => $finalFields,
         ]);
@@ -160,7 +160,7 @@ class UserErrorsType extends ObjectType
      * @param mixed[]  $config
      * @param string[] $path
      *
-     * @return UserErrorsType?
+     * @return static?
      */
     public static function create(array $config, array $path, $isParentList = false, $name = '') : ?self
     {
