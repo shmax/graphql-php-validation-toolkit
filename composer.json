@@ -22,6 +22,7 @@
     "phpstan/phpstan": "0.10.5",
     "phpstan/phpstan-phpunit": "0.10.0",
     "phpstan/phpstan-strict-rules": "0.10.1",
+  	"phpunit/phpcov": "^5.0",
     "phpunit/phpunit": "^7.2",
     "webonyx/graphql-php": "^0.13.0"
   },
