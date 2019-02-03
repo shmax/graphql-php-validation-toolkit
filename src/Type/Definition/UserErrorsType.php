@@ -159,8 +159,6 @@ class UserErrorsType extends ObjectType
     /**
      * @param mixed[]  $config
      * @param string[] $path
-     *
-     * @return static?
      */
     public static function create(array $config, array $path, $isParentList = false, $name = '') : ?self
     {
