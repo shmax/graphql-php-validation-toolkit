@@ -1,5 +1,9 @@
 # graphql-php-validation-toolkit
 [![Build Status](https://travis-ci.org/shmax/graphql-php-validation-toolkit.svg?branch=master)](https://travis-ci.org/shmax/graphql-php-validation-toolkit)
+[![Code Coverage](https://scrutinizer-ci.com/g/shmax/graphql-php-validation-toolkit/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/shmax/graphql-php-validation-toolkit/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shmax/graphql-php-validation-toolkit/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/shmax/graphql-php-validation-toolkit/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/v/stable)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
+[![License](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/license)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 
 GraphQL is great when it comes to validating types and checking syntax, but isn't much help when it comes to providing additional validation on user input. The authors of GraphQL have generally opined that the correct response to bad user input is not to throw an exception, but rather to return any validation feedback along with the result. That's where this small library comes in.
 
