@@ -5,6 +5,12 @@ GraphQL is great when it comes to validating types and checking syntax, but isn'
 
 `graphql-php-validation-toolkit` extends the built-in definitions provided by the wonderful [graphql-php](https://github.com/webonyx/graphql-php) library with a new `ValidatedFieldDefinition` class. Simply instantiate one of these in place of the usual field config, add `validate` callback properties to your `args` definitions, and the `type` of your field will be replaced by a new, dynamically-generated `ResultType` with queryable error fields for each of your args. It's a recursive process, so your `args` can have `InputObjectType` types with subfields and `validate` callbacks of their own. Your originally-defined `type` gets moved to the `result` field of the generated type.
 
+## Installation
+Via composer:
+```
+composer require shmax/graphql-php-validation-toolkit
+```
+
 ## Documentation
 
 - [Basic Usage](#basic-usage)
