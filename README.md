@@ -49,13 +49,13 @@ In a nutshell, replace your usual vanilla field definition with an instance of `
 ],
 ```
  
-In the sample above, the `book` type property of your field definition will be replaced by a new dynamically-generated type called `UpdateBookResultType` type.
+In the sample above, the `book` type property of your field definition will be replaced by a new dynamically-generated type called `UpdateBookResultType`.
 
 The type generation process is recursive, traveling down through any nested `InputObjectType` or `ListOf` types and checking their `fields` for more `validate` callbacks. Every field definition--including the very top one--that has a `validate` callback will be represented by a custom, generated type with the following queryable fields:
 
 | Field       | Type                          | Description                                                                                                                                           |
 |-------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `code`      | `int|<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type.             |
+| `code`      | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type.             |
 | `msg`       | `string`                      | A plain, natural language description of the error.                                                                                                   |
 | `suberrors` | `<field-name>_Suberrors`      | If your field has a complex type (eg. `InputObjectType` or `ListOfType`), then a `suberrors` field will be added with its own custom, generated type. |
 
@@ -127,7 +127,7 @@ If you want to return an error message, return an array with the message in the 
   ]	  
 ])
 ```
-Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array. Its generated error type will have an array of suberror types, each with their own `index` field that you can query so you can know exactly which array items failed validation:
+Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array (note: this will override any validation happening further down inside complex types, so this may only be appropriate for lists of scalar types). Its generated error type will have an array of suberror types, each with their own `index` field that you can query so you can know exactly which array items failed validation:
 
 ```php
 //...
