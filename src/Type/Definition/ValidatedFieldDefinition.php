@@ -72,8 +72,6 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $result          = $errors;
                 $result['valid'] = ! $errors;
 
-                $innerRes = null;
-
                 if (! isset($result['error']) && ! isset($result['suberrors'])) {
                     $result['result'] = $config['resolve']($value, $args1, $context, $info);
                 }

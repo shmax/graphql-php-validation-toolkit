@@ -117,9 +117,8 @@ try {
                 ],
                 'resolve' => function ($value, $args) use ($authors) {
                     $authorId = $args['authorId'];
-                    $attributes = $args['attributes'];
 
-                    // AuthorProvider::update($authorId, $attributes);
+                    // AuthorProvider::update($authorId, $args['attributes']);
                     return $authors[$authorId];
                 },
             ]),

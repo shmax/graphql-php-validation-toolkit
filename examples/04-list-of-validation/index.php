@@ -36,8 +36,7 @@ try {
                     ]
                 ],
                 'resolve' => function ($value, $args) {
-                    $phoneNumbers = $args['phoneNumbers'];
-                    // PhoneNumberProvider::setPhoneNumbers($phoneNumbers);
+                    // PhoneNumberProvider::setPhoneNumbers($args['phoneNumbers']);
                     return true;
                 },
             ]),
