@@ -218,13 +218,11 @@ If you would like to use custom error codes, add an `errorCodes` property at the
 This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback:
 
 ```php
-
 new ValidatedFieldDefinition([
-	'typeSetter' => static function ($type) {
+    'typeSetter' => static function ($type) {
         Types::set($type);
     },
 ]);
-
 ``` 
  
 ## Examples
