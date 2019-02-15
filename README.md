@@ -5,7 +5,13 @@
 [![Latest Stable Version](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/v/stable)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 [![License](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/license)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 
-GraphQL is great when it comes to validating types and checking syntax, but isn't much help when it comes to providing additional validation on user input. The authors of GraphQL have generally opined that the correct response to bad user input is not to throw an exception, but rather to return any validation feedback along with the result. That's where this small library comes in.
+GraphQL is great when it comes to validating types and checking syntax, but isn't much help when it comes to providing additional validation on user input. The authors of GraphQL have generally opined that the correct response to bad user input is not to throw an exception, but rather to return any validation feedback along with the result.
+
+As Lee Byron explains [here](https://github.com/facebook/graphql/issues/117#issuecomment-170180628):
+
+> ...allow for data for a user-facing report in the payload of your mutation.  It's often the case that mutation payloads include a "didSucceed" field and a "userError" field. If your UI requires rich information about potential errors, then you should include this information in your payload as well.
+
+That's where this small library comes in.
 
 `graphql-php-validation-toolkit` extends the built-in definitions provided by the wonderful [graphql-php](https://github.com/webonyx/graphql-php) library with a new `ValidatedFieldDefinition` class. Simply instantiate one of these in place of the usual field config, add `validate` callback properties to your `args` definitions, and the `type` of your field will be replaced by a new, dynamically-generated `ResultType` with queryable error fields for each of your args. It's a recursive process, so your `args` can have `InputObjectType` types with subfields and `validate` callbacks of their own. Your originally-defined `type` gets moved to the `result` field of the generated type.
 
