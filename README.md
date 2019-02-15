@@ -66,11 +66,12 @@ The type generation process is recursive, traveling down through any nested `Inp
 | `msg`       | `string`                      | A plain, natural language description of the error.                                                                                                   |
 | `suberrors` | `<field-name>_Suberrors`      | If your field has a complex type (eg. `InputObjectType` or `ListOfType`), then a `suberrors` field will be added with its own custom, generated type. |
 
-The top-level `<field-name>ResultType` will have an additional field:
+The top-level `<field-name>ResultType` will have a few additional fields:
 
 | Field       | Type                          | Description                                                                                                                                           |
 |-------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `valid` | `bool` | Resolves to `true` if all `args` and nested `fields` pass validation, `false` if not. |
+| `result` | `mixed` | This is the original `type` you provided when declaring your field. Eg, If you specified `type` to be a `Book`, then the type of `result` will be `Book`. |
 
 You can then simply query for these fields along with `result`:
 ```graphql
