@@ -20,6 +20,7 @@ composer require shmax/graphql-php-validation-toolkit
 - [Basic Usage](#basic-usage)
 - [The Validate Callback](#the-validate-callback)
 - [Custom Error Codes](#custom-error-codes)
+- [Managing Created Types](#managing-created-types)
 - [Examples](#examples)
 
 ### Basic Usage
@@ -206,6 +207,19 @@ If you would like to use custom error codes, add an `errorCodes` property at the
   ]	  
 ])  
 ```
+ 
+### Managing Created Types
+This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback:
+
+```php
+
+new ValidatedFieldDefinition([
+	'typeSetter' => static function ($type) {
+        Types::set($type);
+    },
+]);
+
+``` 
  
 ## Examples
 The best way to understand how all this works is to experiment with it. There are a series of increasingly complex one-page samples in the `/examples` folder. Each is accompanied by its own `README.md`, with instructions for running the code. Run each sample, and be sure to inspect the dynamically-generated types in [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij?hl=en).

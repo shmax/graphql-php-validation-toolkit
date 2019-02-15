@@ -145,7 +145,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $config                 = $fields[$key]->config;
                     $res['suberrors'][$key] = $this->_validate($config, $subValue);
                 }
-                $res['suberrors'] = array_filter($res['suberrors']);
+                $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 break;
 
             default:

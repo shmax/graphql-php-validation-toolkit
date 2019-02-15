@@ -236,4 +236,54 @@ final class InputObjectValidationTest extends TestCase
 
         static::assertTrue($res->data['updateBook']['valid']);
     }
+
+    public function testValidationEmptyInput()
+    {
+        $res = GraphQL::executeQuery(
+            $this->schema,
+            Utils::nowdoc('
+				mutation UpdateBook(
+                        $bookAttributes: BookAttributes
+                    ) {
+                        updateBook (
+                            bookAttributes: $bookAttributes
+                        ) {
+                            valid
+                            suberrors {
+                                bookAttributes {
+                                    suberrors {
+                                        title {
+                                            code
+                                            msg
+                                        }
+                                        author {
+                                            code
+                                            msg
+                                        }
+                                    }
+                                }
+                            }
+                            result
+                        }
+                    }
+			'),
+            [],
+            null,
+            [
+                'bookAttributes' => [],
+            ]
+        );
+
+        static::assertEmpty($res->errors);
+        static::assertEquals(
+            [
+                'valid' => true,
+                'suberrors' => null,
+                'result' => true,
+            ],
+            $res->data['updateBook']
+        );
+
+        static::assertTrue($res->data['updateBook']['valid']);
+    }
 }
