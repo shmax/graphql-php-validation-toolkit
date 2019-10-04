@@ -13,6 +13,15 @@ use function lcfirst;
 use function preg_replace;
 use function ucfirst;
 
+class ValidateItemsError extends Exception {
+    public $path;
+    public $error;
+    function __construct($path, $error) {
+        $this->path = $path;
+        $this->error = $error;
+    }
+}
+
 class ValidatedFieldDefinition extends FieldDefinition
 {
     /** @var callable */
@@ -81,6 +90,31 @@ class ValidatedFieldDefinition extends FieldDefinition
         ]);
     }
 
+	protected function _isAssoc(array $arr)
+	{
+		if (array() === $arr) return false;
+		return array_keys($arr) !== range(0, count($arr) - 1);
+	}
+
+    protected function _validateItems($value, array $path, callable $validate) {
+        foreach ($value as $idx => $subValue) {
+            if(is_array($subValue) && !$this->_isAssoc($subValue)) {
+                $path[count($path)-1] = $idx;
+                $newPath = $path;
+                $newPath[] = 0;
+                $this->_validateItems($subValue, $newPath, $validate);
+            }
+            else {
+                $path[count($path) - 1] = $idx;
+                $err = $validate($subValue);
+
+                if ($err) {
+                    throw new ValidateItemsError($path, $err);
+                }
+            }
+        }
+    }
+
     /**
      * @return mixed[]
      */
@@ -99,30 +133,16 @@ class ValidatedFieldDefinition extends FieldDefinition
                     }
                 }
 
-                foreach ($value as $idx => $subValue) {
-                    if (isset($arg['validateItem'])) {
-                        $err = $arg['validateItem']($subValue);
-                    } else {
-                        $config         = $type->ofType->config;
-                        $config['type'] = $type->ofType;
-                        $err            = $this->_validate($config, $subValue);
+                if(isset($arg['validateItem'])) {
+                    try {
+                        $this->_validateItems($value, [0], $arg['validateItem']);
                     }
-
-                    if (! $err) {
-                        continue;
+                    catch(ValidateItemsError $e) {
+                        $res['suberrors'] = [
+                            'error' => $e->error,
+                            'path' => $e->path
+                        ];
                     }
-
-                    $err['index'] = $idx;
-                    $suberrors    = null;
-                    if (isset($err['suberrors'])) {
-                        $suberrors = $err['suberrors'];
-                        unset($err['suberrors']);
-                    }
-                    $res['suberrors'][] = [
-                        'suberrors' => $suberrors,
-                        'error' => $err,
-                        'index' => $idx,
-                    ];
                 }
                 break;
 

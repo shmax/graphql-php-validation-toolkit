@@ -105,21 +105,21 @@ final class NonNullScalarValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBook(
-                        $bookId:ID!
-                    ) {
-                        updateBook (bookId: $bookId) {
-                            valid
-                            suberrors {
-                                bookId {
-                                    code
-                                    msg
-                                }
-                            }
-                            result {
-                                title
-                            }
-                        }
-                    }
+					$bookId:ID!
+				) {
+					updateBook (bookId: $bookId) {
+						valid
+						suberrors {
+							bookId {
+								code
+								msg
+							}
+						}
+						result {
+							title
+						}
+					}
+				}
 			'),
             [],
             null,
@@ -135,21 +135,21 @@ final class NonNullScalarValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBook(
-                        $bookId:ID!
-                    ) {
-                        updateBook (bookId: $bookId) {
-                            valid
-                            suberrors {
-                                bookId {
-                                    code
-                                    msg
-                                }
-                            }
-                            result {
-                                title
-                            }
-                        }
-                    }
+						$bookId:ID!
+					) {
+						updateBook (bookId: $bookId) {
+							valid
+							suberrors {
+								bookId {
+									code
+									msg
+								}
+							}
+							result {
+								title
+							}
+						}
+					}
 			'),
             [],
             null,

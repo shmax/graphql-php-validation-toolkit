@@ -38,11 +38,11 @@ final class ListOfScalarValidationTest extends TestCase
                             'type' => Type::boolean(),
                             'args' => [
                                 'phoneNumbers' => [
-                                    'type' => Type::listOf(Type::string()),
+                                    'type' => Type::listOf(Type::listOf(Type::string())),
                                     'errorCodes' => ['maxNumExceeded'],
                                     'validate' => static function (array $phoneNumbers) {
                                         if (count($phoneNumbers) > 2) {
-                                            return ['maxNumExceeded', 'You may not submit more than 2 phone numbers'];
+                                            return ['maxNumExceeded', 'You may not submit more than 2 lists of phone numbers'];
                                         }
                                         return 0;
                                     },
@@ -73,28 +73,30 @@ final class ListOfScalarValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation SetPhoneNumbers(
-                        $phoneNumbers: [String]
-                    ) {
-                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-                            valid
-                            suberrors {
-                                phoneNumbers {
-                                    suberrors {
-                                        index
-                                        code
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+						$phoneNumbers: [[String]]
+					) {
+						setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+							valid
+							suberrors {
+								phoneNumbers {
+									suberrors {
+										path
+										code
+									}
+								}
+							}
+							result
+						}
+					}
 			'),
             [],
             null,
             [
                 'phoneNumbers' => [
-                    '123-4567',
-                    'xxx456-7890xxx',
+                	[
+	                    '123-4567',
+	                    'xxx456-7890xxx'
+		            ]
                 ],
             ]
         );
@@ -107,13 +109,10 @@ final class ListOfScalarValidationTest extends TestCase
                         'phoneNumbers' =>
                             [
                                 'suberrors' =>
-                                    [
-                                        0 =>
-                                            [
-                                                'index' => 1,
-                                                'code' => 'invalidPhoneNumber',
-                                            ],
-                                    ],
+	                                [
+	                                    'path' => [0,1],
+	                                    'code' => 'invalidPhoneNumber',
+	                                ]
                             ],
                     ],
                 'result' => null,
@@ -131,50 +130,61 @@ final class ListOfScalarValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation SetPhoneNumbers(
-                        $phoneNumbers: [String]
-                    ) {
-                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-                            valid
-                            suberrors {
-                                phoneNumbers {
-                                    code
-                                    msg
-                                    suberrors {
-                                        index
-                                        code
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+						$phoneNumbers: [[String]]
+					) {
+					setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+						valid
+						suberrors {
+							phoneNumbers {
+								code
+								msg
+								suberrors {
+									path
+									code
+								}
+							}
+						}
+						result
+					}
+				}
 			'),
             [],
             null,
             [
                 'phoneNumbers' => [
-                    '123-4567',
-                    '456-7890',
-                    '321-1234',
+                	[],
+                	[
+	                    '123-4567',
+	                    'xxx-7890',
+	                    '321-1234'
+		            ]
                 ],
             ]
         );
 
         static::assertEmpty($res->errors);
         static::assertEquals(
-            [
-                'valid' => false,
-                'suberrors' =>
-                    [
-                        'phoneNumbers' =>
-                            [
-                                'code' => 'maxNumExceeded',
-                                'msg' => 'You may not submit more than 2 phone numbers',
-                                'suberrors' => null,
-                            ],
-                    ],
-                'result' => null,
-            ],
+	        array (
+		        'valid' => false,
+		        'suberrors' =>
+			        array (
+				        'phoneNumbers' =>
+					        array (
+						        'code' => NULL,
+						        'msg' => NULL,
+						        'suberrors' =>
+							        array (
+								        'path' =>
+									        array (
+										        0 => 1,
+										        1 => 1,
+									        ),
+								        'code' => 'invalidPhoneNumber',
+							        ),
+					        ),
+			        ),
+		        'result' => NULL,
+	        ),
             $res->data['setPhoneNumbers']
         );
 

@@ -120,29 +120,29 @@ final class InputObjectValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBook(
-                        $bookAttributes: BookAttributes
-                    ) {
-                        updateBook (
-                            bookAttributes: $bookAttributes
-                        ) {
-                            valid
-                            suberrors {
-                                bookAttributes {
-                                    suberrors {
-                                        title {
-                                            code
-                                            msg
-                                        }
-                                        author {
-                                            code
-                                            msg
-                                        }
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+						$bookAttributes: BookAttributes
+					) {
+					updateBook (
+						bookAttributes: $bookAttributes
+					) {
+						valid
+						suberrors {
+							bookAttributes {
+								suberrors {
+									title {
+										code
+										msg
+									}
+									author {
+										code
+										msg
+									}
+								}
+							}
+						}
+						result
+					}
+				}
 			'),
             [],
             null,
@@ -190,29 +190,29 @@ final class InputObjectValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBook(
-                        $bookAttributes: BookAttributes
-                    ) {
-                        updateBook (
-                            bookAttributes: $bookAttributes
-                        ) {
-                            valid
-                            suberrors {
-                                bookAttributes {
-                                    suberrors {
-                                        title {
-                                            code
-                                            msg
-                                        }
-                                        author {
-                                            code
-                                            msg
-                                        }
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+					$bookAttributes: BookAttributes
+				) {
+					updateBook (
+						bookAttributes: $bookAttributes
+					) {
+						valid
+						suberrors {
+							bookAttributes {
+								suberrors {
+									title {
+										code
+										msg
+									}
+									author {
+										code
+										msg
+									}
+								}
+							}
+						}
+						result
+					}
+				}
 			'),
             [],
             null,
@@ -243,29 +243,29 @@ final class InputObjectValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBook(
-                        $bookAttributes: BookAttributes
-                    ) {
-                        updateBook (
-                            bookAttributes: $bookAttributes
-                        ) {
-                            valid
-                            suberrors {
-                                bookAttributes {
-                                    suberrors {
-                                        title {
-                                            code
-                                            msg
-                                        }
-                                        author {
-                                            code
-                                            msg
-                                        }
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+						$bookAttributes: BookAttributes
+					) {
+					updateBook (
+						bookAttributes: $bookAttributes
+					) {
+						valid
+						suberrors {
+							bookAttributes {
+								suberrors {
+									title {
+										code
+										msg
+									}
+									author {
+										code
+										msg
+									}
+								}
+							}
+						}
+						result
+					}
+				}
 			'),
             [],
             null,

@@ -26,32 +26,36 @@ class UserErrorsType extends ObjectType
         GraphQL\Utils\Utils::invariant($config['type'] instanceof Type, 'Must provide type.');
 
         if (isset($config['errorCodes'])) {
-            /** code property */
-            $finalFields['code'] = [
-                'type' => $this->_set(new EnumType([
-                    'name' => $this->_nameFromPath(array_merge($path)) . 'ErrorCode',
-                    'description' => 'Error code',
-                    'values' => $config['errorCodes'],
-                ]), $config),
-                'description' => 'An error code',
-                'resolve' => static function ($value) {
-                    return $value['error'][0] ?? null;
-                },
-            ];
+        	if(isset($config['validate'])) {
+		        /** code property */
+		        $finalFields['code'] = [
+			        'type' => $this->_set(new EnumType([
+				        'name' => $this->_nameFromPath(array_merge($path)) . 'ErrorCode',
+				        'description' => 'Error code',
+				        'values' => $config['errorCodes'],
+			        ]), $config),
+			        'description' => 'An error code',
+			        'resolve' => static function ($value) {
+				        return $value['error'][0] ?? null;
+			        },
+		        ];
 
-            /**
-             * msg property
-             */
-            $finalFields['msg'] = [
-                'type' => Type::string(),
-                'description' => 'A natural language description of the issue',
-                'resolve' => static function ($value) {
-                    return $value['error'][1] ?? null;
-                },
-            ];
+		        /**
+		         * msg property
+		         */
+		        $finalFields['msg'] = [
+			        'type' => Type::string(),
+			        'description' => 'A natural language description of the issue',
+			        'resolve' => static function ($value) {
+				        return $value['error'][1] ?? null;
+			        },
+		        ];
+	        } else {
+        		throw new \Exception("If you specify errorCodes, you must also provide a validate callback");
+	        }
         }
 
-        $type = $this->_getType($config['type']);
+        $type = $config['type'];
         if ($type instanceof InputObjectType) {
             $fields = [];
             foreach ($type->getFields() as $key => $field) {
@@ -90,32 +94,24 @@ class UserErrorsType extends ObjectType
                 ];
             }
         } elseif ($type instanceof ListOfType) {
+            $wrappedType = $type->getWrappedType(true);
             if (isset($config['validateItem'])) {
                 $newType = static::create(
                     [
-                        'type' => $type->ofType,
+                        'type' => $wrappedType,
                         'validate' => $config['validateItem'],
                         'errorCodes' => $config['suberrorCodes'] ?? null,
                         'typeSetter' => $config['typeSetter'] ?? null,
                     ],
-                    array_merge($path, [$type->ofType->name]),
-                    true
-                );
-            } else {
-                $newType = static::create(
-                    [
-                        'type'=>$type->ofType,
-                        'typeSetter' => $config['typeSetter'] ?? null,
-                    ],
-                    array_merge($path, [$type->ofType->name]),
+                    array_merge($path, [$wrappedType->name]),
                     true
                 );
             }
 
-            if ($newType) {
+            if (isset($newType)) {
                 $finalFields['suberrors'] = [
                     'description' => 'Suberrors for the list of ' . $type->ofType . ' items',
-                    'type' => Type::listOf($newType),
+                    'type' => $newType,
                     'resolve' => static function ($value) {
                         return $value['suberrors'] ?? null;
                     },
@@ -125,13 +121,13 @@ class UserErrorsType extends ObjectType
 
         if ($isParentList && (isset($finalFields['suberrors']) || isset($finalFields['code']))) {
             /**
-             * index property
+             * path property
              */
-            $finalFields['index'] = [
-                'type' => Type::int(),
-                'description' => 'The index of the array item this error is paired with',
+            $finalFields['path'] = [
+                'type' => Type::listOf(Type::int()),
+                'description' => 'A path describing this items\'s location in the nested array',
                 'resolve' => static function ($value) {
-                    return $value['index'];
+                    return $value['path'];
                 },
             ];
         }
@@ -210,10 +206,10 @@ class UserErrorsType extends ObjectType
         return implode('_', array_map('ucfirst', $path));
     }
 
-    protected function _getType(Type $type)
+    protected function _getType(Type $type, $recurse = false)
     {
-        if ($type instanceof NonNull) {
-            $type = $type->getWrappedType();
+        if ($type instanceof  WrappingType) {
+            $type = $type->getWrappedType($recurse);
         }
         return $type;
     }

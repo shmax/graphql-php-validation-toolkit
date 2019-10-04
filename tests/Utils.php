@@ -24,9 +24,9 @@ class Utils
         // Toss out the first and last lines.
         $lines = array_slice($lines, 1, count($lines) - 2);
 
-        // take the tabs form the first line, and subtract them from all lines
+        // take the tabs from the first line, and subtract them from all lines
         $matches = [];
-        preg_match('/(^\s+)/', $lines[1], $matches);
+        preg_match('/([\t]+)/', $lines[1], $matches);
 
         for ($i = 0; $i < count($lines); $i++) {
             $lines[$i] = str_replace($matches[0], '', $lines[$i]);

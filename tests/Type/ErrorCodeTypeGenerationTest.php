@@ -19,6 +19,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
     {
         $types = [];
         new UserErrorsType([
+        	'validate' => static function($val) {},
             'errorCodes' => [
                 'unknownUser',
                 'userIsMinor',
@@ -34,11 +35,11 @@ final class ErrorCodeTypeGenerationTest extends TestCase
         self::assertEquals(
             SchemaPrinter::printType($types['UpdateUserErrorCode']),
             Utils::nowdoc('
-                """Error code"""
-                enum UpdateUserErrorCode {
-                  unknownUser
-                  userIsMinor
-                }
+				"""Error code"""
+				enum UpdateUserErrorCode {
+				  unknownUser
+				  userIsMinor
+				}
 		')
         );
     }
@@ -63,10 +64,10 @@ final class ErrorCodeTypeGenerationTest extends TestCase
 
         self::assertEmpty($types);
         self::assertEquals(SchemaPrinter::printType($type), Utils::nowdoc('
-            """User errors for UpdateBook"""
-            type UpdateBookError {
-            
-            }
+			"""User errors for UpdateBook"""
+			type UpdateBookError {
+			
+			}
         '));
     }
 
@@ -78,6 +79,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                 'name' => 'bookInput',
                 'fields' => [
                     'authorId' => [
+	                    'validate' => static function($authorId) {},
                         'errorCodes' => ['unknownAuthor'],
                         'type' => Type::id(),
                         'description' => 'An author Id',
@@ -94,10 +96,10 @@ final class ErrorCodeTypeGenerationTest extends TestCase
         self::assertEquals(
             SchemaPrinter::printType($types['UpdateBook_AuthorIdErrorCode']),
             Utils::nowdoc('
-                """Error code"""
-                enum UpdateBook_AuthorIdErrorCode {
-                  unknownAuthor
-                }
+				"""Error code"""
+				enum UpdateBook_AuthorIdErrorCode {
+				  unknownAuthor
+				}
         ')
         );
     }

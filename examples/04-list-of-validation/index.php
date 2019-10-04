@@ -32,7 +32,7 @@ try {
                             $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
                             return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                         },
-                        'type' => Type::listOf(Type::string())
+                        'type' => Type::listOf(Type::listOf(Type::listOf(Type::string())))
                     ]
                 ],
                 'resolve' => function ($value, $args) {
@@ -43,16 +43,20 @@ try {
         ],
     ]);
 
-    $queryType = new ObjectType([
-        'name'=>'Query',
-        'fields'=> [
-            'phoneNumbers' => Type::listOf(Type::string())
-        ]
-    ]);
+	$queryType = new ObjectType([
+		'name'=>'Query',
+		'fields'=>[
+			'foo'=> [
+				'type' => Type::string(),
+				'resolve' => function($value, $args)  {
+				}
+			]
+		]
+	]);
 
     $schema = new Schema([
-        'mutation' => $mutationType,
-        'query' => $queryType
+    	'query' => $queryType,
+        'mutation' => $mutationType
     ]);
 
     $rawInput = file_get_contents('php://input');

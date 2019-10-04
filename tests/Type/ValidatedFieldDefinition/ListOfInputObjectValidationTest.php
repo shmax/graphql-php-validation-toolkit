@@ -100,9 +100,16 @@ final class ListOfInputObjectValidationTest extends TestCase
                             'args' => [
                                 'bookAttributes' => [
                                     'type' => Type::listOf($this->bookAttributesInputType),
+	                                'validate' => static function($var) {
+                        	            $i = 5;
+	                                },
+	                                'validateItem' => static function($book) {
+                        	            $res = isset($book['author']) || isset($book['title']) ? 0: 1;
+                        	            return $res;
+	                                }
                                 ],
                             ],
-                            'resolve' => static function ($value, $args) : bool {
+                            'resolve' => static function ($value) : bool {
                                 // ...
                                 // do update
                                 // ...
@@ -122,32 +129,26 @@ final class ListOfInputObjectValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
 				mutation UpdateBooks(
-                        $listOfBookAttributes: [BookAttributes]
-                    ) {
-                        updateBooks (
-                            bookAttributes: $listOfBookAttributes
-                        ) {
-                            valid
-                            suberrors {
-                                bookAttributes {
-                                    suberrors {
-                                        index
-                                        suberrors {
-                                            title {
-                                                code
-                                                msg
-                                            }
-                                            author {
-                                                code
-                                                msg
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            result
-                        }
-                    }
+						$listOfBookAttributes: [BookAttributes]
+					) {
+					updateBooks (
+						bookAttributes: $listOfBookAttributes
+					) {
+						valid
+						result
+						suberrors {
+							bookAttributes {
+								code
+								msg
+								suberrors {
+									code
+									msg
+									path
+								}
+							}
+						}
+					}
+				}
 			'),
             [],
             null,
@@ -158,48 +159,40 @@ final class ListOfInputObjectValidationTest extends TestCase
                         'author' => 3,
                     ],
                     [
-                        'title' => 'The Call of the Wild',
-                        'author' => 5,
+                        'title' => null,
+                        'author' => null,
                     ],
                 ],
             ]
         );
 
+	    static::assertEmpty($res->errors);
+
         static::assertEquals(
-            [
-                'valid' => false,
-                'suberrors' =>
-                    [
-                        'bookAttributes' =>
-                            [
-                                'suberrors' =>
-                                    [
-                                        0 =>
-                                            [
-                                                'index' => 1,
-                                                'suberrors' =>
-                                                    [
-                                                        'title' =>
-                                                            [
-                                                                'code' => 1,
-                                                                'msg' => 'book title must be less than 10 chaacters',
-                                                            ],
-                                                        'author' =>
-                                                            [
-                                                                'code' => 'unknownAuthor',
-                                                                'msg' => 'We have no record of that author',
-                                                            ],
-                                                    ],
-                                            ],
-                                    ],
-                            ],
-                    ],
-                'result' => null,
-            ],
+	        array (
+		        'valid' => false,
+		        'result' => NULL,
+		        'suberrors' =>
+			        array (
+				        'bookAttributes' =>
+					        array (
+						        'code' => NULL,
+						        'msg' => NULL,
+						        'suberrors' =>
+							        array (
+								        'code' => 1,
+								        'msg' => '',
+								        'path' =>
+									        array (
+										        0 => 1,
+									        ),
+							        ),
+					        ),
+			        ),
+	        ),
             $res->data['updateBooks']
         );
 
-        static::assertEmpty($res->errors);
         static::assertFalse($res->data['updateBooks']['valid']);
     }
 }
