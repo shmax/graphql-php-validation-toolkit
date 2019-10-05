@@ -13,7 +13,7 @@ build:
         - ~/.composer/cache
       project_setup:
         override: true
-       dependencies:
+        dependencies:
           before:
             - composer install --ignore-platform-reqs --no-interaction
       tests:
