@@ -54,7 +54,7 @@ final class ListOfScalarValidationTest extends TestCase
                                 ],
                             ],
                             'resolve' => static function (array $phoneNumbers) : bool {
-                                return !empty($phoneNumbers);
+                                return ! empty($phoneNumbers);
                             },
                         ]),
                     ];

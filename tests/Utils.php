@@ -17,7 +17,7 @@ class Utils
     {
         $lines = preg_split('/\\n/', $str);
 
-        if($lines === false) {
+        if ($lines === false) {
             return '';
         }
 
