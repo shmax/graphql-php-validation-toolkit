@@ -17,6 +17,10 @@ class Utils
     {
         $lines = preg_split('/\\n/', $str);
 
+        if($lines === false) {
+            return '';
+        }
+
         if (count($lines) <= 2) {
             return '';
         }
@@ -28,7 +32,8 @@ class Utils
         $matches = [];
         preg_match('/(^[ \t]+)/', $lines[0], $matches);
 
-        for ($i = 0; $i < count($lines); $i++) {
+        $numLines = count($lines);
+        for ($i = 0; $i < $numLines; $i++) {
             $lines[$i] = str_replace($matches[0], '', $lines[$i]);
         }
 
