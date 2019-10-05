@@ -15,7 +15,7 @@ build:
         override: true
       tests:
         override:
-          - phpcs-run src
+          - phpcs-run 
 
   dependencies:
     override:
