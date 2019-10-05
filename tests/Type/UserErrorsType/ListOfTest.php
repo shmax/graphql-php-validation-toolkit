@@ -179,12 +179,7 @@ final class ListOfTest extends TestCase
 						'type' => Type::string(),
 					],
 				],
-			])),
-			'validateItem' => static function(array $author) {
-				if(!isset($author['firstName']) && !isset($author['lastName'])) {
-					return ['atLeastOneAuthorRequired', "You must submit a first name or a last name"];
-				}
-			}
+			]))
 		], ['authorList']);
 
 		self::assertEquals(Utils::nowdoc('

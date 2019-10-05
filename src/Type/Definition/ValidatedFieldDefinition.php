@@ -13,15 +13,6 @@ use function lcfirst;
 use function preg_replace;
 use function ucfirst;
 
-class ValidateItemsError extends Exception {
-    public $path;
-    public $error;
-    function __construct($path, $error) {
-        $this->path = $path;
-        $this->error = $error;
-    }
-}
-
 class ValidatedFieldDefinition extends FieldDefinition
 {
     /** @var callable */
