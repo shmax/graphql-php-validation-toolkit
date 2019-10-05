@@ -44,7 +44,7 @@
   },
   "scripts": {
     "test": "phpunit",
-    "test-with-coverage": "phpunit --coverage-html src",
+    "test-with-coverage": "phpunit --coverage-html tmp",
     "lint" : "phpcs",
     "fix-style" : "phpcbf",
     "static-analysis": "phpstan analyse --ansi --memory-limit 256M",
