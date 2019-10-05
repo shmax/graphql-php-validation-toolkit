@@ -13,9 +13,9 @@ build:
         - ~/.composer/cache
       project_setup:
         override: true
-        dependencies:
-          before:
-            - composer install --ignore-platform-reqs --no-interaction
+      dependencies:
+        before:
+          - composer install --ignore-platform-reqs --no-interaction
       tests:
         override:
           - phpcs-run
