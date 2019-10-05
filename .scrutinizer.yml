@@ -13,13 +13,12 @@ build:
         - ~/.composer/cache
       project_setup:
         override: true
+       dependencies:
+          override:
+            - composer install --ignore-platform-reqs --no-interaction
       tests:
         override:
-          - phpcs-run 
-
-  dependencies:
-    override:
-    - composer install --ignore-platform-reqs --no-interaction
+          - phpcs-run
 
 tools:
   external_code_coverage:
