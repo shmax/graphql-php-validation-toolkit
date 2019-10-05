@@ -15,7 +15,7 @@ build:
         override: true
       tests:
         override:
-          - phpcs-run --standard=build/sub/folder/phpcs.xml build/sub/folder
+          - phpcs-run
 
   dependencies:
     override:
