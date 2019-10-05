@@ -36,6 +36,7 @@ final class BasicTest extends TestCase
 	    $this->expectExceptionMessage("You must specify a type for your field");
 	    UserErrorsType::create([
 		    'validate' => static function ($value) {
+	    	    return $value ? 0 : 1;
 		    }
 	    ], ['upsertSku']);
     }
