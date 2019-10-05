@@ -101,7 +101,7 @@ final class InputObjectValidationTest extends TestCase
                                     'type' => $this->bookAttributesInputType,
                                     'errorCodes' => ['titleOrIdRequired'],
                                     'validate' => static function (?array $bookAttributes) {
-                                        if ($bookAttributes === null) {
+                                        if (!$bookAttributes) {
                                             return 0;
                                         }
 

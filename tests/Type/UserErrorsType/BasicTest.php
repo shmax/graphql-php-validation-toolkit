@@ -46,6 +46,7 @@ final class BasicTest extends TestCase
     {
         $type = UserErrorsType::create([
             'validate' => static function ($value) {
+                return $value ? 0 : 1;
             },
             'type' => Type::id(),
         ], ['upsertSku']);
