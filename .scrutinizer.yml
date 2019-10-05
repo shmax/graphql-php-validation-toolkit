@@ -18,7 +18,7 @@ build:
           - composer install --ignore-platform-reqs --no-interaction
       tests:
         override:
-          - phpcs-run
+          - phpcs-run src
 
 tools:
   external_code_coverage:
