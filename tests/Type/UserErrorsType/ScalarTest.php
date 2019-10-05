@@ -21,16 +21,16 @@ final class ScalarTest extends TestCase
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
-			schema {
-			  query: UpsertSkuError
-			}
-			
-			"""User errors for UpsertSku"""
-			type UpsertSkuError {
-			
-			}
+            schema {
+              query: UpsertSkuError
+            }
+            
+            """User errors for UpsertSku"""
+            type UpsertSkuError {
+            
+            }
 
-		'), SchemaPrinter::doPrint(new Schema(['query' => $type])));
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
     public function testWithValidation()
@@ -44,24 +44,24 @@ final class ScalarTest extends TestCase
         ], ['palette']);
 
         self::assertEquals(Utils::nowdoc('
-			schema {
-			  query: PaletteError
-			}
-			
-			"""User errors for Palette"""
-			type PaletteError {
-			  """An error code"""
-			  code: PaletteErrorCode
-			
-			  """A natural language description of the issue"""
-			  msg: String
-			}
-			
-			"""Error code"""
-			enum PaletteErrorCode {
-			  invalidColor
-			}
+            schema {
+              query: PaletteError
+            }
+            
+            """User errors for Palette"""
+            type PaletteError {
+              """An error code"""
+              code: PaletteErrorCode
+            
+              """A natural language description of the issue"""
+              msg: String
+            }
+            
+            """Error code"""
+            enum PaletteErrorCode {
+              invalidColor
+            }
 
-		'), SchemaPrinter::doPrint(new Schema(['query' => $type])));
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 }

@@ -157,7 +157,16 @@ class UserErrorsType extends ObjectType
         return $type;
     }
 
-    public static function create(array $config, array $path, $isParentList = false, $name = '') : ?self
+    /**
+     * @param mixed[]  $config
+     * @param string[] $path
+     * @param string   $name
+     *
+     * @return static|null
+     *
+     * @throws Exception
+     */
+    public static function create(array $config, array $path, bool $isParentList = false, $name = '') : ?self
     {
         $config['fields'] = $config['fields'] ?? [];
         if (isset($config['validate']) && is_callable($config['validate'])) {
@@ -201,7 +210,6 @@ class UserErrorsType extends ObjectType
 
     /**
      * @param string[] $path
-     * @return string
      */
     protected function _nameFromPath(array $path) : string
     {

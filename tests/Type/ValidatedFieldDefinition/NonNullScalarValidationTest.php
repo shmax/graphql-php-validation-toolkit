@@ -104,23 +104,23 @@ final class NonNullScalarValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-					$bookId:ID!
-				) {
-					updateBook (bookId: $bookId) {
-						valid
-						suberrors {
-							bookId {
-								code
-								msg
-							}
-						}
-						result {
-							title
-						}
-					}
-				}
-			'),
+                mutation UpdateBook(
+                    $bookId:ID!
+                ) {
+                    updateBook (bookId: $bookId) {
+                        valid
+                        suberrors {
+                            bookId {
+                                code
+                                msg
+                            }
+                        }
+                        result {
+                            title
+                        }
+                    }
+                }
+            '),
             [],
             null,
             ['bookId' => 1]
@@ -134,23 +134,23 @@ final class NonNullScalarValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-						$bookId:ID!
-					) {
-						updateBook (bookId: $bookId) {
-							valid
-							suberrors {
-								bookId {
-									code
-									msg
-								}
-							}
-							result {
-								title
-							}
-						}
-					}
-			'),
+                mutation UpdateBook(
+                        $bookId:ID!
+                    ) {
+                        updateBook (bookId: $bookId) {
+                            valid
+                            suberrors {
+                                bookId {
+                                    code
+                                    msg
+                                }
+                            }
+                            result {
+                                title
+                            }
+                        }
+                    }
+            '),
             [],
             null,
             ['bookId' => 37]

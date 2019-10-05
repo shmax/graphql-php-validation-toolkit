@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use ReflectionClass;
 use ReflectionException;
 use function array_filter;
+use function array_keys;
+use function count;
+use function is_array;
 use function is_callable;
 use function lcfirst;
 use function preg_replace;
+use function range;
 use function ucfirst;
 
 class ValidatedFieldDefinition extends FieldDefinition
@@ -77,23 +80,34 @@ class ValidatedFieldDefinition extends FieldDefinition
         ]);
     }
 
-	protected function _isAssoc(array $arr)
-	{
-		if (array() === $arr) return false;
-		return array_keys($arr) !== range(0, count($arr) - 1);
-	}
+    /**
+     * @param   mixed[] $arr
+     */
+    protected function _isAssoc(array $arr) : bool
+    {
+        if ($arr === []) {
+            return false;
+        }
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
 
-    protected function _validateItems($value, array $path, callable $validate) {
+    /**
+     * @param   mixed[]  $value
+     * @param   string[] $path
+     *
+     * @throws  ValidateItemsError
+     */
+    protected function _validateItems(array $value, array $path, callable $validate)
+    {
         foreach ($value as $idx => $subValue) {
-            if(is_array($subValue) && !$this->_isAssoc($subValue)) {
+            if (is_array($subValue) && ! $this->_isAssoc($subValue)) {
                 $path[count($path)-1] = $idx;
-                $newPath = $path;
-                $newPath[] = 0;
+                $newPath              = $path;
+                $newPath[]            = 0;
                 $this->_validateItems($subValue, $newPath, $validate);
-            }
-            else {
+            } else {
                 $path[count($path) - 1] = $idx;
-                $err = $validate($subValue);
+                $err                    = $validate($subValue);
 
                 if ($err) {
                     throw new ValidateItemsError($path, $err);
@@ -120,14 +134,13 @@ class ValidatedFieldDefinition extends FieldDefinition
                     }
                 }
 
-                if(isset($arg['validateItem'])) {
+                if (isset($arg['validateItem'])) {
                     try {
                         $this->_validateItems($value, [0], $arg['validateItem']);
-                    }
-                    catch(ValidateItemsError $e) {
+                    } catch (ValidateItemsError $e) {
                         $res['suberrors'] = [
                             'error' => $e->error,
-                            'path' => $e->path
+                            'path' => $e->path,
                         ];
                     }
                 }
@@ -148,12 +161,12 @@ class ValidatedFieldDefinition extends FieldDefinition
                 }
 
                 $fields = $type->getFields();
-                if(is_array($value)) {
-	                foreach ($value as $key => $subValue) {
-		                $config = $fields[$key]->config;
-		                $res['suberrors'][$key] = $this->_validate($config, $subValue);
-	                }
-	                $res['suberrors'] = array_filter($res['suberrors'] ?? []);
+                if (is_array($value)) {
+                    foreach ($value as $key => $subValue) {
+                        $config                 = $fields[$key]->config;
+                        $res['suberrors'][$key] = $this->_validate($config, $subValue);
+                    }
+                    $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 }
                 break;
 

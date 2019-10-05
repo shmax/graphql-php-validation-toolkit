@@ -99,18 +99,17 @@ final class InputObjectValidationTest extends TestCase
                             'args' => [
                                 'bookAttributes' => [
                                     'type' => $this->bookAttributesInputType,
-	                                'errorCodes' => [
-										'titleOrIdRequired'
-	                                ],
-	                                'validate' => static function(?array $bookAttributes) {
-                        	            if(is_null($bookAttributes)) {
-                        	                return 0;
-	                                    }
-                        	            
-                        	            return (isset($bookAttributes['title']) || isset($bookAttributes['author'])) ? 0 : [
-                        	            	'titleOrIdRequired', 'You must supply at least one of title or author'
-	                                    ];
-	                                }
+                                    'errorCodes' => ['titleOrIdRequired'],
+                                    'validate' => static function (?array $bookAttributes) {
+                                        if ($bookAttributes === null) {
+                                            return 0;
+                                        }
+
+                                        return isset($bookAttributes['title']) || isset($bookAttributes['author']) ? 0 : [
+                                            'titleOrIdRequired',
+                                            'You must supply at least one of title or author',
+                                        ];
+                                    },
                                 ],
                             ],
                             'resolve' => static function ($value, $args) : bool {
@@ -118,7 +117,7 @@ final class InputObjectValidationTest extends TestCase
                                 // do update
                                 // ...
 
-                                return true;
+                                return ! $value;
                             },
                         ]),
                     ];
@@ -132,31 +131,31 @@ final class InputObjectValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-						$bookAttributes: BookAttributes
-					) {
-					updateBook (
-						bookAttributes: $bookAttributes
-					) {
-						valid
-						suberrors {
-							bookAttributes {
-								suberrors {
-									title {
-										code
-										msg
-									}
-									author {
-										code
-										msg
-									}
-								}
-							}
-						}
-						result
-					}
-				}
-			'),
+                mutation UpdateBook(
+                        $bookAttributes: BookAttributes
+                    ) {
+                    updateBook (
+                        bookAttributes: $bookAttributes
+                    ) {
+                        valid
+                        suberrors {
+                            bookAttributes {
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                    author {
+                                        code
+                                        msg
+                                    }
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
             [],
             null,
             [
@@ -197,98 +196,98 @@ final class InputObjectValidationTest extends TestCase
         static::assertFalse($res->data['updateBook']['valid']);
     }
 
-	public function testValidationInputObjectSelfFail()
-	{
-		$res = GraphQL::executeQuery(
-			$this->schema,
-			Utils::nowdoc('
-				mutation UpdateBook(
-						$bookAttributes: BookAttributes
-					) {
-					updateBook (
-						bookAttributes: $bookAttributes
-					) {
-						valid
-						suberrors {
-							bookAttributes {
-								code
-								msg
-								suberrors {
-									title {
-										code
-										msg
-									}
-									author {
-										code
-										msg
-									}
-								}
-							}
-						}
-						result
-					}
-				}
-			'),
-			[],
-			null,
-			[
-				'bookAttributes' => [
-					'title' => null,
-					'author' => null,
-				],
-			]
-		);
+    public function testValidationInputObjectSelfFail()
+    {
+        $res = GraphQL::executeQuery(
+            $this->schema,
+            Utils::nowdoc('
+                mutation UpdateBook(
+                        $bookAttributes: BookAttributes
+                    ) {
+                    updateBook (
+                        bookAttributes: $bookAttributes
+                    ) {
+                        valid
+                        suberrors {
+                            bookAttributes {
+                                code
+                                msg
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                    author {
+                                        code
+                                        msg
+                                    }
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
+            [],
+            null,
+            [
+                'bookAttributes' => [
+                    'title' => null,
+                    'author' => null,
+                ],
+            ]
+        );
 
-		static::assertEquals(
-			array (
-				'valid' => false,
-				'suberrors' =>
-					array (
-						'bookAttributes' =>
-							array (
-								'code' => 'titleOrIdRequired',
-								'msg' => 'You must supply at least one of title or author',
-								'suberrors' => NULL,
-							),
-					),
-				'result' => NULL,
-			),
-			$res->data['updateBook']
-		);
+        static::assertEquals(
+            [
+                'valid' => false,
+                'suberrors' =>
+                    [
+                        'bookAttributes' =>
+                            [
+                                'code' => 'titleOrIdRequired',
+                                'msg' => 'You must supply at least one of title or author',
+                                'suberrors' => null,
+                            ],
+                    ],
+                'result' => null,
+            ],
+            $res->data['updateBook']
+        );
 
-		static::assertFalse($res->data['updateBook']['valid']);
-	}
+        static::assertFalse($res->data['updateBook']['valid']);
+    }
 
     public function testValidationSuccess()
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-					$bookAttributes: BookAttributes
-				) {
-					updateBook (
-						bookAttributes: $bookAttributes
-					) {
-						valid
-						suberrors {
-							bookAttributes {
-								suberrors {
-									title {
-										code
-										msg
-									}
-									author {
-										code
-										msg
-									}
-								}
-							}
-						}
-						result
-					}
-				}
-			'),
+                mutation UpdateBook(
+                    $bookAttributes: BookAttributes
+                ) {
+                    updateBook (
+                        bookAttributes: $bookAttributes
+                    ) {
+                        valid
+                        suberrors {
+                            bookAttributes {
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                    author {
+                                        code
+                                        msg
+                                    }
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
             [],
             null,
             [
@@ -317,45 +316,43 @@ final class InputObjectValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-						$bookAttributes: BookAttributes
-					) {
-					updateBook (
-						bookAttributes: $bookAttributes
-					) {
-						valid
-						suberrors {
-							bookAttributes {
-								suberrors {
-									title {
-										code
-										msg
-									}
-									author {
-										code
-										msg
-									}
-								}
-							}
-						}
-						result
-					}
-				}
-			'),
+                mutation UpdateBook(
+                        $bookAttributes: BookAttributes
+                    ) {
+                    updateBook (
+                        bookAttributes: $bookAttributes
+                    ) {
+                        valid
+                        suberrors {
+                            bookAttributes {
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                    author {
+                                        code
+                                        msg
+                                    }
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
             [],
             null,
-            [
-                'bookAttributes' => null,
-            ]
+            ['bookAttributes' => null]
         );
 
         static::assertEmpty($res->errors);
         static::assertEquals(
-	        array (
-		        'valid' => true,
-		        'suberrors' => NULL,
-		        'result' => true,
-	        ),
+            [
+                'valid' => true,
+                'suberrors' => null,
+                'result' => true,
+            ],
             $res->data['updateBook']
         );
 

@@ -20,25 +20,26 @@ final class BasicTest extends TestCase
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
-			schema {
-			  query: UpsertSkuError
-			}
-			
-			"""User errors for UpsertSku"""
-			type UpsertSkuError {
-			
-			}
+            schema {
+              query: UpsertSkuError
+            }
+            
+            """User errors for UpsertSku"""
+            type UpsertSkuError {
+            
+            }
 
-		'), SchemaPrinter::doPrint(new Schema(['query' => $type])));
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testNoType() {
-	    $this->expectExceptionMessage("You must specify a type for your field");
-	    UserErrorsType::create([
-		    'validate' => static function ($value) {
-	    	    return $value ? 0 : 1;
-		    }
-	    ], ['upsertSku']);
+    public function testNoType()
+    {
+        $this->expectExceptionMessage('You must specify a type for your field');
+        UserErrorsType::create([
+            'validate' => static function ($value) {
+                return $value ? 0 : 1;
+            },
+        ], ['upsertSku']);
     }
 
     public function testValidationWithNoErrorCodes()
@@ -50,19 +51,19 @@ final class BasicTest extends TestCase
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
-			schema {
-			  query: UpsertSkuError
-			}
-			
-			"""User errors for UpsertSku"""
-			type UpsertSkuError {
-			  """A numeric error code. 0 on success, non-zero on failure."""
-			  code: Int
-			
-			  """An error message."""
-			  msg: String
-			}
+            schema {
+              query: UpsertSkuError
+            }
+            
+            """User errors for UpsertSku"""
+            type UpsertSkuError {
+              """A numeric error code. 0 on success, non-zero on failure."""
+              code: Int
+            
+              """An error message."""
+              msg: String
+            }
 
-		'), SchemaPrinter::doPrint(new Schema(['query' => $type])));
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 }

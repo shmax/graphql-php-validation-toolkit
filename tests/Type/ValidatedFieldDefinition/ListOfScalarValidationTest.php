@@ -72,31 +72,31 @@ final class ListOfScalarValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation SetPhoneNumbers(
-						$phoneNumbers: [[String]]
-					) {
-						setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-							valid
-							suberrors {
-								phoneNumbers {
-									suberrors {
-										path
-										code
-									}
-								}
-							}
-							result
-						}
-					}
-			'),
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
+                    ) {
+                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+                            valid
+                            suberrors {
+                                phoneNumbers {
+                                    suberrors {
+                                        path
+                                        code
+                                    }
+                                }
+                            }
+                            result
+                        }
+                    }
+            '),
             [],
             null,
             [
                 'phoneNumbers' => [
-                	[
-	                    '123-4567',
-	                    'xxx456-7890xxx'
-		            ]
+                    [
+                        '123-4567',
+                        'xxx456-7890xxx',
+                    ],
                 ],
             ]
         );
@@ -109,10 +109,10 @@ final class ListOfScalarValidationTest extends TestCase
                         'phoneNumbers' =>
                             [
                                 'suberrors' =>
-	                                [
-	                                    'path' => [0,1],
-	                                    'code' => 'invalidPhoneNumber',
-	                                ]
+                                    [
+                                        'path' => [0,1],
+                                        'code' => 'invalidPhoneNumber',
+                                    ],
                             ],
                     ],
                 'result' => null,
@@ -124,120 +124,119 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertFalse($res->data['setPhoneNumbers']['valid']);
     }
 
-	public function testItemsValidationOnSelfFail()
-	{
-		$res = GraphQL::executeQuery(
-			$this->schema,
-			Utils::nowdoc('
-				mutation SetPhoneNumbers(
-						$phoneNumbers: [[String]]
-					) {
-						setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-							valid
-							suberrors {
-								phoneNumbers {
-									code
-									msg
-									suberrors {
-										path
-										code
-									}
-								}
-							}
-							result
-						}
-					}
-			'),
-			[],
-			null,
-			[
-				'phoneNumbers' => [
-				],
-			]
-		);
+    public function testItemsValidationOnSelfFail()
+    {
+        $res = GraphQL::executeQuery(
+            $this->schema,
+            Utils::nowdoc('
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
+                    ) {
+                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+                            valid
+                            suberrors {
+                                phoneNumbers {
+                                    code
+                                    msg
+                                    suberrors {
+                                        path
+                                        code
+                                    }
+                                }
+                            }
+                            result
+                        }
+                    }
+            '),
+            [],
+            null,
+            [
+                'phoneNumbers' => [],
+            ]
+        );
 
-		static::assertEquals(
-			array (
-				'valid' => false,
-				'suberrors' =>
-					array (
-						'phoneNumbers' =>
-							array (
-								'code' => 'atLeastOneList',
-								'msg' => 'You must submit at least one list of numbers',
-								'suberrors' => NULL,
-							),
-					),
-				'result' => NULL,
-			),
-			$res->data['setPhoneNumbers']
-		);
+        static::assertEquals(
+            [
+                'valid' => false,
+                'suberrors' =>
+                    [
+                        'phoneNumbers' =>
+                            [
+                                'code' => 'atLeastOneList',
+                                'msg' => 'You must submit at least one list of numbers',
+                                'suberrors' => null,
+                            ],
+                    ],
+                'result' => null,
+            ],
+            $res->data['setPhoneNumbers']
+        );
 
-		static::assertEmpty($res->errors);
-		static::assertFalse($res->data['setPhoneNumbers']['valid']);
-	}
+        static::assertEmpty($res->errors);
+        static::assertFalse($res->data['setPhoneNumbers']['valid']);
+    }
 
     public function testListOfValidationFail()
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation SetPhoneNumbers(
-						$phoneNumbers: [[String]]
-					) {
-					setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-						valid
-						suberrors {
-							phoneNumbers {
-								code
-								msg
-								suberrors {
-									path
-									code
-								}
-							}
-						}
-						result
-					}
-				}
-			'),
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
+                    ) {
+                    setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+                        valid
+                        suberrors {
+                            phoneNumbers {
+                                code
+                                msg
+                                suberrors {
+                                    path
+                                    code
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
             [],
             null,
             [
                 'phoneNumbers' => [
-                	[],
-                	[
-	                    '123-4567',
-	                    'xxx-7890',
-	                    '321-1234'
-		            ]
+                    [],
+                    [
+                        '123-4567',
+                        'xxx-7890',
+                        '321-1234',
+                    ],
                 ],
             ]
         );
 
         static::assertEmpty($res->errors);
         static::assertEquals(
-	        array (
-		        'valid' => false,
-		        'suberrors' =>
-			        array (
-				        'phoneNumbers' =>
-					        array (
-						        'code' => NULL,
-						        'msg' => NULL,
-						        'suberrors' =>
-							        array (
-								        'path' =>
-									        array (
-										        0 => 1,
-										        1 => 1,
-									        ),
-								        'code' => 'invalidPhoneNumber',
-							        ),
-					        ),
-			        ),
-		        'result' => NULL,
-	        ),
+            [
+                'valid' => false,
+                'suberrors' =>
+                    [
+                        'phoneNumbers' =>
+                            [
+                                'code' => null,
+                                'msg' => null,
+                                'suberrors' =>
+                                    [
+                                        'path' =>
+                                            [
+                                                0 => 1,
+                                                1 => 1,
+                                            ],
+                                        'code' => 'invalidPhoneNumber',
+                                    ],
+                            ],
+                    ],
+                'result' => null,
+            ],
             $res->data['setPhoneNumbers']
         );
 

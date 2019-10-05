@@ -100,17 +100,16 @@ final class ListOfInputObjectValidationTest extends TestCase
                             'args' => [
                                 'bookAttributes' => [
                                     'type' => Type::listOf($this->bookAttributesInputType),
-	                                'validate' => static function($var) {
-                        	            return $var ? 0: 1;
-	                                },
-	                                'validateItem' => static function($book) {
-                        	            $res = isset($book['author']) || isset($book['title']) ? 0: 1;
-                        	            return $res;
-	                                }
+                                    'validate' => static function ($var) {
+                                        return $var ? 0: 1;
+                                    },
+                                    'validateItem' => static function ($book) {
+                                        return isset($book['author']) || isset($book['title']) ? 0: 1;
+                                    },
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
-                                return !!$value;
+                                return ! ! $value;
                             },
                         ]),
                     ];
@@ -124,28 +123,28 @@ final class ListOfInputObjectValidationTest extends TestCase
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBooks(
-						$listOfBookAttributes: [BookAttributes]
-					) {
-					updateBooks (
-						bookAttributes: $listOfBookAttributes
-					) {
-						valid
-						result
-						suberrors {
-							bookAttributes {
-								code
-								msg
-								suberrors {
-									code
-									msg
-									path
-								}
-							}
-						}
-					}
-				}
-			'),
+                mutation UpdateBooks(
+                        $listOfBookAttributes: [BookAttributes]
+                    ) {
+                    updateBooks (
+                        bookAttributes: $listOfBookAttributes
+                    ) {
+                        valid
+                        result
+                        suberrors {
+                            bookAttributes {
+                                code
+                                msg
+                                suberrors {
+                                    code
+                                    msg
+                                    path
+                                }
+                            }
+                        }
+                    }
+                }
+            '),
             [],
             null,
             [
@@ -162,30 +161,28 @@ final class ListOfInputObjectValidationTest extends TestCase
             ]
         );
 
-	    static::assertEmpty($res->errors);
+        static::assertEmpty($res->errors);
 
         static::assertEquals(
-	        array (
-		        'valid' => false,
-		        'result' => NULL,
-		        'suberrors' =>
-			        array (
-				        'bookAttributes' =>
-					        array (
-						        'code' => NULL,
-						        'msg' => NULL,
-						        'suberrors' =>
-							        array (
-								        'code' => 1,
-								        'msg' => '',
-								        'path' =>
-									        array (
-										        0 => 1,
-									        ),
-							        ),
-					        ),
-			        ),
-	        ),
+            [
+                'valid' => false,
+                'result' => null,
+                'suberrors' =>
+                    [
+                        'bookAttributes' =>
+                            [
+                                'code' => null,
+                                'msg' => null,
+                                'suberrors' =>
+                                    [
+                                        'code' => 1,
+                                        'msg' => '',
+                                        'path' =>
+                                            [1],
+                                    ],
+                            ],
+                    ],
+            ],
             $res->data['updateBooks']
         );
 

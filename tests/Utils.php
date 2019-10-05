@@ -26,7 +26,7 @@ class Utils
 
         // take the tabs from the first line, and subtract them from all lines
         $matches = [];
-        preg_match('/([\t]+)/', $lines[1], $matches);
+        preg_match('/(^[ \t]+)/', $lines[0], $matches);
 
         for ($i = 0; $i < count($lines); $i++) {
             $lines[$i] = str_replace($matches[0], '', $lines[$i]);
