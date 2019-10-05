@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL;
 use function array_map;
 use function array_merge;
@@ -23,40 +24,40 @@ class UserErrorsType extends ObjectType
     {
         $finalFields = $config['fields'] ?? [];
 
-	    if (!isset($config['type'])) {
-		    throw new \Exception('You must specify a type for your field');
-	    }
+        if (! isset($config['type'])) {
+            throw new Exception('You must specify a type for your field');
+        }
 
         GraphQL\Utils\Utils::invariant($config['type'] instanceof Type, 'Must provide type.');
 
         if (isset($config['errorCodes'])) {
-        	if(isset($config['validate'])) {
-		        /** code property */
-		        $finalFields['code'] = [
-			        'type' => $this->_set(new EnumType([
-				        'name' => $this->_nameFromPath(array_merge($path)) . 'ErrorCode',
-				        'description' => 'Error code',
-				        'values' => $config['errorCodes'],
-			        ]), $config),
-			        'description' => 'An error code',
-			        'resolve' => static function ($value) {
-				        return $value['error'][0] ?? null;
-			        },
-		        ];
+            if (! isset($config['validate'])) {
+                throw new Exception('If you specify errorCodes, you must also provide a validate callback');
+            }
 
-		        /**
-		         * msg property
-		         */
-		        $finalFields['msg'] = [
-			        'type' => Type::string(),
-			        'description' => 'A natural language description of the issue',
-			        'resolve' => static function ($value) {
-				        return $value['error'][1] ?? null;
-			        },
-		        ];
-	        } else {
-        		throw new \Exception("If you specify errorCodes, you must also provide a validate callback");
-	        }
+            /** code property */
+            $finalFields['code'] = [
+                'type' => $this->_set(new EnumType([
+                    'name' => $this->_nameFromPath(array_merge($path)) . 'ErrorCode',
+                    'description' => 'Error code',
+                    'values' => $config['errorCodes'],
+                ]), $config),
+                'description' => 'An error code',
+                'resolve' => static function ($value) {
+                    return $value['error'][0] ?? null;
+                },
+            ];
+
+            /**
+             * msg property
+             */
+            $finalFields['msg'] = [
+                'type' => Type::string(),
+                'description' => 'A natural language description of the issue',
+                'resolve' => static function ($value) {
+                    return $value['error'][1] ?? null;
+                },
+            ];
         }
 
         $type = $config['type'];
@@ -156,10 +157,6 @@ class UserErrorsType extends ObjectType
         return $type;
     }
 
-    /**
-     * @param mixed[]  $config
-     * @param string[] $path
-     */
     public static function create(array $config, array $path, $isParentList = false, $name = '') : ?self
     {
         $config['fields'] = $config['fields'] ?? [];
@@ -204,6 +201,7 @@ class UserErrorsType extends ObjectType
 
     /**
      * @param string[] $path
+     * @return string
      */
     protected function _nameFromPath(array $path) : string
     {
