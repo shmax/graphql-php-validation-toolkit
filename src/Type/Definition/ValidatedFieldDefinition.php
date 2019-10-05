@@ -28,10 +28,6 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         $this->typeSetter = $config['typeSetter'] ?? null;
 
-        if (! isset($config['type'])) {
-            throw new Exception('You must specify a type for your field');
-        }
-
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'fields' => [
@@ -152,11 +148,13 @@ class ValidatedFieldDefinition extends FieldDefinition
                 }
 
                 $fields = $type->getFields();
-                foreach ($value as $key => $subValue) {
-                    $config                 = $fields[$key]->config;
-                    $res['suberrors'][$key] = $this->_validate($config, $subValue);
+                if(is_array($value)) {
+	                foreach ($value as $key => $subValue) {
+		                $config = $fields[$key]->config;
+		                $res['suberrors'][$key] = $this->_validate($config, $subValue);
+	                }
+	                $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 }
-                $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 break;
 
             default:
@@ -178,10 +176,6 @@ class ValidatedFieldDefinition extends FieldDefinition
      */
     protected function tryInferName()
     {
-        if ($this->name) {
-            return $this->name;
-        }
-
         // If class is extended - infer name from className
         // QueryType -> Type
         // SomeOtherType -> SomeOther

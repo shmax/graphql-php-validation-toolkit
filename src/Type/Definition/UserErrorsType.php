@@ -23,6 +23,10 @@ class UserErrorsType extends ObjectType
     {
         $finalFields = $config['fields'] ?? [];
 
+	    if (!isset($config['type'])) {
+		    throw new \Exception('You must specify a type for your field');
+	    }
+
         GraphQL\Utils\Utils::invariant($config['type'] instanceof Type, 'Must provide type.');
 
         if (isset($config['errorCodes'])) {
@@ -204,13 +208,5 @@ class UserErrorsType extends ObjectType
     protected function _nameFromPath(array $path) : string
     {
         return implode('_', array_map('ucfirst', $path));
-    }
-
-    protected function _getType(Type $type, $recurse = false)
-    {
-        if ($type instanceof  WrappingType) {
-            $type = $type->getWrappedType($recurse);
-        }
-        return $type;
     }
 }

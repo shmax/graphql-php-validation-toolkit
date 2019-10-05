@@ -32,6 +32,14 @@ final class BasicTest extends TestCase
 		'), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
+    public function testNoType() {
+	    $this->expectExceptionMessage("You must specify a type for your field");
+	    UserErrorsType::create([
+		    'validate' => static function ($value) {
+		    }
+	    ], ['upsertSku']);
+    }
+
     public function testValidationWithNoErrorCodes()
     {
         $type = UserErrorsType::create([
