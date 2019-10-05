@@ -38,7 +38,7 @@ final class ScalarTest extends TestCase
         $type = new UserErrorsType([
             'errorCodes' => ['invalidColor'],
             'validate' => static function ($value) {
-                return 0;
+                return $value ? 0 : 1;
             },
             'type' => new IDType(['name' => 'Color']),
         ], ['palette']);

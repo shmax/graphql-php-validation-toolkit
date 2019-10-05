@@ -47,7 +47,7 @@ final class InputObjectTest extends TestCase
     {
 	    $this->expectExceptionMessage("If you specify errorCodes, you must also provide a validate callback");
 
-	    $type  = new UserErrorsType([
+	    new UserErrorsType([
             'type' => new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
@@ -70,7 +70,7 @@ final class InputObjectTest extends TestCase
 					'authorId' => [
 						'errorCodes' => ['unknownAuthor'],
 						'validate' => static function(int $authorId) {
-
+							return $authorId ? 0 : 1;
 						},
 						'type' => Type::id(),
 						'description' => 'An author Id',

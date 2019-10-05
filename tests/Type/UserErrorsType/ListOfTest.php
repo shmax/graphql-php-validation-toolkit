@@ -173,7 +173,9 @@ final class ListOfTest extends TestCase
 				'fields' => [
 					'firstName' => [
 						'type' => Type::string(),
-						'validate' => function(string $name) {}
+						'validate' => function(string $name) {
+							return $name ? 0 : 1;
+						}
 					],
 					'lastName' => [
 						'type' => Type::string(),

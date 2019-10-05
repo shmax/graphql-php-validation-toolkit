@@ -18,12 +18,12 @@ final class BasicTest extends TestCase
 					'type' => Type::id(),
 					'errorCodes' => ['bookNotFound'],
 					'validate' => function ($bookId) {
-						return 0;
+						return $bookId ? 0 : 1;
 					},
 				],
 			],
-			'resolve' => static function ($value, $args) : bool {
-				return true;
+			'resolve' => static function ($value) : bool {
+				return !!$value;
 			},
 		]);
 
@@ -40,12 +40,12 @@ final class BasicTest extends TestCase
 					'type' => Type::id(),
 					'errorCodes' => ['bookNotFound'],
 					'validate' => function ($bookId) {
-						return 0;
+						return $bookId ? 0 : 1;
 					},
 				],
 			],
-			'resolve' => static function ($value, $args) : bool {
-				return true;
+			'resolve' => static function ($value) : bool {
+				return !!$value;
 			},
 		]);
 

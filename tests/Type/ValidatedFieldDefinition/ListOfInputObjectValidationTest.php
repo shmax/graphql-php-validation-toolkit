@@ -101,7 +101,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                                 'bookAttributes' => [
                                     'type' => Type::listOf($this->bookAttributesInputType),
 	                                'validate' => static function($var) {
-                        	            $i = 5;
+                        	            return $var ? 0: 1;
 	                                },
 	                                'validateItem' => static function($book) {
                         	            $res = isset($book['author']) || isset($book['title']) ? 0: 1;
@@ -110,11 +110,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
-                                // ...
-                                // do update
-                                // ...
-
-                                return true;
+                                return !!$value;
                             },
                         ]),
                     ];

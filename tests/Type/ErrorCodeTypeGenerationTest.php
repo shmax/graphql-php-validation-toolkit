@@ -19,7 +19,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
     {
         $types = [];
         new UserErrorsType([
-        	'validate' => static function($val) {},
+        	'validate' => static function($val) { return $val ? 0 : 1; },
             'errorCodes' => [
                 'unknownUser',
                 'userIsMinor',
@@ -79,7 +79,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                 'name' => 'bookInput',
                 'fields' => [
                     'authorId' => [
-	                    'validate' => static function($authorId) {},
+	                    'validate' => static function($authorId) { return $authorId ? 0 : 1; },
                         'errorCodes' => ['unknownAuthor'],
                         'type' => Type::id(),
                         'description' => 'An author Id',
