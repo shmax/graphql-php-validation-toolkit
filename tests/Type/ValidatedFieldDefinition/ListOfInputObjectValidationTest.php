@@ -109,7 +109,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
-                                return ! ! $value;
+                                return !!$value;
                             },
                         ]),
                     ];

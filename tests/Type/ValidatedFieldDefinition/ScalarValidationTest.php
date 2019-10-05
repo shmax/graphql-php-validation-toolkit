@@ -93,7 +93,7 @@ final class ScalarValidationTest extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
-                                return ! ! $value;
+                                return !!$value;
                             },
                         ]),
                     ];

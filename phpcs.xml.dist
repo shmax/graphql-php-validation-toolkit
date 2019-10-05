@@ -20,6 +20,9 @@
         <!-- Enable when Slevomat starts supporting variadics, see https://github.com/slevomat/coding-standard/issues/251 -->
         <exclude name="SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse" />
     </rule>
+    <rule ref="Generic.Formatting.SpaceAfterNot">
+            <exclude name="Generic.Formatting.SpaceAfterNot.Incorrect"/>
+    </rule>
 
     <!--@api annotation is required for now -->
     <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration">

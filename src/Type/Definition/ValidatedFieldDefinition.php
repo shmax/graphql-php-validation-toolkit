@@ -63,7 +63,7 @@ class ValidatedFieldDefinition extends FieldDefinition
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
                 // validate inputs
-                $config['type'] = new InputObjectType([
+                $config['type']  = new InputObjectType([
                     'name'=>'',
                     'fields' => $args,
                 ]);

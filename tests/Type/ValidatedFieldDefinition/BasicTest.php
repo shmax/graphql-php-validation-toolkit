@@ -23,7 +23,7 @@ final class BasicTest extends TestCase
                 ],
             ],
             'resolve' => static function ($value) : bool {
-                return ! ! $value;
+                return !!$value;
             },
         ]);
 
@@ -45,7 +45,7 @@ final class BasicTest extends TestCase
                 ],
             ],
             'resolve' => static function ($value) : bool {
-                return ! ! $value;
+                return !!$value;
             },
         ]);
 
