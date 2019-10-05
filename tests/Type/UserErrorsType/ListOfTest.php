@@ -40,7 +40,7 @@ final class ListOfTest extends TestCase
             'type' => Type::listOf(Type::id()),
             'errorCodes'=> ['atLeastOneRequired'],
             'validate' => static function ($value) {
-                return 0;
+                return $value ? 0 : 1;
             },
         ], ['users']);
 
@@ -72,10 +72,10 @@ final class ListOfTest extends TestCase
             'type' => Type::listOf(Type::listOf(Type::listOf(Type::id()))),
             'errorCodes'=> ['atLeastOneRequired'],
             'validate' => static function ($value) {
-                return 0;
+                return $value ? 0 : 1;
             },
             'validateItem' => static function ($value) {
-                return 0;
+                return $value ? 0 : 1;
             },
         ], ['users']);
 
