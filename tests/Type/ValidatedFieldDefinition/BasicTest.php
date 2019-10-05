@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
-
-class NamelessDef extends ValidatedFieldDefinition {
-}
 
 final class BasicTest extends TestCase
 {

@@ -46,9 +46,6 @@ final class ScalarValidationTest extends TestCase
             'fields' => [
                 'firstName' => [
                     'type' => Type::string(),
-                    'phoneNumbers' => [
-                        'type' => Type::listOf(Type::string()),
-                    ],
                 ],
             ],
         ]);

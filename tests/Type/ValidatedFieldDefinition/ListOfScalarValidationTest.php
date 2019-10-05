@@ -39,10 +39,10 @@ final class ListOfScalarValidationTest extends TestCase
                             'args' => [
                                 'phoneNumbers' => [
                                     'type' => Type::listOf(Type::listOf(Type::string())),
-                                    'errorCodes' => ['maxNumExceeded'],
-                                    'validate' => static function (array $phoneNumbers) {
-                                        if (count($phoneNumbers) > 2) {
-                                            return ['maxNumExceeded', 'You may not submit more than 2 lists of phone numbers'];
+                                    'errorCodes' => ['atLeastOneList'],
+                                    'validate' => static function (array $phoneNumberLists) {
+                                        if (count($phoneNumberLists) < 1) {
+                                            return ['atLeastOneList', 'You must submit at least one list of numbers'];
                                         }
                                         return 0;
                                     },
@@ -67,7 +67,7 @@ final class ListOfScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testItemsValidationFail()
+    public function testItemsValidationOnWrappedTypeFail()
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -123,6 +123,59 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEmpty($res->errors);
         static::assertFalse($res->data['setPhoneNumbers']['valid']);
     }
+
+	public function testItemsValidationOnSelfFail()
+	{
+		$res = GraphQL::executeQuery(
+			$this->schema,
+			Utils::nowdoc('
+				mutation SetPhoneNumbers(
+						$phoneNumbers: [[String]]
+					) {
+						setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+							valid
+							suberrors {
+								phoneNumbers {
+									code
+									msg
+									suberrors {
+										path
+										code
+									}
+								}
+							}
+							result
+						}
+					}
+			'),
+			[],
+			null,
+			[
+				'phoneNumbers' => [
+				],
+			]
+		);
+
+		static::assertEquals(
+			array (
+				'valid' => false,
+				'suberrors' =>
+					array (
+						'phoneNumbers' =>
+							array (
+								'code' => 'atLeastOneList',
+								'msg' => 'You must submit at least one list of numbers',
+								'suberrors' => NULL,
+							),
+					),
+				'result' => NULL,
+			),
+			$res->data['setPhoneNumbers']
+		);
+
+		static::assertEmpty($res->errors);
+		static::assertFalse($res->data['setPhoneNumbers']['valid']);
+	}
 
     public function testListOfValidationFail()
     {
