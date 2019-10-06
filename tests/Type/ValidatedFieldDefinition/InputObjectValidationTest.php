@@ -87,7 +87,11 @@ final class InputObjectValidationTest extends TestCase
 
         $this->query = new ObjectType(['name' => 'Query']);
 
-        $this->schema = new Schema([
+        $this->schema = $this->_createSchema();
+    }
+
+    protected function _createSchema() {
+        return new Schema([
             'query' => $this->query,
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
@@ -125,7 +129,7 @@ final class InputObjectValidationTest extends TestCase
             ]),
         ]);
     }
-
+    
     public function testValidationInputObjectFieldFail(): void
     {
         $res = GraphQL::executeQuery(
