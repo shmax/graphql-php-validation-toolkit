@@ -39,16 +39,13 @@ final class ScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
             'fields' => [
                 'firstName' => [
                     'type' => Type::string(),
-                    'phoneNumbers' => [
-                        'type' => Type::listOf(Type::string()),
-                    ],
                 ],
             ],
         ]);
@@ -95,8 +92,8 @@ final class ScalarValidationTest extends TestCase
                                     },
                                 ],
                             ],
-                            'resolve' => static function ($value, $args) : bool {
-                                return true;
+                            'resolve' => static function ($value) : bool {
+                                return !!$value;
                             },
                         ]),
                     ];
@@ -105,28 +102,28 @@ final class ScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNullableScalarValidationOnNullValueSuccess()
+    public function testNullableScalarValidationOnNullValueSuccess() : void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-                        $bookId:ID
-                    ) {
-                        updateBook (bookId: $bookId) {
-                            valid
-                            suberrors {
-                                bookId {
-                                    code
-                                    msg
-                                }
-                            }
-                            result {
-                                title
+                mutation UpdateBook(
+                    $bookId:ID
+                ) {
+                    updateBook (bookId: $bookId) {
+                        valid
+                        suberrors {
+                            bookId {
+                                code
+                                msg
                             }
                         }
+                        result {
+                            title
+                        }
                     }
-			'),
+                }
+            '),
             [],
             null,
             ['bookId' => null]

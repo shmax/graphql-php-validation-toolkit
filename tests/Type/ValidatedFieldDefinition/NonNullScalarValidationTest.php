@@ -36,7 +36,7 @@ final class NonNullScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -99,28 +99,28 @@ final class NonNullScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNonNullScalarValidationSuccess()
+    public function testNonNullScalarValidationSuccess(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
-                        $bookId:ID!
-                    ) {
-                        updateBook (bookId: $bookId) {
-                            valid
-                            suberrors {
-                                bookId {
-                                    code
-                                    msg
-                                }
-                            }
-                            result {
-                                title
+                mutation UpdateBook(
+                    $bookId:ID!
+                ) {
+                    updateBook (bookId: $bookId) {
+                        valid
+                        suberrors {
+                            bookId {
+                                code
+                                msg
                             }
                         }
+                        result {
+                            title
+                        }
                     }
-			'),
+                }
+            '),
             [],
             null,
             ['bookId' => 1]
@@ -129,12 +129,12 @@ final class NonNullScalarValidationTest extends TestCase
         static::assertTrue($res->data['updateBook']['valid']);
     }
 
-    public function testNonNullScalarValidationFail()
+    public function testNonNullScalarValidationFail() : void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation UpdateBook(
+                mutation UpdateBook(
                         $bookId:ID!
                     ) {
                         updateBook (bookId: $bookId) {
@@ -150,7 +150,7 @@ final class NonNullScalarValidationTest extends TestCase
                             }
                         }
                     }
-			'),
+            '),
             [],
             null,
             ['bookId' => 37]

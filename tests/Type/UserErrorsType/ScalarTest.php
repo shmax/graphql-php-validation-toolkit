@@ -8,39 +8,46 @@ use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
 final class ScalarTest extends TestCase
 {
-    public function testNoValidation()
+    public function testNoValidation(): void
     {
         $type = new UserErrorsType([
             'type' => Type::id(),
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
-			"""User errors for UpsertSku"""
-			type UpsertSkuError {
-			
-			}
-		'), SchemaPrinter::printType($type));
+            schema {
+              query: UpsertSkuError
+            }
+            
+            """User errors for UpsertSku"""
+            type UpsertSkuError {
+            
+            }
+
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testWithValidation()
+    public function testWithValidation(): void
     {
         $type = new UserErrorsType([
             'errorCodes' => ['invalidColor'],
-            'validation' => static function ($value) {
-                return 0;
-            },
-            'typeSetter' => static function ($type) use (&$types) {
-                $types[$type->name] = $type;
+            'validate' => static function ($value) {
+                return $value ? 0 : 1;
             },
             'type' => new IDType(['name' => 'Color']),
         ], ['palette']);
 
         self::assertEquals(Utils::nowdoc('
+            schema {
+              query: PaletteError
+            }
+            
             """User errors for Palette"""
             type PaletteError {
               """An error code"""
@@ -49,6 +56,12 @@ final class ScalarTest extends TestCase
               """A natural language description of the issue"""
               msg: String
             }
-		'), SchemaPrinter::printType($type));
+            
+            """Error code"""
+            enum PaletteErrorCode {
+              invalidColor
+            }
+
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 }

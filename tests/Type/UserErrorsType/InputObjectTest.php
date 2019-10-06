@@ -8,16 +8,16 @@ use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
 
 final class InputObjectTest extends TestCase
 {
-    public function testFieldsWithNoErrorCodes()
+    public function testFieldsWithNoErrorCodes(): void
     {
-        $types = [];
-        $type  = new UserErrorsType([
+        $type = new UserErrorsType([
             'type' => new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
@@ -27,27 +27,29 @@ final class InputObjectTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
-                $types[$type->name] = $type;
-            },
         ], ['updateBook']);
 
-        self::assertCount(0, array_keys($types));
         self::assertEquals(
-            SchemaPrinter::printType($type),
             Utils::nowdoc('
+                schema {
+                  query: UpdateBookError
+                }
+                
                 """User errors for UpdateBook"""
                 type UpdateBookError {
                 
                 }
-        ')
+
+            '),
+            SchemaPrinter::doPrint(new Schema(['query' => $type]))
         );
     }
 
-    public function testFieldsWithErrorCodes()
+    public function testFieldsWithErrorCodesButNoValidate(): void
     {
-        $types = [];
-        $type  = new UserErrorsType([
+        $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
+
+        new UserErrorsType([
             'type' => new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
@@ -58,49 +60,58 @@ final class InputObjectTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
-                $types[$type->name] = $type;
-            },
+        ], ['updateBook']);
+    }
+
+    public function testFieldsWithValidate(): void
+    {
+        $type = new UserErrorsType([
+            'type' => new InputObjectType([
+                'name' => 'bookInput',
+                'fields' => [
+                    'authorId' => [
+                        'errorCodes' => ['unknownAuthor'],
+                        'validate' => static function (int $authorId) {
+                            return $authorId ? 0 : 1;
+                        },
+                        'type' => Type::id(),
+                        'description' => 'An author Id',
+                    ],
+                ],
+            ]),
         ], ['updateBook']);
 
-        self::assertCount(3, array_keys($types));
-        self::assertTrue(isset($types['UpdateBook_AuthorIdError']));
-        self::assertTrue(isset($types['UpdateBook_Suberrors']));
+        self::assertEquals(Utils::nowdoc('
+            schema {
+              query: UpdateBookError
+            }
+            
+            """User errors for UpdateBook"""
+            type UpdateBookError {
+              """Suberrors for UpdateBook"""
+              suberrors: UpdateBook_Suberrors
+            }
+            
+            """User errors for AuthorId"""
+            type UpdateBook_AuthorIdError {
+              """An error code"""
+              code: UpdateBook_AuthorIdErrorCode
+            
+              """A natural language description of the issue"""
+              msg: String
+            }
+            
+            """Error code"""
+            enum UpdateBook_AuthorIdErrorCode {
+              unknownAuthor
+            }
+            
+            """User Error"""
+            type UpdateBook_Suberrors {
+              """Error for authorId"""
+              authorId: UpdateBook_AuthorIdError
+            }
 
-        self::assertEquals(
-            SchemaPrinter::printType($type),
-            Utils::nowdoc('
-                """User errors for UpdateBook"""
-                type UpdateBookError {
-                  """Suberrors for UpdateBook"""
-                  suberrors: UpdateBook_Suberrors
-                }
-            ')
-        );
-
-        self::assertEquals(
-            Utils::nowdoc('
-                """User Error"""
-                type UpdateBook_Suberrors {
-                  """Error for authorId"""
-                  authorId: UpdateBook_AuthorIdError
-                }
-            '),
-            SchemaPrinter::printType($types['UpdateBook_Suberrors'])
-        );
-
-        self::assertEquals(
-            Utils::nowdoc('
-                """User errors for AuthorId"""
-                type UpdateBook_AuthorIdError {
-                  """An error code"""
-                  code: UpdateBook_AuthorIdErrorCode
-                
-                  """A natural language description of the issue"""
-                  msg: String
-                }
-            '),
-            SchemaPrinter::printType($types['UpdateBook_AuthorIdError'])
-        );
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 }

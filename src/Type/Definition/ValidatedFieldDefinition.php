@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use ReflectionClass;
 use ReflectionException;
 use function array_filter;
+use function array_keys;
+use function count;
+use function is_array;
 use function is_callable;
 use function lcfirst;
 use function preg_replace;
+use function range;
 use function ucfirst;
 
 class ValidatedFieldDefinition extends FieldDefinition
@@ -21,16 +24,12 @@ class ValidatedFieldDefinition extends FieldDefinition
     /**
      * @param mixed[] $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $args = $config['args'];
         $name = $config['name'] ?? lcfirst($this->tryInferName());
 
         $this->typeSetter = $config['typeSetter'] ?? null;
-
-        if (! isset($config['type'])) {
-            throw new Exception('You must specify a type for your field');
-        }
 
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
@@ -70,9 +69,9 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $errors          = $this->_validate($config, $args1);
                 $result          = $errors;
-                $result['valid'] = ! $errors;
+                $result['valid'] = !$errors;
 
-                if (! isset($result['error']) && ! isset($result['suberrors'])) {
+                if (!isset($result['error']) && !isset($result['suberrors'])) {
                     $result['result'] = $config['resolve']($value, $args1, $context, $info);
                 }
 
@@ -82,9 +81,47 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
+     * @param   mixed[] $arr
+     */
+    protected function _isAssoc(array $arr) : bool
+    {
+        if ($arr === []) {
+            return false;
+        }
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
+     * @param   mixed[]  $value
+     * @param   string[] $path
+     *
+     * @throws  ValidateItemsError
+     */
+    protected function _validateItems(array $value, array $path, callable $validate) : void
+    {
+        foreach ($value as $idx => $subValue) {
+            if (is_array($subValue) && !$this->_isAssoc($subValue)) {
+                $path[count($path)-1] = $idx;
+                $newPath              = $path;
+                $newPath[]            = 0;
+                $this->_validateItems($subValue, $newPath, $validate);
+            } else {
+                $path[count($path) - 1] = $idx;
+                $err                    = $validate($subValue);
+
+                if ($err) {
+                    throw new ValidateItemsError($path, $err);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param mixed[] $arg
+     * @param mixed $value
      * @return mixed[]
      */
-    protected function _validate($arg, $value)
+    protected function _validate(array $arg, $value) : array
     {
         $res = [];
 
@@ -99,30 +136,15 @@ class ValidatedFieldDefinition extends FieldDefinition
                     }
                 }
 
-                foreach ($value as $idx => $subValue) {
-                    if (isset($arg['validateItem'])) {
-                        $err = $arg['validateItem']($subValue);
-                    } else {
-                        $config         = $type->ofType->config;
-                        $config['type'] = $type->ofType;
-                        $err            = $this->_validate($config, $subValue);
+                if (isset($arg['validateItem'])) {
+                    try {
+                        $this->_validateItems($value, [0], $arg['validateItem']);
+                    } catch (ValidateItemsError $e) {
+                        $res['suberrors'] = [
+                            'error' => $e->error,
+                            'path' => $e->path,
+                        ];
                     }
-
-                    if (! $err) {
-                        continue;
-                    }
-
-                    $err['index'] = $idx;
-                    $suberrors    = null;
-                    if (isset($err['suberrors'])) {
-                        $suberrors = $err['suberrors'];
-                        unset($err['suberrors']);
-                    }
-                    $res['suberrors'][] = [
-                        'suberrors' => $suberrors,
-                        'error' => $err,
-                        'index' => $idx,
-                    ];
                 }
                 break;
 
@@ -132,7 +154,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                if ($arg['validate'] ?? null) {
+                if (isset($arg['validate'])) {
                     $err = $arg['validate']($value) ?? [];
                     if ($err) {
                         $res['error'] = $err;
@@ -141,11 +163,13 @@ class ValidatedFieldDefinition extends FieldDefinition
                 }
 
                 $fields = $type->getFields();
-                foreach ($value as $key => $subValue) {
-                    $config                 = $fields[$key]->config;
-                    $res['suberrors'][$key] = $this->_validate($config, $subValue);
+                if (is_array($value)) {
+                    foreach ($value as $key => $subValue) {
+                        $config                 = $fields[$key]->config;
+                        $res['suberrors'][$key] = $this->_validate($config, $subValue);
+                    }
+                    $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 }
-                $res['suberrors'] = array_filter($res['suberrors'] ?? []);
                 break;
 
             default:
@@ -167,10 +191,6 @@ class ValidatedFieldDefinition extends FieldDefinition
      */
     protected function tryInferName()
     {
-        if ($this->name) {
-            return $this->name;
-        }
-
         // If class is extended - infer name from className
         // QueryType -> Type
         // SomeOtherType -> SomeOther

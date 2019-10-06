@@ -7,53 +7,55 @@ namespace GraphQL\Tests\Type\UserErrorsType;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
 {
-    public function testNoValidationOnSelf()
+    public function testNoValidationOnSelf(): void
     {
         $type = new UserErrorsType([
             'type' => Type::id(),
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
+            schema {
+              query: UpsertSkuError
+            }
+            
             """User errors for UpsertSku"""
             type UpsertSkuError {
             
             }
-		'), SchemaPrinter::printType($type));
+
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testValidationOnSelf()
+    public function testNoType(): void
     {
-        $type = new UserErrorsType([
-            'errorCodes' => ['somethingWrong'],
-            'type' => Type::id(),
+        $this->expectExceptionMessage('You must specify a type for your field');
+        UserErrorsType::create([
+            'validate' => static function ($value) {
+                return $value ? 0 : 1;
+            },
         ], ['upsertSku']);
-
-        self::assertEquals(Utils::nowdoc('
-            """User errors for UpsertSku"""
-            type UpsertSkuError {
-              """An error code"""
-              code: UpsertSkuErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            }
-		'), SchemaPrinter::printType($type));
     }
 
-    public function testValidationWithNoErrorCodes()
+    public function testValidationWithNoErrorCodes(): void
     {
         $type = UserErrorsType::create([
             'validate' => static function ($value) {
+                return $value ? 0 : 1;
             },
             'type' => Type::id(),
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
+            schema {
+              query: UpsertSkuError
+            }
+            
             """User errors for UpsertSku"""
             type UpsertSkuError {
               """A numeric error code. 0 on success, non-zero on failure."""
@@ -62,6 +64,7 @@ final class BasicTest extends TestCase
               """An error message."""
               msg: String
             }
-		'), SchemaPrinter::printType($type));
+
+        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 }

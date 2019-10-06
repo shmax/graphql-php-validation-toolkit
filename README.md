@@ -135,7 +135,7 @@ If you want to return an error message, return an array with the message in the 
   ]	  
 ])
 ```
-Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array (note: this will override any validation happening further down inside complex types, so this may only be appropriate for lists of scalar types). Its generated error type will have an array of suberror types, each with their own `index` field that you can query so you can know exactly which array items failed validation:
+Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array. Its generated error type will have an array of suberror types, each with their own `path` field that you can query so you can know the exact address in the multidimensional array of each item that failed validation:
 
 ```php
 //...

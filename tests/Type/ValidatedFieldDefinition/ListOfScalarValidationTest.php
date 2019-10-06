@@ -24,7 +24,7 @@ final class ListOfScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->query  = new ObjectType(['name' => 'Query']);
         $this->schema = new Schema([
@@ -38,27 +38,23 @@ final class ListOfScalarValidationTest extends TestCase
                             'type' => Type::boolean(),
                             'args' => [
                                 'phoneNumbers' => [
-                                    'type' => Type::listOf(Type::string()),
-                                    'errorCodes' => ['maxNumExceeded'],
-                                    'validate' => static function (array $phoneNumbers) {
-                                        if (count($phoneNumbers) > 2) {
-                                            return ['maxNumExceeded', 'You may not submit more than 2 phone numbers'];
+                                    'type' => Type::listOf(Type::listOf(Type::string())),
+                                    'errorCodes' => ['atLeastOneList'],
+                                    'validate' => static function (array $phoneNumberLists) {
+                                        if (count($phoneNumberLists) < 1) {
+                                            return ['atLeastOneList', 'You must submit at least one list of numbers'];
                                         }
                                         return 0;
                                     },
                                     'suberrorCodes' => ['invalidPhoneNumber'],
                                     'validateItem' => static function ($phoneNumber) {
                                         $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-                                        return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                                        return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                                     },
                                 ],
                             ],
-                            'resolve' => static function (array $phoneNumbers, $args) : bool {
-                                // ...
-                                // stash them somewhere
-                                // ...
-
-                                return true;
+                            'resolve' => static function (array $phoneNumbers) : bool {
+                                return !empty($phoneNumbers);
                             },
                         ]),
                     ];
@@ -67,20 +63,20 @@ final class ListOfScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testItemsValidationFail()
+    public function testItemsValidationOnWrappedTypeFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation SetPhoneNumbers(
-                        $phoneNumbers: [String]
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
                     ) {
                         setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                             valid
                             suberrors {
                                 phoneNumbers {
                                     suberrors {
-                                        index
+                                        path
                                         code
                                     }
                                 }
@@ -88,13 +84,15 @@ final class ListOfScalarValidationTest extends TestCase
                             result
                         }
                     }
-			'),
+            '),
             [],
             null,
             [
                 'phoneNumbers' => [
-                    '123-4567',
-                    'xxx456-7890xxx',
+                    [
+                        '123-4567',
+                        'xxx456-7890xxx',
+                    ],
                 ],
             ]
         );
@@ -108,11 +106,8 @@ final class ListOfScalarValidationTest extends TestCase
                             [
                                 'suberrors' =>
                                     [
-                                        0 =>
-                                            [
-                                                'index' => 1,
-                                                'code' => 'invalidPhoneNumber',
-                                            ],
+                                        'path' => [0,1],
+                                        'code' => 'invalidPhoneNumber',
                                     ],
                             ],
                     ],
@@ -125,13 +120,13 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertFalse($res->data['setPhoneNumbers']['valid']);
     }
 
-    public function testListOfValidationFail()
+    public function testItemsValidationOnSelfFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
-				mutation SetPhoneNumbers(
-                        $phoneNumbers: [String]
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
                     ) {
                         setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                             valid
@@ -140,7 +135,7 @@ final class ListOfScalarValidationTest extends TestCase
                                     code
                                     msg
                                     suberrors {
-                                        index
+                                        path
                                         code
                                     }
                                 }
@@ -148,14 +143,69 @@ final class ListOfScalarValidationTest extends TestCase
                             result
                         }
                     }
-			'),
+            '),
+            [],
+            null,
+            [
+                'phoneNumbers' => [],
+            ]
+        );
+
+        static::assertEquals(
+            [
+                'valid' => false,
+                'suberrors' =>
+                    [
+                        'phoneNumbers' =>
+                            [
+                                'code' => 'atLeastOneList',
+                                'msg' => 'You must submit at least one list of numbers',
+                                'suberrors' => null,
+                            ],
+                    ],
+                'result' => null,
+            ],
+            $res->data['setPhoneNumbers']
+        );
+
+        static::assertEmpty($res->errors);
+        static::assertFalse($res->data['setPhoneNumbers']['valid']);
+    }
+
+    public function testListOfValidationFail(): void
+    {
+        $res = GraphQL::executeQuery(
+            $this->schema,
+            Utils::nowdoc('
+                mutation SetPhoneNumbers(
+                        $phoneNumbers: [[String]]
+                    ) {
+                    setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
+                        valid
+                        suberrors {
+                            phoneNumbers {
+                                code
+                                msg
+                                suberrors {
+                                    path
+                                    code
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
             [],
             null,
             [
                 'phoneNumbers' => [
-                    '123-4567',
-                    '456-7890',
-                    '321-1234',
+                    [],
+                    [
+                        '123-4567',
+                        'xxx-7890',
+                        '321-1234',
+                    ],
                 ],
             ]
         );
@@ -168,9 +218,17 @@ final class ListOfScalarValidationTest extends TestCase
                     [
                         'phoneNumbers' =>
                             [
-                                'code' => 'maxNumExceeded',
-                                'msg' => 'You may not submit more than 2 phone numbers',
-                                'suberrors' => null,
+                                'code' => null,
+                                'msg' => null,
+                                'suberrors' =>
+                                    [
+                                        'path' =>
+                                            [
+                                                0 => 1,
+                                                1 => 1,
+                                            ],
+                                        'code' => 'invalidPhoneNumber',
+                                    ],
                             ],
                     ],
                 'result' => null,

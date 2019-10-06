@@ -15,15 +15,18 @@ use function array_keys;
 
 final class ErrorCodeTypeGenerationTest extends TestCase
 {
-    public function testMultipleErrorCodesOnSelf()
+    public function testMultipleErrorCodesOnSelf(): void
     {
         $types = [];
         new UserErrorsType([
+            'validate' => static function ($val) {
+                return $val ? 0 : 1;
+            },
             'errorCodes' => [
                 'unknownUser',
                 'userIsMinor',
             ],
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
             'type' => new IDType(['name' => 'User']),
@@ -39,11 +42,11 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                   unknownUser
                   userIsMinor
                 }
-		')
+        ')
         );
     }
 
-    public function testFieldsWithNoErrorCodes()
+    public function testFieldsWithNoErrorCodes(): void
     {
         $types = [];
         $type  = new UserErrorsType([
@@ -56,7 +59,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
         ], ['updateBook']);
@@ -70,7 +73,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
         '));
     }
 
-    public function testFieldsWithErrorCodes()
+    public function testFieldsWithErrorCodes(): void
     {
         $types = [];
         new UserErrorsType([
@@ -78,13 +81,16 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                 'name' => 'bookInput',
                 'fields' => [
                     'authorId' => [
+                        'validate' => static function ($authorId) {
+                            return $authorId ? 0 : 1;
+                        },
                         'errorCodes' => ['unknownAuthor'],
                         'type' => Type::id(),
                         'description' => 'An author Id',
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
         ], ['updateBook']);

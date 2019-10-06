@@ -17,6 +17,10 @@ class Utils
     {
         $lines = preg_split('/\\n/', $str);
 
+        if ($lines === false) {
+            return '';
+        }
+
         if (count($lines) <= 2) {
             return '';
         }
@@ -24,11 +28,12 @@ class Utils
         // Toss out the first and last lines.
         $lines = array_slice($lines, 1, count($lines) - 2);
 
-        // take the tabs form the first line, and subtract them from all lines
+        // take the tabs from the first line, and subtract them from all lines
         $matches = [];
-        preg_match('/(^\s+)/', $lines[1], $matches);
+        preg_match('/(^[ \t]+)/', $lines[0], $matches);
 
-        for ($i = 0; $i < count($lines); $i++) {
+        $numLines = count($lines);
+        for ($i = 0; $i < $numLines; $i++) {
             $lines[$i] = str_replace($matches[0], '', $lines[$i]);
         }
 
