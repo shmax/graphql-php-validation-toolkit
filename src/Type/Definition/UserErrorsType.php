@@ -32,7 +32,7 @@ class UserErrorsType extends ObjectType
 
         $this->_addErrorCodes($config, $finalFields, $path);
 
-        $type = $config['type'];
+        $type = $this->_getType($config);
         if ($type instanceof InputObjectType) {
             $this->_buildInputObjectType($config, $path, $finalFields);
         } elseif ($type instanceof ListOfType) {
@@ -48,6 +48,14 @@ class UserErrorsType extends ObjectType
             'description' => 'User errors for ' . ucfirst($path[count($path)-1]),
             'fields' => $finalFields,
         ]);
+    }
+
+    protected function _getType($config): Type {
+        $type = $config['type'];
+        if($type instanceof NonNull) {
+            $type = $type->getWrappedType();
+        }
+        return $type;
     }
 
     protected function _buildListOfType($config, $path, &$finalFields) {
@@ -79,7 +87,7 @@ class UserErrorsType extends ObjectType
 
     protected function _buildInputObjectType($config, $path, &$finalFields) {
         $fields = [];
-        $type = $config['type'];
+        $type = $this->_getType($config);
         foreach ($type->getFields() as $key => $field) {
             $newType = static::create(
                 $field->config + ['typeSetter' => $config['typeSetter'] ?? null],
