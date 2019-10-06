@@ -128,24 +128,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         $type = $arg['type'];
         switch ($type) {
             case $type instanceof ListOfType:
-                if (isset($arg['validate'])) {
-                    $err = $arg['validate']($value) ?? [];
-                    if ($err) {
-                        $res['error'] = $err;
-                        break;
-                    }
-                }
-
-                if (isset($arg['validateItem'])) {
-                    try {
-                        $this->_validateItems($value, [0], $arg['validateItem']);
-                    } catch (ValidateItemsError $e) {
-                        $res['suberrors'] = [
-                            'error' => $e->error,
-                            'path' => $e->path,
-                        ];
-                    }
-                }
+                $this->_validateListOfType($arg, $value, $res);
                 break;
 
             case $type instanceof NonNull:
@@ -154,22 +137,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                if (isset($arg['validate'])) {
-                    $err = $arg['validate']($value) ?? [];
-                    if ($err) {
-                        $res['error'] = $err;
-                        break;
-                    }
-                }
-
-                $fields = $type->getFields();
-                if (is_array($value)) {
-                    foreach ($value as $key => $subValue) {
-                        $config                 = $fields[$key]->config;
-                        $res['suberrors'][$key] = $this->_validate($config, $subValue);
-                    }
-                    $res['suberrors'] = array_filter($res['suberrors'] ?? []);
-                }
+                $this->_validateInputObjectType($arg, $value, $res);
                 break;
 
             default:
@@ -182,6 +150,47 @@ class ValidatedFieldDefinition extends FieldDefinition
         }
 
         return array_filter($res);
+    }
+
+    protected function _validateListOfType($config, $value, &$res) {
+        if (isset($config['validate'])) {
+            $err = $config['validate']($value) ?? [];
+            if ($err) {
+                $res['error'] = $err;
+                return;
+            }
+        }
+
+        if (isset($config['validateItem'])) {
+            try {
+                $this->_validateItems($value, [0], $config['validateItem']);
+            } catch (ValidateItemsError $e) {
+                $res['suberrors'] = [
+                    'error' => $e->error,
+                    'path' => $e->path,
+                ];
+            }
+        }
+    }
+
+    protected function _validateInputObjectType($arg, $value, &$res) {
+        $type = $arg['type'];
+        if (isset($arg['validate'])) {
+            $err = $arg['validate']($value) ?? [];
+            if ($err) {
+                $res['error'] = $err;
+                return;
+            }
+        }
+
+        $fields = $type->getFields();
+        if (is_array($value)) {
+            foreach ($value as $key => $subValue) {
+                $config                 = $fields[$key]->config;
+                $res['suberrors'][$key] = $this->_validate($config, $subValue);
+            }
+            $res['suberrors'] = array_filter($res['suberrors'] ?? []);
+        }
     }
 
     /**
