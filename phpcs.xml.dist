@@ -11,6 +11,7 @@
 
     <file>src</file>
     <file>tests</file>
+
     <rule ref="Generic.Formatting.SpaceAfterNot">
             <exclude name="Generic.Formatting.SpaceAfterNot.Incorrect"/>
     </rule>

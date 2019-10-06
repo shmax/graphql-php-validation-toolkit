@@ -20,7 +20,7 @@ class UserErrorsType extends ObjectType
      * @param mixed[]  $config
      * @param string[] $path
      */
-    public function __construct(array $config, array $path, $isParentList = false)
+    public function __construct(array $config, array $path, bool $isParentList = false)
     {
         $finalFields = $config['fields'] ?? [];
 
@@ -166,7 +166,7 @@ class UserErrorsType extends ObjectType
      *
      * @throws Exception
      */
-    public static function create(array $config, array $path, bool $isParentList = false, $name = '') : ?self
+    public static function create(array $config, array $path, bool $isParentList = false, string $name = '') : ?self
     {
         $config['fields'] = $config['fields'] ?? [];
         if (isset($config['validate']) && is_callable($config['validate'])) {

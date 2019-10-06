@@ -39,7 +39,7 @@ final class ScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp(): void
+    protected function setUp() : void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -102,7 +102,7 @@ final class ScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNullableScalarValidationOnNullValueSuccess(): void
+    public function testNullableScalarValidationOnNullValueSuccess() : void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

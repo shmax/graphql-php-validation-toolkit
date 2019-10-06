@@ -13,7 +13,13 @@ class ValidateItemsError extends Exception
 
     /** @var mixed */
     public $error;
-    public function __construct($path, $error)
+
+    /**
+     * ValidateItemsError constructor.
+     * @param int[] $path
+     * @param mixed $error
+     */
+    public function __construct(array $path, $error)
     {
         parent::__construct();
         $this->path  = $path;

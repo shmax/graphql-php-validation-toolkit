@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
 {
-    public function testInferName()
+    public function testInferName(): void
     {
         $def = new NamelessDef([
             'type' => Type::boolean(),
@@ -30,7 +30,7 @@ final class BasicTest extends TestCase
         static::assertEquals('namelessDef', $def->name);
     }
 
-    public function testInferNameNameAlreadyExists()
+    public function testInferNameNameAlreadyExists(): void
     {
         $def = new NamelessDef([
             'name' => 'FooDef',

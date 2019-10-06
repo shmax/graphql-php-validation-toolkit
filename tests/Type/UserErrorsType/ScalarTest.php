@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ScalarTest extends TestCase
 {
-    public function testNoValidation()
+    public function testNoValidation(): void
     {
         $type = new UserErrorsType([
             'type' => Type::id(),
@@ -33,7 +33,7 @@ final class ScalarTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testWithValidation()
+    public function testWithValidation(): void
     {
         $type = new UserErrorsType([
             'errorCodes' => ['invalidColor'],

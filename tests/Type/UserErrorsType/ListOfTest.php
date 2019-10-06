@@ -15,7 +15,7 @@ use function count;
 
 final class ListOfTest extends TestCase
 {
-    public function testScalarTypeWithNoValidation()
+    public function testScalarTypeWithNoValidation(): void
     {
         $type = new UserErrorsType([
             'type' => Type::listOf(Type::id()),
@@ -34,7 +34,7 @@ final class ListOfTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testListOfScalarWithValidationOnSelf()
+    public function testListOfScalarWithValidationOnSelf(): void
     {
         $type = new UserErrorsType([
             'type' => Type::listOf(Type::id()),
@@ -66,7 +66,7 @@ final class ListOfTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testListOfListOfListOfScalarWithValidationOnSelfAndWrappedType()
+    public function testListOfListOfListOfScalarWithValidationOnSelfAndWrappedType(): void
     {
         $type = new UserErrorsType([
             'type' => Type::listOf(Type::listOf(Type::listOf(Type::id()))),
@@ -116,7 +116,7 @@ final class ListOfTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testListOfInputObjectWithValidationOnSelf()
+    public function testListOfInputObjectWithValidationOnSelf(): void
     {
         $type = new UserErrorsType([
             'validate' => static function (array $authors) {
@@ -160,7 +160,7 @@ final class ListOfTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testListOfInputObjectWithValidationOnWrappedSelf()
+    public function testListOfInputObjectWithValidationOnWrappedSelf(): void
     {
         $type = new UserErrorsType([
             'suberrorCodes' => ['firstNameOrLastNameRequired'],

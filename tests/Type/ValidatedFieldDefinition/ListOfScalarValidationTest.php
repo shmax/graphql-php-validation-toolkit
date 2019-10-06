@@ -24,7 +24,7 @@ final class ListOfScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->query  = new ObjectType(['name' => 'Query']);
         $this->schema = new Schema([
@@ -63,7 +63,7 @@ final class ListOfScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testItemsValidationOnWrappedTypeFail()
+    public function testItemsValidationOnWrappedTypeFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -120,7 +120,7 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertFalse($res->data['setPhoneNumbers']['valid']);
     }
 
-    public function testItemsValidationOnSelfFail()
+    public function testItemsValidationOnSelfFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -172,7 +172,7 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertFalse($res->data['setPhoneNumbers']['valid']);
     }
 
-    public function testListOfValidationFail()
+    public function testListOfValidationFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

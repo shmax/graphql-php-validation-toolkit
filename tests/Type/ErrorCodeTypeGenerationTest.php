@@ -15,7 +15,7 @@ use function array_keys;
 
 final class ErrorCodeTypeGenerationTest extends TestCase
 {
-    public function testMultipleErrorCodesOnSelf()
+    public function testMultipleErrorCodesOnSelf(): void
     {
         $types = [];
         new UserErrorsType([
@@ -26,7 +26,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                 'unknownUser',
                 'userIsMinor',
             ],
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
             'type' => new IDType(['name' => 'User']),
@@ -46,7 +46,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
         );
     }
 
-    public function testFieldsWithNoErrorCodes()
+    public function testFieldsWithNoErrorCodes(): void
     {
         $types = [];
         $type  = new UserErrorsType([
@@ -59,7 +59,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
         ], ['updateBook']);
@@ -73,7 +73,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
         '));
     }
 
-    public function testFieldsWithErrorCodes()
+    public function testFieldsWithErrorCodes(): void
     {
         $types = [];
         new UserErrorsType([
@@ -90,7 +90,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types) {
+            'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
         ], ['updateBook']);

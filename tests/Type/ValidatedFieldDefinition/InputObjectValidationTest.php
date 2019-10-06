@@ -41,7 +41,7 @@ final class InputObjectValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -126,7 +126,7 @@ final class InputObjectValidationTest extends TestCase
         ]);
     }
 
-    public function testValidationInputObjectFieldFail()
+    public function testValidationInputObjectFieldFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -196,7 +196,7 @@ final class InputObjectValidationTest extends TestCase
         static::assertFalse($res->data['updateBook']['valid']);
     }
 
-    public function testValidationInputObjectSelfFail()
+    public function testValidationInputObjectSelfFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -258,7 +258,7 @@ final class InputObjectValidationTest extends TestCase
         static::assertFalse($res->data['updateBook']['valid']);
     }
 
-    public function testValidationSuccess()
+    public function testValidationSuccess(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -311,7 +311,7 @@ final class InputObjectValidationTest extends TestCase
         static::assertTrue($res->data['updateBook']['valid']);
     }
 
-    public function testValidationEmptyInput()
+    public function testValidationEmptyInput(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

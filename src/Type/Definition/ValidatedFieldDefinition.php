@@ -24,7 +24,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     /**
      * @param mixed[] $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $args = $config['args'];
         $name = $config['name'] ?? lcfirst($this->tryInferName());
@@ -97,7 +97,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems(array $value, array $path, callable $validate)
+    protected function _validateItems(array $value, array $path, callable $validate) : void
     {
         foreach ($value as $idx => $subValue) {
             if (is_array($subValue) && ! $this->_isAssoc($subValue)) {
@@ -117,9 +117,11 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
+     * @param mixed[] $arg
+     * @param mixed $value
      * @return mixed[]
      */
-    protected function _validate($arg, $value)
+    protected function _validate(array $arg, $value) : array
     {
         $res = [];
 
@@ -152,7 +154,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                if ($arg['validate'] ?? null) {
+                if (isset($arg['validate'])) {
                     $err = $arg['validate']($value) ?? [];
                     if ($err) {
                         $res['error'] = $err;

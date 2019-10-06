@@ -36,7 +36,7 @@ final class NonNullScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -99,7 +99,7 @@ final class NonNullScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNonNullScalarValidationSuccess()
+    public function testNonNullScalarValidationSuccess(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
@@ -129,7 +129,7 @@ final class NonNullScalarValidationTest extends TestCase
         static::assertTrue($res->data['updateBook']['valid']);
     }
 
-    public function testNonNullScalarValidationFail()
+    public function testNonNullScalarValidationFail() : void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

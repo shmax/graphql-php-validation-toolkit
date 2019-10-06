@@ -15,7 +15,7 @@ use function array_keys;
 
 final class InputObjectTest extends TestCase
 {
-    public function testFieldsWithNoErrorCodes()
+    public function testFieldsWithNoErrorCodes(): void
     {
         $type = new UserErrorsType([
             'type' => new InputObjectType([
@@ -45,7 +45,7 @@ final class InputObjectTest extends TestCase
         );
     }
 
-    public function testFieldsWithErrorCodesButNoValidate()
+    public function testFieldsWithErrorCodesButNoValidate(): void
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
@@ -63,7 +63,7 @@ final class InputObjectTest extends TestCase
         ], ['updateBook']);
     }
 
-    public function testFieldsWithValidate()
+    public function testFieldsWithValidate(): void
     {
         $type = new UserErrorsType([
             'type' => new InputObjectType([

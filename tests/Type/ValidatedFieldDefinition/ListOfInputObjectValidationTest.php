@@ -42,7 +42,7 @@ final class ListOfInputObjectValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -118,7 +118,7 @@ final class ListOfInputObjectValidationTest extends TestCase
         ]);
     }
 
-    public function testValidationFail()
+    public function testValidationFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

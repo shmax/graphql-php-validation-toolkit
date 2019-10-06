@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
 {
-    public function testNoValidationOnSelf()
+    public function testNoValidationOnSelf(): void
     {
         $type = new UserErrorsType([
             'type' => Type::id(),
@@ -32,7 +32,7 @@ final class BasicTest extends TestCase
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testNoType()
+    public function testNoType(): void
     {
         $this->expectExceptionMessage('You must specify a type for your field');
         UserErrorsType::create([
@@ -42,7 +42,7 @@ final class BasicTest extends TestCase
         ], ['upsertSku']);
     }
 
-    public function testValidationWithNoErrorCodes()
+    public function testValidationWithNoErrorCodes(): void
     {
         $type = UserErrorsType::create([
             'validate' => static function ($value) {
