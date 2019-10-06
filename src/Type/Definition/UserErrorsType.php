@@ -34,9 +34,9 @@ class UserErrorsType extends ObjectType
 
         $type = $this->_getType($config);
         if ($type instanceof InputObjectType) {
-            $this->_buildInputObjectType($config, $path, $finalFields);
+            $this->_buildInputObjectType($type, $config, $path, $finalFields);
         } elseif ($type instanceof ListOfType) {
-            $this->_buildListOfType($config, $path, $finalFields);
+            $this->_buildListOfType($type, $config, $path, $finalFields);
         }
 
         if ($isParentList) {
@@ -58,8 +58,7 @@ class UserErrorsType extends ObjectType
         return $type;
     }
 
-    protected function _buildListOfType($config, $path, &$finalFields) {
-        $type = $config['type'];
+    protected function _buildListOfType(ListOfType $type, $config, $path, &$finalFields) {
         $wrappedType = $type->getWrappedType(true);
         if (isset($config['validateItem'])) {
             $newType = static::create(
@@ -85,9 +84,8 @@ class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _buildInputObjectType($config, $path, &$finalFields) {
+    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields) {
         $fields = [];
-        $type = $this->_getType($config);
         foreach ($type->getFields() as $key => $field) {
             $newType = static::create(
                 $field->config + ['typeSetter' => $config['typeSetter'] ?? null],
