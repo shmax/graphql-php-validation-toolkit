@@ -30,6 +30,103 @@ class UserErrorsType extends ObjectType
 
         GraphQL\Utils\Utils::invariant($config['type'] instanceof Type, 'Must provide type.');
 
+        $this->_addErrorCodes($config, $finalFields, $path);
+
+        $type = $config['type'];
+        if ($type instanceof InputObjectType) {
+            $this->_buildInputObjectType($config, $path, $finalFields);
+        } elseif ($type instanceof ListOfType) {
+            $this->_buildListOfType($config, $path, $finalFields);
+        }
+
+        if ($isParentList && (isset($finalFields['suberrors']) || isset($finalFields['code']))) {
+            /**
+             * path property
+             */
+            $finalFields['path'] = [
+                'type' => Type::listOf(Type::int()),
+                'description' => 'A path describing this items\'s location in the nested array',
+                'resolve' => static function ($value) {
+                    return $value['path'];
+                },
+            ];
+        }
+
+        parent::__construct([
+            'name' => $this->_nameFromPath(array_merge($path)) . ucfirst('error'),
+            'description' => 'User errors for ' . ucfirst($path[count($path)-1]),
+            'fields' => $finalFields,
+        ]);
+    }
+
+    protected function _buildListOfType($config, $path, &$finalFields) {
+        $type = $config['type'];
+        $wrappedType = $type->getWrappedType(true);
+        if (isset($config['validateItem'])) {
+            $newType = static::create(
+                [
+                    'type' => $wrappedType,
+                    'validate' => $config['validateItem'],
+                    'errorCodes' => $config['suberrorCodes'] ?? null,
+                    'typeSetter' => $config['typeSetter'] ?? null,
+                ],
+                array_merge($path, [$wrappedType->name]),
+                true
+            );
+        }
+
+        if (isset($newType)) {
+            $finalFields['suberrors'] = [
+                'description' => 'Suberrors for the list of ' . $type->ofType . ' items',
+                'type' => $newType,
+                'resolve' => static function ($value) {
+                    return $value['suberrors'] ?? null;
+                },
+            ];
+        }
+    }
+
+    protected function _buildInputObjectType($config, $path, &$finalFields) {
+        $fields = [];
+        $type = $config['type'];
+        foreach ($type->getFields() as $key => $field) {
+            $newType = static::create(
+                $field->config + ['typeSetter' => $config['typeSetter'] ?? null],
+                array_merge($path, [$key])
+            );
+
+            if (!$newType) {
+                continue;
+            }
+
+            $fields[$key] = [
+                'description' => 'Error for ' . $key,
+                'type' => $newType,
+                'resolve' => static function ($value) use ($key) {
+                    return $value[$key] ?? null;
+                },
+            ];
+        }
+
+        if ($fields) {
+            /**
+             * suberrors property
+             */
+            $finalFields['suberrors'] = [
+                'type' => $this->_set(new ObjectType([
+                    'name' => $this->_nameFromPath(array_merge($path, ['suberrors'])),
+                    'description' => 'User Error',
+                    'fields' => $fields,
+                ]), $config),
+                'description' => 'Suberrors for ' . ucfirst($path[count($path)-1]),
+                'resolve' => static function (array $value) {
+                    return $value['suberrors'] ?? null;
+                },
+            ];
+        }
+    }
+
+    protected function _addErrorCodes($config, &$finalFields, $path) {
         if (isset($config['errorCodes'])) {
             if (!isset($config['validate'])) {
                 throw new Exception('If you specify errorCodes, you must also provide a validate callback');
@@ -59,89 +156,6 @@ class UserErrorsType extends ObjectType
                 },
             ];
         }
-
-        $type = $config['type'];
-        if ($type instanceof InputObjectType) {
-            $fields = [];
-            foreach ($type->getFields() as $key => $field) {
-                $newType = static::create(
-                    $field->config + ['typeSetter' => $config['typeSetter'] ?? null],
-                    array_merge($path, [$key])
-                );
-
-                if (!$newType) {
-                    continue;
-                }
-
-                $fields[$key] = [
-                    'description' => 'Error for ' . $key,
-                    'type' => $newType,
-                    'resolve' => static function ($value) use ($key) {
-                        return $value[$key] ?? null;
-                    },
-                ];
-            }
-
-            if ($fields) {
-                /**
-                 * suberrors property
-                 */
-                $finalFields['suberrors'] = [
-                    'type' => $this->_set(new ObjectType([
-                        'name' => $this->_nameFromPath(array_merge($path, ['suberrors'])),
-                        'description' => 'User Error',
-                        'fields' => $fields,
-                    ]), $config),
-                    'description' => 'Suberrors for ' . ucfirst($path[count($path)-1]),
-                    'resolve' => static function (array $value) {
-                        return $value['suberrors'] ?? null;
-                    },
-                ];
-            }
-        } elseif ($type instanceof ListOfType) {
-            $wrappedType = $type->getWrappedType(true);
-            if (isset($config['validateItem'])) {
-                $newType = static::create(
-                    [
-                        'type' => $wrappedType,
-                        'validate' => $config['validateItem'],
-                        'errorCodes' => $config['suberrorCodes'] ?? null,
-                        'typeSetter' => $config['typeSetter'] ?? null,
-                    ],
-                    array_merge($path, [$wrappedType->name]),
-                    true
-                );
-            }
-
-            if (isset($newType)) {
-                $finalFields['suberrors'] = [
-                    'description' => 'Suberrors for the list of ' . $type->ofType . ' items',
-                    'type' => $newType,
-                    'resolve' => static function ($value) {
-                        return $value['suberrors'] ?? null;
-                    },
-                ];
-            }
-        }
-
-        if ($isParentList && (isset($finalFields['suberrors']) || isset($finalFields['code']))) {
-            /**
-             * path property
-             */
-            $finalFields['path'] = [
-                'type' => Type::listOf(Type::int()),
-                'description' => 'A path describing this items\'s location in the nested array',
-                'resolve' => static function ($value) {
-                    return $value['path'];
-                },
-            ];
-        }
-
-        parent::__construct([
-            'name' => $this->_nameFromPath(array_merge($path)) . ucfirst('error'),
-            'description' => 'User errors for ' . ucfirst($path[count($path)-1]),
-            'fields' => $finalFields,
-        ]);
     }
 
     /**
