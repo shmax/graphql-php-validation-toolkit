@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use PHPStan\Type\CompoundType;
 use ReflectionClass;
 use ReflectionException;
 use function array_filter;
@@ -71,7 +72,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $result          = $errors;
                 $result['valid'] = !$errors;
 
-                if (!isset($result['error']) && !isset($result['suberrors'])) {
+                if (!empty($result['valid'])) {
                     $result['result'] = $config['resolve']($value, $args1, $context, $info);
                 }
 
@@ -97,17 +98,28 @@ class ValidatedFieldDefinition extends FieldDefinition
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems(array $value, array $path, callable $validate) : void
+    protected function _validateItems($config, array $value, array $path, callable $validate) : void
     {
         foreach ($value as $idx => $subValue) {
             if (is_array($subValue) && !$this->_isAssoc($subValue)) {
                 $path[count($path)-1] = $idx;
                 $newPath              = $path;
                 $newPath[]            = 0;
-                $this->_validateItems($subValue, $newPath, $validate);
+                $this->_validateItems($config, $subValue, $newPath, $validate);
             } else {
                 $path[count($path) - 1] = $idx;
                 $err                    = $validate($subValue);
+
+                if(empty($err)) {
+                    $wrappedType = $config['type']->getWrappedType(true);
+                    $err = $this->_validate([
+                        'type' => $wrappedType
+                    ], $subValue);
+
+                    if($err) {
+                        $err = $err['errors'];
+                    }
+                }
 
                 if ($err) {
                     throw new ValidateItemsError($path, $err);
@@ -141,7 +153,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             default:
-                if (!empty($value) && is_callable($arg['validate'])) {
+                if (!empty($value) && is_callable($arg['validate'] ?? null)) {
                     $res['error'] = $arg['validate']($value) ?? [];
                 }
         }
@@ -151,18 +163,10 @@ class ValidatedFieldDefinition extends FieldDefinition
 
     protected function _validateListOfType($config, $value, &$res) {
         if (isset($config['validate'])) {
-            $err = $config['validate']($value) ?? [];
-            if ($err) {
-                $res['error'] = $err;
-                return;
-            }
-        }
-
-        if (isset($config['validateItem'])) {
             try {
-                $this->_validateItems($value, [0], $config['validateItem']);
+                $this->_validateItems($config, $value, [0], $config['validate']);
             } catch (ValidateItemsError $e) {
-                $res['suberrors'] = [
+                $res['errors'] = [
                     'error' => $e->error,
                     'path' => $e->path,
                 ];
@@ -180,13 +184,17 @@ class ValidatedFieldDefinition extends FieldDefinition
             }
         }
 
+        $this->_validateFields($type, $value, $res);
+    }
+
+    protected function _validateFields($type, $value, &$res) {
         $fields = $type->getFields();
         if (is_array($value)) {
             foreach ($value as $key => $subValue) {
                 $config                 = $fields[$key]->config;
-                $res['suberrors'][$key] = $this->_validate($config, $subValue);
+                $res['errors'][$key] = $this->_validate($config, $subValue);
             }
-            $res['suberrors'] = array_filter($res['suberrors'] ?? []);
+            $res['errors'] = array_filter($res['errors'] ?? []);
         }
     }
 

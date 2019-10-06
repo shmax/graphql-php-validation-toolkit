@@ -101,14 +101,14 @@ final class ListOfInputObjectValidationTest extends TestCase
                         'updateBooks' => new ValidatedFieldDefinition([
                             'name' => 'updateBooks',
                             'type' => Type::boolean(),
+                            'validate' => static function ($book) {
+                                return isset($book['author']) || isset($book['title']) ? 0: [1, 'You must set an author or a title'];
+                            },
                             'args' => [
                                 'bookAttributes' => [
                                     'type' => Type::listOf($this->bookAttributesInputType),
                                     'validate' => static function ($var) {
                                         return $var ? 0: 1;
-                                    },
-                                    'validateItem' => static function ($book) {
-                                        return isset($book['author']) || isset($book['title']) ? 0: 1;
                                     },
                                 ],
                             ],
@@ -128,22 +128,20 @@ final class ListOfInputObjectValidationTest extends TestCase
             $this->schema,
             Utils::nowdoc('
                 mutation UpdateBooks(
-                        $listOfBookAttributes: [BookAttributes]
+                        $bookAttributes: [BookAttributes]
                     ) {
                     updateBooks (
-                        bookAttributes: $listOfBookAttributes
+                        bookAttributes: $bookAttributes
                     ) {
                         valid
                         result
-                        suberrors {
+                        code
+                        msg
+                        fields {
                             bookAttributes {
                                 code
                                 msg
-                                suberrors {
-                                    code
-                                    msg
-                                    path
-                                }
+                                path
                             }
                         }
                     }
@@ -152,7 +150,7 @@ final class ListOfInputObjectValidationTest extends TestCase
             [],
             null,
             [
-                'listOfBookAttributes' => [
+                'bookAttributes' => [
                     [
                         'title' => 'Dogsbody',
                         'author' => 3,
@@ -168,25 +166,13 @@ final class ListOfInputObjectValidationTest extends TestCase
         static::assertEmpty($res->errors);
 
         static::assertEquals(
-            [
+            array (
                 'valid' => false,
                 'result' => null,
-                'suberrors' =>
-                    [
-                        'bookAttributes' =>
-                            [
-                                'code' => null,
-                                'msg' => null,
-                                'suberrors' =>
-                                    [
-                                        'code' => 1,
-                                        'msg' => '',
-                                        'path' =>
-                                            [1],
-                                    ],
-                            ],
-                    ],
-            ],
+                'code' => 1,
+                'msg' => 'You must set an author or a title',
+                'fields' => null,
+            ),
             $res->data['updateBooks']
         );
 

@@ -112,7 +112,13 @@ try {
                         }
                     ],
                     'attributes' => [
-                        'type' => new AuthorAttributes()
+                        'type' => new AuthorAttributes(),
+                        'validate' => static function($attributes) {
+                            // you can do "meta-validation" here, eg check to make sure that certain
+                            // combinations of fields are present, or that one field is not conflicting
+                            // with another, etc
+                            return 0;
+                        }
                     ]
                 ],
                 'resolve' => function ($value, $args) use ($authors) {

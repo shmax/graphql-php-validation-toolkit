@@ -36,18 +36,18 @@ final class ListOfScalarValidationTest extends TestCase
                         'setPhoneNumbers' => new ValidatedFieldDefinition([
                             'name' => 'setPhoneNumbers',
                             'type' => Type::boolean(),
+                            'errorCodes' => ['atLeastOneList'],
+                            'validate' => static function (array $args) {
+                                if (count($args['phoneNumbers']) < 1) {
+                                    return ['atLeastOneList', 'You must submit at least one list of numbers'];
+                                }
+                                return 0;
+                            },
                             'args' => [
                                 'phoneNumbers' => [
                                     'type' => Type::listOf(Type::listOf(Type::string())),
-                                    'errorCodes' => ['atLeastOneList'],
-                                    'validate' => static function (array $phoneNumberLists) {
-                                        if (count($phoneNumberLists) < 1) {
-                                            return ['atLeastOneList', 'You must submit at least one list of numbers'];
-                                        }
-                                        return 0;
-                                    },
-                                    'suberrorCodes' => ['invalidPhoneNumber'],
-                                    'validateItem' => static function ($phoneNumber) {
+                                    'errorCodes' => ['invalidPhoneNumber'],
+                                    'validate' => static function ($phoneNumber) {
                                         $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
                                         return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                                     },
@@ -73,12 +73,10 @@ final class ListOfScalarValidationTest extends TestCase
                     ) {
                         setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                             valid
-                            suberrors {
+                            fields {
                                 phoneNumbers {
-                                    suberrors {
-                                        path
-                                        code
-                                    }
+                                    path
+                                    code
                                 }
                             }
                             result
@@ -98,21 +96,25 @@ final class ListOfScalarValidationTest extends TestCase
         );
 
         static::assertEquals(
-            [
+            array (
                 'valid' => false,
-                'suberrors' =>
+                'fields' =>
                     [
                         'phoneNumbers' =>
                             [
-                                'suberrors' =>
+                                0 =>
                                     [
-                                        'path' => [0,1],
+                                        'path' =>
+                                            [
+                                                0,
+                                                1,
+                                            ],
                                         'code' => 'invalidPhoneNumber',
                                     ],
                             ],
                     ],
                 'result' => null,
-            ],
+            ),
             $res->data['setPhoneNumbers']
         );
 
@@ -130,14 +132,13 @@ final class ListOfScalarValidationTest extends TestCase
                     ) {
                         setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                             valid
-                            suberrors {
+                            code
+                            msg
+                            fields {
                                 phoneNumbers {
                                     code
                                     msg
-                                    suberrors {
-                                        path
-                                        code
-                                    }
+                                    path
                                 }
                             }
                             result
@@ -152,19 +153,13 @@ final class ListOfScalarValidationTest extends TestCase
         );
 
         static::assertEquals(
-            [
+            array (
                 'valid' => false,
-                'suberrors' =>
-                    [
-                        'phoneNumbers' =>
-                            [
-                                'code' => 'atLeastOneList',
-                                'msg' => 'You must submit at least one list of numbers',
-                                'suberrors' => null,
-                            ],
-                    ],
+                'code' => 'atLeastOneList',
+                'msg' => 'You must submit at least one list of numbers',
+                'fields' => null,
                 'result' => null,
-            ],
+            ),
             $res->data['setPhoneNumbers']
         );
 
@@ -182,14 +177,11 @@ final class ListOfScalarValidationTest extends TestCase
                     ) {
                     setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                         valid
-                        suberrors {
+                        fields {
                             phoneNumbers {
                                 code
                                 msg
-                                suberrors {
-                                    path
-                                    code
-                                }
+                                path
                             }
                         }
                         result
@@ -214,24 +206,22 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => false,
-                'suberrors' =>
+                'fields' =>
                     [
                         'phoneNumbers' =>
                             [
-                                'code' => null,
-                                'msg' => null,
-                                'suberrors' =>
-                                    [
-                                        'path' =>
-                                            [
-                                                0 => 1,
-                                                1 => 1,
-                                            ],
-                                        'code' => 'invalidPhoneNumber',
-                                    ],
+                                [
+                                    'code' => 'invalidPhoneNumber',
+                                    'msg' => 'That does not seem to be a valid phone number',
+                                    'path' =>
+                                        [
+                                            0 => 1,
+                                            1 => 1,
+                                        ],
+                                ],
                             ],
                     ],
-                'result' => null,
+                'result' => NULL,
             ],
             $res->data['setPhoneNumbers']
         );

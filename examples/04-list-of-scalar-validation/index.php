@@ -15,24 +15,25 @@ try {
             'savePhoneNumbers' => new ValidatedFieldDefinition([
                 'name' => 'savePhoneNumbers',
                 'type' => Type::boolean(),
+                'validate' => function(array $args) {
+                    if (count($args['phoneNumbers']) == 0) {
+                        return ['requiredValue', "You must enter at least one list of phone number"];
+                    }
+                    return 0;
+                },
+                'errorCodes' => [
+                    'requiredValue'
+                ],
                 'args' => [
                     'phoneNumbers' => [
                         'errorCodes' => [
-                            'requiredValue'
-                        ],
-                        'validate' => function(array $phoneNumbers) {
-                            if (count($phoneNumbers) == 0) {
-                                return ['requiredValue', "You must enter at least one phone number"];
-                            }
-                        },
-                        'suberrorCodes' => [
                             'invalidPhoneNumber'
                         ],
-                        'validateItem' => function(string $phoneNumber) {
+                        'validate' => function($phoneNumber) {
                             $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
                             return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                         },
-                        'type' => Type::listOf(Type::listOf(Type::listOf(Type::string())))
+                        'type' => Type::listOf(Type::string())
                     ]
                 ],
                 'resolve' => function ($value, $args) {

@@ -47,50 +47,49 @@ try {
     $mutationType = new ObjectType([
         'name' => 'Mutation',
         'fields' => [
-            'updateAuthor' => new ValidatedFieldDefinition([
-                'name' => 'updateAuthor',
-                'type' => $authorType,
+            'deleteAuthor' => new ValidatedFieldDefinition([
+                'name' => 'deleteAuthor',
+                'type' => Type::boolean(),
                 'args' => [
-                    'authorId' => [
+                    'id' => [
                         'type' => Type::id(),
                         'validate' => function(string $authorId) use ($authors) {
                             if (isset($authors[$authorId])) {
                                 return 0;
                             }
 
-                            return [0, "Unknown author"];
+                            return [1, "Unknown author"];
                         }
                     ],
                 ],
                 'resolve' => function ($value, $args) use ($authors) {
                     // do your operation on the author
                     // AuthorProvider::update($authorId);
-                    return $authors[$args['authorId']];
+                    unset($authors[$args['id']]);
+                    return true;
                 },
             ]),
         ],
     ]);
 
-    $queryType = new ObjectType([
-        'name'=>'Query',
-        'fields'=>[
-            'author'=> [
-                'type' => $authorType,
-                "args" => [
-                    'authorId' => [
-                        'type' => Type::id()
-                    ]
-                ],
-                'resolve' => function($value, $args) use ($authors) {
-                    return $authors[$args['authorId']];
-                }
-            ]
-        ]
-    ]);
-
     $schema = new Schema([
         'mutation' => $mutationType,
-        'query' => $queryType
+        'query' => new ObjectType([
+            'name'=>'Query',
+            'fields'=>[
+                'author'=> [
+                    'type' => $authorType,
+                    "args" => [
+                        'authorId' => [
+                            'type' => Type::id()
+                        ]
+                    ],
+                    'resolve' => function($value, $args) use ($authors) {
+                        return $authors[$args['authorId']];
+                    }
+                ]
+            ]
+        ])
     ]);
 
 
