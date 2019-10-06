@@ -188,8 +188,8 @@ class UserErrorsType extends ObjectType
         $config['fields'] = $config['fields'] ?? [];
         if (isset($config['validate']) && is_callable($config['validate'])) {
 
-            static::_addCode($config);
-            static::_addMessage($config);
+            $config['fields']['code'] = $config['fields']['code'] ?? static::_generateCodeType($config);
+            $config['fields']['msg'] = $config['fields']['msg'] ?? static::_generateMessageType($config);
         }
 
         $userErrorType = new static($config, $path, $isParentList);
@@ -203,8 +203,8 @@ class UserErrorsType extends ObjectType
         return null;
     }
 
-    protected static function _addCode(&$config) {
-        $config['fields']['code'] = $config['fields']['code'] ?? [
+    protected static function _generateCodeType() {
+        return [
             'type' => Type::int(),
             'description' => 'A numeric error code. 0 on success, non-zero on failure.',
             'resolve' => static function ($value) {
@@ -218,8 +218,8 @@ class UserErrorsType extends ObjectType
         ];
     }
 
-    protected static function _addMessage(&$config) {
-        $config['fields']['msg'] = $config['fields']['msg'] ?? [
+    protected static function _generateMessageType() {
+        return [
             'type' => Type::string(),
             'description' => 'An error message.',
             'resolve' => static function ($value) {
