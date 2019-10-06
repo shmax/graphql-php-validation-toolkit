@@ -15,7 +15,7 @@ build:
         override: true
       tests:
         override:
-          - command: phpcs-run phpcs.xml.dist
+          - command: phpcs-run --standard=phpcs.xml.dist
 
   dependencies:
     override:
