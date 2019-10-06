@@ -141,10 +141,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             default:
-                if ($value === null) {
-                    break;
-                }
-                if (isset($arg['validate']) && is_callable($arg['validate'])) {
+                if (!empty($value) && is_callable($arg['validate'])) {
                     $res['error'] = $arg['validate']($value) ?? [];
                 }
         }
