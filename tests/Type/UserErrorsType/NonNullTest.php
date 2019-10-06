@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Utils;
-use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
