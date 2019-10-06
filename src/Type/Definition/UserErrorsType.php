@@ -39,17 +39,8 @@ class UserErrorsType extends ObjectType
             $this->_buildListOfType($config, $path, $finalFields);
         }
 
-        if ($isParentList && (isset($finalFields['suberrors']) || isset($finalFields['code']))) {
-            /**
-             * path property
-             */
-            $finalFields['path'] = [
-                'type' => Type::listOf(Type::int()),
-                'description' => 'A path describing this items\'s location in the nested array',
-                'resolve' => static function ($value) {
-                    return $value['path'];
-                },
-            ];
+        if ($isParentList) {
+            $this->_addSuberrorCodes($finalFields);
         }
 
         parent::__construct([
@@ -153,6 +144,18 @@ class UserErrorsType extends ObjectType
                 'description' => 'A natural language description of the issue',
                 'resolve' => static function ($value) {
                     return $value['error'][1] ?? null;
+                },
+            ];
+        }
+    }
+
+    protected function _addSuberrorCodes(&$finalFields) {
+        if (isset($finalFields['suberrors']) || isset($finalFields['code'])) {
+            $finalFields['path'] = [
+                'type' => Type::listOf(Type::int()),
+                'description' => 'A path describing this items\'s location in the nested array',
+                'resolve' => static function ($value) {
+                    return $value['path'];
                 },
             ];
         }
