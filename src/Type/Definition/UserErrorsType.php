@@ -162,9 +162,9 @@ class UserErrorsType extends ObjectType
     }
 
     /**
+     * @param Type $type
      * @param mixed[] $config
-     *
-     * @return mixed
+     * @return Type
      */
     protected function _set(Type $type, array $config)
     {
@@ -188,8 +188,8 @@ class UserErrorsType extends ObjectType
         $config['fields'] = $config['fields'] ?? [];
         if (isset($config['validate']) && is_callable($config['validate'])) {
 
-            $config['fields']['code'] = $config['fields']['code'] ?? static::_generateCodeType($config);
-            $config['fields']['msg'] = $config['fields']['msg'] ?? static::_generateMessageType($config);
+            $config['fields']['code'] = $config['fields']['code'] ?? static::_generateIntCodeType();
+            $config['fields']['msg'] = $config['fields']['msg'] ?? static::_generateMessageType();
         }
 
         $userErrorType = new static($config, $path, $isParentList);
@@ -203,7 +203,7 @@ class UserErrorsType extends ObjectType
         return null;
     }
 
-    protected static function _generateCodeType() {
+    protected static function _generateIntCodeType() {
         return [
             'type' => Type::int(),
             'description' => 'A numeric error code. 0 on success, non-zero on failure.',
