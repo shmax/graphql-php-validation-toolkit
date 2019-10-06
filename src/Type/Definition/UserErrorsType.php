@@ -186,8 +186,7 @@ class UserErrorsType extends ObjectType
     public static function create(array $config, array $path, bool $isParentList = false, string $name = '') : ?self
     {
         $config['fields'] = $config['fields'] ?? [];
-        if (isset($config['validate']) && is_callable($config['validate'])) {
-
+        if (is_callable($config['validate'] ?? null)) {
             $config['fields']['code'] = $config['fields']['code'] ?? static::_generateIntCodeType();
             $config['fields']['msg'] = $config['fields']['msg'] ?? static::_generateMessageType();
         }
@@ -195,7 +194,7 @@ class UserErrorsType extends ObjectType
         $userErrorType = new static($config, $path, $isParentList);
         if ($userErrorType->getFields()) {
             $userErrorType->name = $name ?: $userErrorType->name;
-            if (isset($config['typeSetter']) && is_callable($config['typeSetter'])) {
+            if (is_callable($config['typeSetter'] ?? null)) {
                 $config['typeSetter']($userErrorType);
             }
             return $userErrorType;

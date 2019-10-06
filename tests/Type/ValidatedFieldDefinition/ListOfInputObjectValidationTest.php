@@ -88,7 +88,11 @@ final class ListOfInputObjectValidationTest extends TestCase
 
         $this->query = new ObjectType(['name' => 'Query']);
 
-        $this->schema = new Schema([
+        $this->schema = $this->_createSchema();
+    }
+
+    protected function _createSchema() {
+        return new Schema([
             'query' => $this->query,
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
