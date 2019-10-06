@@ -49,12 +49,12 @@ final class ListOfScalarValidationTest extends TestCase
                                     'suberrorCodes' => ['invalidPhoneNumber'],
                                     'validateItem' => static function ($phoneNumber) {
                                         $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-                                        return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                                        return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                                     },
                                 ],
                             ],
                             'resolve' => static function (array $phoneNumbers) : bool {
-                                return ! empty($phoneNumbers);
+                                return !empty($phoneNumbers);
                             },
                         ]),
                     ];

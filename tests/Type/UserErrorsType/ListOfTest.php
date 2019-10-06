@@ -165,7 +165,7 @@ final class ListOfTest extends TestCase
         $type = new UserErrorsType([
             'suberrorCodes' => ['firstNameOrLastNameRequired'],
             'validateItem' => static function (array $author) {
-                if (! isset($author['firstName']) && ! isset($author['lastName'])) {
+                if (!isset($author['firstName']) && !isset($author['lastName'])) {
                     return ['atLeastOneAuthorRequired', 'You must submit a first name or a last name'];
                 }
             },

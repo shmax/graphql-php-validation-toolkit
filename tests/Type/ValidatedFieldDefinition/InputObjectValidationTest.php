@@ -76,7 +76,7 @@ final class InputObjectValidationTest extends TestCase
                         'authorDeceased',
                     ],
                     'validate' => function (string $authorId) {
-                        if (! isset($this->data['people'][$authorId])) {
+                        if (!isset($this->data['people'][$authorId])) {
                             return ['unknownAuthor', 'We have no record of that author'];
                         }
                         return 0;
@@ -117,7 +117,7 @@ final class InputObjectValidationTest extends TestCase
                                 // do update
                                 // ...
 
-                                return ! $value;
+                                return !$value;
                             },
                         ]),
                     ];

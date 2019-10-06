@@ -24,14 +24,14 @@ class UserErrorsType extends ObjectType
     {
         $finalFields = $config['fields'] ?? [];
 
-        if (! isset($config['type'])) {
+        if (!isset($config['type'])) {
             throw new Exception('You must specify a type for your field');
         }
 
         GraphQL\Utils\Utils::invariant($config['type'] instanceof Type, 'Must provide type.');
 
         if (isset($config['errorCodes'])) {
-            if (! isset($config['validate'])) {
+            if (!isset($config['validate'])) {
                 throw new Exception('If you specify errorCodes, you must also provide a validate callback');
             }
 
@@ -69,7 +69,7 @@ class UserErrorsType extends ObjectType
                     array_merge($path, [$key])
                 );
 
-                if (! $newType) {
+                if (!$newType) {
                     continue;
                 }
 

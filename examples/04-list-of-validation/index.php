@@ -30,7 +30,7 @@ try {
                         ],
                         'validateItem' => function(string $phoneNumber) {
                             $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-                            return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                            return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                         },
                         'type' => Type::listOf(Type::listOf(Type::listOf(Type::string())))
                     ]

@@ -69,9 +69,9 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $errors          = $this->_validate($config, $args1);
                 $result          = $errors;
-                $result['valid'] = ! $errors;
+                $result['valid'] = !$errors;
 
-                if (! isset($result['error']) && ! isset($result['suberrors'])) {
+                if (!isset($result['error']) && !isset($result['suberrors'])) {
                     $result['result'] = $config['resolve']($value, $args1, $context, $info);
                 }
 
@@ -100,7 +100,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected function _validateItems(array $value, array $path, callable $validate) : void
     {
         foreach ($value as $idx => $subValue) {
-            if (is_array($subValue) && ! $this->_isAssoc($subValue)) {
+            if (is_array($subValue) && !$this->_isAssoc($subValue)) {
                 $path[count($path)-1] = $idx;
                 $newPath              = $path;
                 $newPath[]            = 0;

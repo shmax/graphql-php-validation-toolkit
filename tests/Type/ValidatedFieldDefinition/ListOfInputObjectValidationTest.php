@@ -77,7 +77,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                         'authorDeceased',
                     ],
                     'validate' => function (string $authorId) {
-                        if (! isset($this->data['people'][$authorId])) {
+                        if (!isset($this->data['people'][$authorId])) {
                             return ['unknownAuthor', 'We have no record of that author'];
                         }
                         return 0;
