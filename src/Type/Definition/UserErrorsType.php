@@ -187,31 +187,9 @@ class UserErrorsType extends ObjectType
     {
         $config['fields'] = $config['fields'] ?? [];
         if (isset($config['validate']) && is_callable($config['validate'])) {
-            $config['fields']['code'] = $config['fields']['code'] ?? [
-                'type' => Type::int(),
-                'description' => 'A numeric error code. 0 on success, non-zero on failure.',
-                'resolve' => static function ($value) {
-                    $error = $value['error'] ?? null;
-                    switch (gettype($error)) {
-                        case 'integer':
-                            return $error;
-                    }
-                    return $error[0];
-                },
-            ];
 
-            $config['fields']['msg'] = $config['fields']['msg'] ?? [
-                'type' => Type::string(),
-                'description' => 'An error message.',
-                'resolve' => static function ($value) {
-                    $error = $value['error'] ?? null;
-                    switch (gettype($error)) {
-                        case 'integer':
-                            return '';
-                    }
-                    return $error[1];
-                },
-            ];
+            static::_addCode($config);
+            static::_addMessage($config);
         }
 
         $userErrorType = new static($config, $path, $isParentList);
@@ -223,6 +201,36 @@ class UserErrorsType extends ObjectType
             return $userErrorType;
         }
         return null;
+    }
+
+    protected static function _addCode(&$config) {
+        $config['fields']['code'] = $config['fields']['code'] ?? [
+            'type' => Type::int(),
+            'description' => 'A numeric error code. 0 on success, non-zero on failure.',
+            'resolve' => static function ($value) {
+                $error = $value['error'] ?? null;
+                switch (gettype($error)) {
+                    case 'integer':
+                        return $error;
+                }
+                return $error[0];
+            },
+        ];
+    }
+
+    protected static function _addMessage(&$config) {
+        $config['fields']['msg'] = $config['fields']['msg'] ?? [
+            'type' => Type::string(),
+            'description' => 'An error message.',
+            'resolve' => static function ($value) {
+                $error = $value['error'] ?? null;
+                switch (gettype($error)) {
+                    case 'integer':
+                        return '';
+                }
+                return $error[1];
+            },
+        ];
     }
 
     /**
