@@ -1,6 +1,7 @@
 filter:
   excluded_paths:
     - 'examples/*'
+    - 'tests/'
 build:
   nodes:
     analysis:
