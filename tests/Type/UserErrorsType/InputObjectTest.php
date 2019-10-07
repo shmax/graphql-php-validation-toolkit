@@ -39,7 +39,7 @@ final class InputObjectTest extends FieldDefinitionTest
             'args' => [
                 'book' => [
                     'validate' => static function($book) {
-                        return 0;
+                        return empty($book) ? 1 : 0;
                     },
                     'type' => new InputObjectType([
                         'name' => 'book',
