@@ -35,8 +35,6 @@ class UserErrorsType extends ObjectType
         $type = $this->_getType($config);
         if ($type instanceof InputObjectType) {
             $this->_buildInputObjectType($type, $config, $path, $finalFields);
-        } elseif ($type instanceof ListOfType) {
-            $this->_buildListOfType($type, $config, $path, $finalFields);
         }
 
         if ($isParentList) {
@@ -56,30 +54,6 @@ class UserErrorsType extends ObjectType
             $type = $type->getWrappedType(true);
         }
         return $type;
-    }
-
-    protected function _buildListOfType(ListOfType $type, $config, $path, &$finalFields) {
-        $wrappedType = $type->getWrappedType(true);
-        if (isset($config['validate'])) {
-            $newType = static::create(
-                [
-                    'type' => $wrappedType,
-                    'validate' => $config['validate'],
-                    'errorCodes' => $config['errorCodes'] ?? null,
-                    'typeSetter' => $config['typeSetter'] ?? null,
-                ],
-                array_merge($path, [$wrappedType instanceof IDType ? "Id" : $wrappedType->name]),
-                true
-            );
-
-            $finalFields['items'] = [
-                'description' => 'Errors for ' . $wrappedType . ' items.',
-                'type' => Type::listOf($newType),
-                'resolve' => static function ($value) {
-                    return $value['errors'] ?? null;
-                },
-            ];
-        }
     }
 
     protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields) {
