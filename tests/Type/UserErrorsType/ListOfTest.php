@@ -54,7 +54,7 @@ final class ListOfTest extends FieldDefinitionTest
                 ],
             ],
             'resolve' => static function (array $data) : bool {
-                return !empty($phoneNumbers);
+                return !empty($data);
             },
         ]),'
             type Mutation {

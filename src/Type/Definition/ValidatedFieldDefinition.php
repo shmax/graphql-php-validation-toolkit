@@ -116,7 +116,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                         'type' => $wrappedType
                     ], $subValue);
 
-                    if($err) {
+                    if(!empty($err)) {
                         $err = $err['errors'];
                     }
                 }

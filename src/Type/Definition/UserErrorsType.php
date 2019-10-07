@@ -121,7 +121,7 @@ class UserErrorsType extends ObjectType
                     'fields' => $fields,
                 ]), $config),
                 'description' => 'Validation errors for ' . ucfirst($path[count($path)-1]),
-                'resolve' => static function (array $value, $args, $context, $info) {
+                'resolve' => static function (array $value) {
                     return $value['errors'] ?? null;
                 },
             ];
