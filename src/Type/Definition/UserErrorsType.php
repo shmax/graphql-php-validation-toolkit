@@ -50,7 +50,7 @@ class UserErrorsType extends ObjectType
 
     protected function _getType($config) {
         $type = $config['type'];
-        if($type instanceof NonNull || $type instanceof ListOfType) {
+        if ($type instanceof NonNull || $type instanceof ListOfType) {
             $type = $type->getWrappedType(true);
         }
         return $type;
