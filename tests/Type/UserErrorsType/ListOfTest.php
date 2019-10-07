@@ -45,7 +45,7 @@ final class ListOfTest extends FieldDefinitionTest
                 'phoneNumbers' => [
                     'type' => Type::listOf(Type::string()),
                     'errorCodes' => ['invalidPhoneNumber'],
-                    'validate' => static function (array $phoneNumber) {
+                    'validate' => static function (string $phoneNumber) {
                         if (!is_numeric($phoneNumber)) {
                             return ['invalidPhoneNumber', 'You must provide a valid phone number'];
                         }
