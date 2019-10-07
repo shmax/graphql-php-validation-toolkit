@@ -16,6 +16,10 @@ use function ucfirst;
 
 class UserErrorsType extends ObjectType
 {
+    protected const ERROR_NAME = 'fields';
+    protected const CODE_NAME = 'code';
+    protected const MESSAGE_NAME = 'msg';
+
     /**
      * @param mixed[]  $config
      * @param string[] $path
@@ -88,7 +92,7 @@ class UserErrorsType extends ObjectType
             /**
              * errors property
              */
-            $finalFields['fields'] = [
+            $finalFields[static::ERROR_NAME] = [
                 'type' => $this->_set(new ObjectType([
                     'name' => $this->_nameFromPath(array_merge($path, ['fieldErrors'])),
                     'description' => 'User Error',
@@ -109,7 +113,7 @@ class UserErrorsType extends ObjectType
             }
 
             /** code property */
-            $finalFields['code'] = [
+            $finalFields[static::CODE_NAME] = [
                 'type' => $this->_set(new EnumType([
                     'name' => $this->_nameFromPath(array_merge($path)) . 'ErrorCode',
                     'description' => 'Error code',
@@ -124,7 +128,7 @@ class UserErrorsType extends ObjectType
             /**
              * msg property
              */
-            $finalFields['msg'] = [
+            $finalFields[static::MESSAGE_NAME] = [
                 'type' => Type::string(),
                 'description' => 'A natural language description of the issue',
                 'resolve' => static function ($value) {
@@ -135,7 +139,7 @@ class UserErrorsType extends ObjectType
     }
 
     protected function _addSuberrorCodes(&$finalFields) {
-        if (isset($finalFields['itemErrors']) || isset($finalFields['code'])) {
+        if (isset($finalFields['code'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this items\'s location in the nested array',
@@ -172,8 +176,8 @@ class UserErrorsType extends ObjectType
     {
         $config['fields'] = $config['fields'] ?? [];
         if (is_callable($config['validate'] ?? null)) {
-            $config['fields']['code'] = $config['fields']['code'] ?? static::_generateIntCodeType();
-            $config['fields']['msg'] = $config['fields']['msg'] ?? static::_generateMessageType();
+            $config['fields'][static::CODE_NAME] = $config['fields'][static::CODE_NAME] ?? static::_generateIntCodeType();
+            $config['fields'][static::MESSAGE_NAME] = $config['fields'][static::MESSAGE_NAME] ?? static::_generateMessageType();
         }
 
         $userErrorType = new static($config, $path, $isParentList);
