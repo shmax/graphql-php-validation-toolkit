@@ -1,6 +1,6 @@
 # Validation of InputObjects (or Objects) 
 
-You can add `validate` properties to the fields of nested Objects or InputObjects (and those fields can themselves be of complex types with their own fields, and so on). This library will sniff them out and recursively build up a result type with a similarly nested structure.
+You can add validate lists of compound types, such as InputObject. You can specify a `validate` callback on the `ListOf` field to be applied to each item in the list, and if the compound object has any `validate` callbacks on its own fields, they will be called as well.
 
 
 ### Run locally
@@ -16,32 +16,38 @@ php -S localhost:8000 ./index.php
 ### Try mutation with valid input
 ```
 mutation {
-	updateAuthor(
-    authorId: 1
-  	attributes: {
-      name: "Stephen King",
-      age: 47
-    }
+	updateAuthors(
+    authors: [{
+      id:1,
+      firstName: "Richard",
+      lastName: "Matheson"
+    },{
+      id:2,
+      firstName: "Jim",
+      lastName: "Thomas"
+    }]
   ) {
-		result {
-      id
-      name
-    }
+    valid
     suberrors {
-      attributes {
+      authors {
+        path
         code
         msg
         suberrors {
-          age {
+          id {
             code
             msg
           }
-          name {
+          firstName {
             code
             msg
           }
         }
       }
+    }
+    result {
+      firstName
+      lastName
     }
   }
 }
@@ -50,32 +56,38 @@ mutation {
 ### Try mutation with invalid input
 ```
 mutation {
-	updateAuthor(
-    authorId: 1
-  	attributes: {
-      name: "Edward John Moreton Drax Plunkett, 18th Baron of Dunsany",
-      age: -3
-    }
+	updateAuthors(
+    authors: [{
+      id:1,
+      firstName: "Richard",
+      lastName: "Matheson"
+    },{
+      id:2,
+      firstName: null,
+      lastName: null
+    }]
   ) {
-		result {
-      id
-      name
-    }
+    valid
     suberrors {
-      attributes {
+      authors {
+        path
         code
         msg
         suberrors {
-          age {
+          id {
             code
             msg
           }
-          name {
+          firstName {
             code
             msg
           }
         }
       }
+    }
+    result {
+      firstName
+      lastName
     }
   }
 }

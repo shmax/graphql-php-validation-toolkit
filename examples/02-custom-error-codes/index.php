@@ -12,12 +12,10 @@ $authors = [
     1 => [
         'id' => 1,
         'name'=> 'Cormac McCarthy',
-        'deceased' => false
     ],
     2 => [
         'id' => 2,
         'name' => 'J.D.Salinger',
-        'deceased' => true
     ],
 ];
 
@@ -49,61 +47,54 @@ try {
     $mutationType = new ObjectType([
         'name' => 'Mutation',
         'fields' => [
-            'updateAuthor' => new ValidatedFieldDefinition([
-                'name' => 'updateAuthor',
-                'type' => $authorType,
+            'deleteAuthor' => new ValidatedFieldDefinition([
+                'name' => 'deleteAuthor',
+                'type' => Type::boolean(),
                 'args' => [
-                    'authorId' => [
+                    'id' => [
                         'type' => Type::id(),
                         'errorCodes' => [
                             'unknownAuthor',
-                            'deceasedAuthor'
+                            'authorAlreadyDeleted'
                         ],
                         'validate' => function(string $authorId) use ($authors) {
-                            if (!isset($authors[$authorId])) {
-                                return ['unknownAuthor', "We have no record of that author"];
+                            if (isset($authors[$authorId])) {
+                                return 0;
                             }
 
-                            if ($authors[$authorId]['deceased']) {
-                                return ['unknownAuthor', "Please choose a living author"];
-                            }
-
-                            return 0;
+                            return ['unknownAuthor', "Unknown author"];
                         }
                     ],
                 ],
                 'resolve' => function ($value, $args) use ($authors) {
-                    $authorId = $args['authorId'];
-
+                    // do your operation on the author
                     // AuthorProvider::update($authorId);
-                    return $authors[$authorId];
+                    unset($authors[$args['id']]);
+                    return true;
                 },
             ]),
         ],
     ]);
 
-    $queryType = new ObjectType([
-        'name'=>'Query',
-        'fields'=>[
-            'author'=> [
-                'type' => $authorType,
-                "args" => [
-                    'authorId' => [
-                        'type' => Type::id()
-                    ]
-                ],
-                'resolve' => function($value, $args) use ($authors) {
-                    return $authors[$args['authorId']];
-                }
-            ]
-        ]
-    ]);
-
     $schema = new Schema([
         'mutation' => $mutationType,
-        'query' => $queryType
+        'query' => new ObjectType([
+            'name'=>'Query',
+            'fields'=>[
+                'author'=> [
+                    'type' => $authorType,
+                    "args" => [
+                        'authorId' => [
+                            'type' => Type::id()
+                        ]
+                    ],
+                    'resolve' => function($value, $args) use ($authors) {
+                        return $authors[$args['authorId']];
+                    }
+                ]
+            ]
+        ])
     ]);
-
 
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);

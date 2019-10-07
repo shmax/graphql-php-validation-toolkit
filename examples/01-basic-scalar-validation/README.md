@@ -14,18 +14,9 @@ php -S localhost:8000 ./index.php
 ### Try mutation with valid input
 ```
 mutation {
-  updateAuthor(authorId:1) {
-    suberrors {
-      authorId {
-        code
-        msg
-      }
-    }
-    result {
-      id
-      name
-    }
+  deleteAuthor(id: 1) {
     valid
+    result
   }
 }
 ```
@@ -33,18 +24,15 @@ mutation {
 ### Try mutation with invalid input
 ```
 mutation {
-  updateAuthor(authorId:999) {
+  deleteAuthor(id: 3) {
+    valid
+    result
     suberrors {
-      authorId {
+      id {
         code
         msg
       }
     }
-    result {
-      id
-      name
-    }
-    valid
   }
 }
 ```

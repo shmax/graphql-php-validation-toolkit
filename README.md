@@ -135,7 +135,8 @@ If you want to return an error message, return an array with the message in the 
   ]	  
 ])
 ```
-Note that `ListOf` types are a special case, and support an additional `validateItem` callback for checking each item in their array. Its generated error type will have an array of suberror types, each with their own `path` field that you can query so you can know the exact address in the multidimensional array of each item that failed validation:
+
+Generated `ListOf` error types also have a `path` field that you can query so you can know the exact address in the multidimensional array of each item that failed validation:
 
 ```php
 //...
@@ -144,13 +145,7 @@ Note that `ListOf` types are a special case, and support an additional `validate
   'args' => [
     'phoneNumbers' => [
       'type' => Type::listOf(Type::string()),  
-      'validate' => function(array $phoneNumbers) {
-        if(!count($phoneNumbers)) {
-          return [1, "At least one phone number is required"];
-        }
-        return 0;
-      },
-      'validateItem' => function(string $phoneNumber) {
+      'validate' => function(string $phoneNumber) {
         $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
         if (!$res) {
           return [1, 'That does not seem to be a valid phone number'];
@@ -182,39 +177,7 @@ If you would like to use custom error codes, add an `errorCodes` property at the
 ]   
 ```
 
-`ListOf` types are again a special case, and support an additional `suberrorCodes` property for validating their items:
 
-```php
-//...
-'setPhoneNumbers' => new ValidatedFieldDefinition([
-  'type' => Types::bool(),
-  'args' => [
-    'phoneNumbers' => [
-      'errorCodes' => [
-        'atLeastOneRequired`
-      ],
-      'suberrorCodes' => [
-        'invalidPhoneNumber'
-      ],
-      'type' => Type::listOf(Type::string()),  
-      'validate' => function(array $phoneNumbers) {
-        if(!count($phoneNumbers)) {
-          return ['atLeastOneRequired', "At least one phone number is required"];
-        }
-        return 0;
-      },
-      'validateItem' => function(string $phoneNumber) {
-        $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-        if (!$res) {
-          return ['invalidPhoneNumber', 'That does not seem to be a valid phone number'];
-        }
-        return 0;  
-      }
-    ]
-  ]	  
-])  
-```
- 
 ### Managing Created Types
 This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback:
 
