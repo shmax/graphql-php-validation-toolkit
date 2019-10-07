@@ -130,6 +130,6 @@ final class ScalarValidationTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertTrue($res->data['updateBook']['valid']);
+        static::assertFalse($res->data['updateBook']['valid']);
     }
 }
