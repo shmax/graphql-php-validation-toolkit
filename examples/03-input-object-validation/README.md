@@ -27,11 +27,11 @@ mutation {
       id
       name
     }
-    fields {
+    suberrors {
       attributes {
         code
         msg
-        fields {
+        suberrors {
           age {
             code
             msg
@@ -61,11 +61,11 @@ mutation {
       id
       name
     }
-    fields {
+    suberrors {
       attributes {
         code
         msg
-        fields {
+        suberrors {
           age {
             code
             msg

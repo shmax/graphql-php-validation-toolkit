@@ -52,7 +52,7 @@ final class GeneratedCodeTypeTest extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         valid
-                        fields {
+                        suberrors {
                             bookId {
                                 code
                                 msg
@@ -68,7 +68,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['fields']['bookId']['code'], 1);
+        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['code'], 1);
     }
 
     public function testStringCodeType() : void
@@ -110,7 +110,7 @@ final class GeneratedCodeTypeTest extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         valid
-                        fields {
+                        suberrors {
                             bookId {
                                 code
                                 msg
@@ -126,7 +126,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['fields']['bookId']['code'], "invalidBookId");
-        static::assertEquals($res->data['updateBook']['fields']['bookId']['msg'], "Invalid Book Id");
+        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['code'], "invalidBookId");
+        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['msg'], "Invalid Book Id");
     }
 }

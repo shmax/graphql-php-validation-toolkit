@@ -112,7 +112,7 @@ final class ScalarValidationTest extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         valid
-                        fields {
+                        suberrors {
                             bookId {
                                 code
                                 msg

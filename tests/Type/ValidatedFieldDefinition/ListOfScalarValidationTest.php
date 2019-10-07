@@ -73,7 +73,7 @@ final class ListOfScalarValidationTest extends TestCase
                     ) {
                         setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                             valid
-                            fields {
+                            suberrors {
                                 phoneNumbers {
                                     path
                                     code
@@ -98,7 +98,7 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEquals(
             array (
                 'valid' => false,
-                'fields' =>
+                'suberrors' =>
                     [
                         'phoneNumbers' =>
                             [
@@ -134,7 +134,7 @@ final class ListOfScalarValidationTest extends TestCase
                             valid
                             code
                             msg
-                            fields {
+                            suberrors {
                                 phoneNumbers {
                                     code
                                     msg
@@ -157,7 +157,7 @@ final class ListOfScalarValidationTest extends TestCase
                 'valid' => false,
                 'code' => 'atLeastOneList',
                 'msg' => 'You must submit at least one list of numbers',
-                'fields' => null,
+                'suberrors' => null,
                 'result' => null,
             ),
             $res->data['setPhoneNumbers']
@@ -177,7 +177,7 @@ final class ListOfScalarValidationTest extends TestCase
                     ) {
                     setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
                         valid
-                        fields {
+                        suberrors {
                             phoneNumbers {
                                 code
                                 msg
@@ -206,7 +206,7 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => false,
-                'fields' =>
+                'suberrors' =>
                     [
                         'phoneNumbers' =>
                             [

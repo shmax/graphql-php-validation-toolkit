@@ -137,7 +137,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                         result
                         code
                         msg
-                        fields {
+                        suberrors {
                             bookAttributes {
                                 code
                                 msg
@@ -171,7 +171,7 @@ final class ListOfInputObjectValidationTest extends TestCase
                 'result' => null,
                 'code' => 1,
                 'msg' => 'You must set an author or a title',
-                'fields' => null,
+                'suberrors' => null,
             ),
             $res->data['updateBooks']
         );

@@ -70,7 +70,7 @@ final class ListOfTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for UpdateAddressBook"""
-              fields: UpdateAddressBook_FieldErrors
+              suberrors: UpdateAddressBook_FieldErrors
             }
             
             """User Error"""
@@ -148,7 +148,7 @@ final class ListOfTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for UpdateAddressBook"""
-              fields: UpdateAddressBook_FieldErrors
+              suberrors: UpdateAddressBook_FieldErrors
             }
             
             """User errors for Addresses"""
@@ -242,7 +242,7 @@ final class ListOfTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for UpdateAddressBook"""
-              fields: UpdateAddressBook_FieldErrors
+              suberrors: UpdateAddressBook_FieldErrors
             }
             
             """User errors for Addresses"""
@@ -254,7 +254,7 @@ final class ListOfTest extends FieldDefinitionTest
               msg: String
             
               """Validation errors for Addresses"""
-              fields: UpdateAddressBook_Addresses_FieldErrors
+              suberrors: UpdateAddressBook_Addresses_FieldErrors
             
               """A path describing this items\'s location in the nested array"""
               path: [Int]
@@ -364,7 +364,7 @@ final class ListOfTest extends FieldDefinitionTest
               msg: String
             
               """Validation errors for UpdateAddressBook"""
-              fields: UpdateAddressBook_FieldErrors
+              suberrors: UpdateAddressBook_FieldErrors
             }
             
             """User Error"""

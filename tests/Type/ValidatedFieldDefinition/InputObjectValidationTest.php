@@ -119,9 +119,9 @@ final class InputObjectValidationTest extends TestCase
                         bookAttributes: $bookAttributes
                     ) {
                         valid
-                        fields {
+                        suberrors {
                             bookAttributes {
-                                fields {
+                                suberrors {
                                     title {
                                         code
                                         msg
@@ -150,11 +150,11 @@ final class InputObjectValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => false,
-                'fields' =>
+                'suberrors' =>
                     [
                         'bookAttributes' =>
                             [
-                                'fields' =>
+                                'suberrors' =>
                                     [
                                         'title' =>
                                             [
@@ -189,11 +189,11 @@ final class InputObjectValidationTest extends TestCase
                         bookAttributes: $bookAttributes
                     ) {
                         valid
-                        fields {
+                        suberrors {
                             bookAttributes {
                                 code
                                 msg
-                                fields {
+                                suberrors {
                                     title {
                                         code
                                         msg
@@ -222,13 +222,13 @@ final class InputObjectValidationTest extends TestCase
         static::assertEquals(
             array (
                 'valid' => false,
-                'fields' =>
+                'suberrors' =>
                     [
                         'bookAttributes' =>
                             [
                                 'code' => 'titleOrIdRequired',
                                 'msg' => 'You must supply at least one of title or author',
-                                'fields' => NULL,
+                                'suberrors' => NULL,
                             ],
                     ],
                 'result' => null,
@@ -251,9 +251,9 @@ final class InputObjectValidationTest extends TestCase
                         bookAttributes: $bookAttributes
                     ) {
                         valid
-                        fields {
+                        suberrors {
                             bookAttributes {
-                                fields {
+                                suberrors {
                                     title {
                                         code
                                         msg
@@ -283,7 +283,7 @@ final class InputObjectValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => true,
-                'fields' => null,
+                'suberrors' => null,
                 'result' => true,
             ],
             $res->data['updateBook']
@@ -304,9 +304,9 @@ final class InputObjectValidationTest extends TestCase
                         bookAttributes: $bookAttributes
                     ) {
                         valid
-                        fields {
+                        suberrors {
                             bookAttributes {
-                                fields {
+                                suberrors {
                                     title {
                                         code
                                         msg
@@ -331,7 +331,7 @@ final class InputObjectValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => true,
-                'fields' => null,
+                'suberrors' => null,
                 'result' => true,
             ],
             $res->data['updateBook']

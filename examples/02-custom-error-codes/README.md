@@ -17,7 +17,7 @@ mutation {
   deleteAuthor(id: 1) {
     valid
     result
-    fields {
+    suberrors {
       id {
         code
         msg
@@ -33,7 +33,7 @@ mutation {
   deleteAuthor(id: 3) {
     valid
     result
-    fields {
+    suberrors {
       id {
         code
         msg

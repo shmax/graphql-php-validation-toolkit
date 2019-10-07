@@ -16,7 +16,7 @@ use function ucfirst;
 
 class UserErrorsType extends ObjectType
 {
-    protected const ERROR_NAME = 'fields';
+    protected const ERROR_NAME = 'suberrors';
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
 

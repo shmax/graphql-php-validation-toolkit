@@ -109,7 +109,7 @@ final class NonNullScalarValidationTest extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         valid
-                        fields {
+                        suberrors {
                             bookId {
                                 code
                                 msg
@@ -139,7 +139,7 @@ final class NonNullScalarValidationTest extends TestCase
                     ) {
                         updateBook (bookId: $bookId) {
                             valid
-                            fields {
+                            suberrors {
                                 bookId {
                                     code
                                     msg

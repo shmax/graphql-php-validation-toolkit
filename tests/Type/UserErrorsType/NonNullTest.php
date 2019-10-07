@@ -46,7 +46,7 @@ final class NonNullTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for DeleteAuthor"""
-              fields: DeleteAuthor_FieldErrors
+              suberrors: DeleteAuthor_FieldErrors
             }
             
             """User errors for AuthorId"""
@@ -138,7 +138,7 @@ final class NonNullTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for UpdateAuthor"""
-              fields: UpdateAuthor_FieldErrors
+              suberrors: UpdateAuthor_FieldErrors
             }
             
             """User errors for Author"""
@@ -150,7 +150,7 @@ final class NonNullTest extends FieldDefinitionTest
               msg: String
             
               """Validation errors for Author"""
-              fields: UpdateAuthor_Author_FieldErrors
+              suberrors: UpdateAuthor_Author_FieldErrors
             }
             
             """Error code"""

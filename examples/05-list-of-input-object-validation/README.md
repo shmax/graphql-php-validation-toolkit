@@ -28,12 +28,12 @@ mutation {
     }]
   ) {
     valid
-    fields {
+    suberrors {
       authors {
         path
         code
         msg
-        fields {
+        suberrors {
           id {
             code
             msg
@@ -68,12 +68,12 @@ mutation {
     }]
   ) {
     valid
-    fields {
+    suberrors {
       authors {
         path
         code
         msg
-        fields {
+        suberrors {
           id {
             code
             msg

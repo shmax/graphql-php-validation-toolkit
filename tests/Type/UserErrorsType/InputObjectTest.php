@@ -78,7 +78,7 @@ final class InputObjectTest extends FieldDefinitionTest
               valid: Boolean!
             
               """Validation errors for UpdateBook"""
-              fields: UpdateBook_FieldErrors
+              suberrors: UpdateBook_FieldErrors
             }
             
             """User errors for Book"""
@@ -90,7 +90,7 @@ final class InputObjectTest extends FieldDefinitionTest
               msg: String
             
               """Validation errors for Book"""
-              fields: UpdateBook_Book_FieldErrors
+              suberrors: UpdateBook_Book_FieldErrors
             }
             
             """User errors for AuthorId"""

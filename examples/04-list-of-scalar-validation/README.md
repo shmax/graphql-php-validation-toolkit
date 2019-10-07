@@ -24,7 +24,7 @@ mutation {
   	]
   ) {
     valid
-    fields {
+    suberrors {
       phoneNumbers {
         code
         msg
@@ -45,7 +45,7 @@ mutation {
   	]
   ) {
     valid
-    fields {
+    suberrors {
       phoneNumbers {
         code
         msg
