@@ -36,11 +36,10 @@ final class InputObjectTest extends FieldDefinitionTest
         $this->_checkSchema(new ValidatedFieldDefinition([
             'type' => Type::boolean(),
             'name' => 'updateBook',
+            'validName' => '_valid',
+            'resultName' => '_result',
             'args' => [
                 'book' => [
-                    'validate' => static function($book) {
-                        return empty($book) ? 1 : 0;
-                    },
                     'type' => new InputObjectType([
                         'name' => 'book',
                         'fields' => [

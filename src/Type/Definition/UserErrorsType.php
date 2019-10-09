@@ -61,6 +61,8 @@ class UserErrorsType extends ObjectType
     }
 
     protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields) {
+
+        $createSubErrors = !empty($config['validate']);
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
@@ -79,16 +81,23 @@ class UserErrorsType extends ObjectType
                 continue;
             }
 
-            $fields[$key] = [
+            $errType = [
                 'description' => 'Error for ' . $key,
                 'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
                 'resolve' => static function ($value) use ($key) {
                     return $value[$key] ?? null;
                 },
             ];
+
+            if($createSubErrors) {
+                $fields[$key] = $errType;
+            }
+            else {
+                $finalFields[$key] = $errType;
+            }
         }
 
-        if ($fields) {
+        if ($createSubErrors && !empty($fields)) {
             /**
              * errors property
              */

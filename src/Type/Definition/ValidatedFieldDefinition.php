@@ -29,20 +29,28 @@ class ValidatedFieldDefinition extends FieldDefinition
     {
         $args = $config['args'];
         $name = $config['name'] ?? lcfirst($this->tryInferName());
-
         $this->typeSetter = $config['typeSetter'] ?? null;
+
+        $validFieldName = $config['validName'] ?? 'valid';
+        $resultFieldName = $config['resultName'] ?? 'result';
+
+        foreach(array_keys($config['args']) as $key) {
+            if($key == $validFieldName || $key == $resultFieldName) {
+                throw new \Exception("'$key' is a reserved field name at the root definition.");
+            }
+        }
 
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'fields' => [
-                'result' => [
+                $resultFieldName => [
                     'type' => $config['type'],
                     'description' => 'The payload, if any',
                     'resolve' => static function ($value) {
                         return $value['result'] ?? null;
                     },
                 ],
-                'valid' => [
+                $validFieldName => [
                     'type' => Type::nonNull(Type::boolean()),
                     'description' => 'Whether all validation passed. True for yes, false for no.',
                     'resolve' => static function ($value) {
@@ -62,7 +70,7 @@ class ValidatedFieldDefinition extends FieldDefinition
             'type' => $type,
             'args' => $args,
             'name' => $name,
-            'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
+            'resolve' => function ($value, $args1, $context, $info) use ($config, $args, $validFieldName, $resultFieldName) {
                 // validate inputs
                 $config['type']  = new InputObjectType([
                     'name'=>'',
@@ -70,10 +78,10 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $errors          = $this->_validate($config, $args1);
                 $result          = $errors;
-                $result['valid'] = !$errors;
+                $result[$validFieldName] = !$errors;
 
                 if (!empty($result['valid'])) {
-                    $result['result'] = $config['resolve']($value, $args1, $context, $info);
+                    $result[$resultFieldName] = $config['resolve']($value, $args1, $context, $info);
                 }
 
                 return $result;
