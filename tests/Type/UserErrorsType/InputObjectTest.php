@@ -71,25 +71,22 @@ final class InputObjectTest extends FieldDefinitionTest
             """User errors for UpdateBook"""
             type UpdateBookResult {
               """The payload, if any"""
-              result: Boolean
+              _result: Boolean
             
               """Whether all validation passed. True for yes, false for no."""
-              valid: Boolean!
+              _valid: Boolean!
             
-              """Validation errors for UpdateBook"""
-              suberrors: UpdateBook_FieldErrors
+              """Error for book"""
+              book: UpdateBook_BookError
             }
             
             """User errors for Book"""
             type UpdateBook_BookError {
-              """A numeric error code. 0 on success, non-zero on failure."""
-              code: Int
+              """Error for title"""
+              title: UpdateBook_Book_TitleError
             
-              """An error message."""
-              msg: String
-            
-              """Validation errors for Book"""
-              suberrors: UpdateBook_Book_FieldErrors
+              """Error for authorId"""
+              authorId: UpdateBook_Book_AuthorIdError
             }
             
             """User errors for AuthorId"""
@@ -106,15 +103,6 @@ final class InputObjectTest extends FieldDefinitionTest
               unknownAuthor
             }
             
-            """User Error"""
-            type UpdateBook_Book_FieldErrors {
-              """Error for title"""
-              title: UpdateBook_Book_TitleError
-            
-              """Error for authorId"""
-              authorId: UpdateBook_Book_AuthorIdError
-            }
-            
             """User errors for Title"""
             type UpdateBook_Book_TitleError {
               """A numeric error code. 0 on success, non-zero on failure."""
@@ -122,12 +110,6 @@ final class InputObjectTest extends FieldDefinitionTest
             
               """An error message."""
               msg: String
-            }
-            
-            """User Error"""
-            type UpdateBook_FieldErrors {
-              """Error for book"""
-              book: UpdateBook_BookError
             }
             
             input book {

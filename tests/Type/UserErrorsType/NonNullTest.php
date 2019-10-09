@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinitionTest;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
-use GraphQL\Type\Schema;
-use GraphQL\Utils\SchemaPrinter;
-use PHPUnit\Framework\TestCase;
 
 final class NonNullTest extends FieldDefinitionTest
 {
@@ -45,8 +40,8 @@ final class NonNullTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Validation errors for DeleteAuthor"""
-              suberrors: DeleteAuthor_FieldErrors
+              """Error for authorId"""
+              authorId: DeleteAuthor_AuthorIdError
             }
             
             """User errors for AuthorId"""
@@ -61,12 +56,6 @@ final class NonNullTest extends FieldDefinitionTest
             """Error code"""
             enum DeleteAuthor_AuthorIdErrorCode {
               unknownAuthor
-            }
-            
-            """User Error"""
-            type DeleteAuthor_FieldErrors {
-              """Error for authorId"""
-              authorId: DeleteAuthor_AuthorIdError
             }
             
             type Mutation {
@@ -137,8 +126,8 @@ final class NonNullTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Validation errors for UpdateAuthor"""
-              suberrors: UpdateAuthor_FieldErrors
+              """Error for author"""
+              author: UpdateAuthor_AuthorError
             }
             
             """User errors for Author"""
@@ -183,12 +172,6 @@ final class NonNullTest extends FieldDefinitionTest
             
               """An error message."""
               msg: String
-            }
-            
-            """User Error"""
-            type UpdateAuthor_FieldErrors {
-              """Error for author"""
-              author: UpdateAuthor_AuthorError
             }
             
             input bookInput {

@@ -69,12 +69,6 @@ final class ListOfTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
               """Error for phoneNumbers"""
               phoneNumbers: [UpdateAddressBook_PhoneNumbersError]
             }
@@ -147,8 +141,8 @@ final class ListOfTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
+              """Error for addresses"""
+              addresses: [UpdateAddressBook_AddressesError]
             }
             
             """User errors for Addresses"""
@@ -167,13 +161,7 @@ final class ListOfTest extends FieldDefinitionTest
             enum UpdateAddressBook_AddressesErrorCode {
               notEnoughData
             }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for addresses"""
-              addresses: [UpdateAddressBook_AddressesError]
-            }
-            
+
         ');
     }
 
@@ -241,8 +229,8 @@ final class ListOfTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
+              """Error for addresses"""
+              addresses: [UpdateAddressBook_AddressesError]
             }
             
             """User errors for Addresses"""
@@ -301,12 +289,6 @@ final class ListOfTest extends FieldDefinitionTest
             enum UpdateAddressBook_Addresses_ZipErrorCode {
               invalidZip
               tooFarAway
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for addresses"""
-              addresses: [UpdateAddressBook_AddressesError]
             }
 
         ');
