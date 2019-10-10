@@ -38,11 +38,11 @@ class UserErrorsType extends ObjectType
 
         $type = $this->_getType($config);
         if ($type instanceof InputObjectType) {
-            $this->_buildInputObjectType($type, $config, $path, $finalFields);
+            $this->_buildInputObjectType($type, $config, $path, $finalFields, $isParentList);
         }
 
         if ($isParentList) {
-            $this->_addSuberrorCodes($finalFields);
+            $this->_addPath($finalFields);
         }
 
         parent::__construct([
@@ -60,9 +60,8 @@ class UserErrorsType extends ObjectType
         return $type;
     }
 
-    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields) {
-
-        $createSubErrors = !empty($config['validate']);
+    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields, $isParentList) {
+        $createSubErrors = !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
@@ -147,8 +146,8 @@ class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addSuberrorCodes(&$finalFields) {
-        if (isset($finalFields['code'])) {
+    protected function _addPath(&$finalFields) {
+        if (!empty($finalFields['code']) || !empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this items\'s location in the nested array',

@@ -36,10 +36,9 @@ final class InputObjectTest extends FieldDefinitionTest
         $this->_checkSchema(new ValidatedFieldDefinition([
             'type' => Type::boolean(),
             'name' => 'updateBook',
-            'validName' => '_valid',
-            'resultName' => '_result',
             'args' => [
                 'book' => [
+                    'validate' => static function() {},
                     'type' => new InputObjectType([
                         'name' => 'book',
                         'fields' => [
@@ -71,22 +70,25 @@ final class InputObjectTest extends FieldDefinitionTest
             """User errors for UpdateBook"""
             type UpdateBookResult {
               """The payload, if any"""
-              _result: Boolean
+              result: Boolean
             
               """Whether all validation passed. True for yes, false for no."""
-              _valid: Boolean!
+              valid: Boolean!
             
-              """Error for book"""
-              book: UpdateBook_BookError
+              """Validation errors for UpdateBook"""
+              suberrors: UpdateBook_FieldErrors
             }
             
             """User errors for Book"""
             type UpdateBook_BookError {
-              """Error for title"""
-              title: UpdateBook_Book_TitleError
+              """A numeric error code. 0 on success, non-zero on failure."""
+              code: Int
             
-              """Error for authorId"""
-              authorId: UpdateBook_Book_AuthorIdError
+              """An error message."""
+              msg: String
+            
+              """Validation errors for Book"""
+              suberrors: UpdateBook_Book_FieldErrors
             }
             
             """User errors for AuthorId"""
@@ -103,6 +105,15 @@ final class InputObjectTest extends FieldDefinitionTest
               unknownAuthor
             }
             
+            """User Error"""
+            type UpdateBook_Book_FieldErrors {
+              """Error for title"""
+              title: UpdateBook_Book_TitleError
+            
+              """Error for authorId"""
+              authorId: UpdateBook_Book_AuthorIdError
+            }
+            
             """User errors for Title"""
             type UpdateBook_Book_TitleError {
               """A numeric error code. 0 on success, non-zero on failure."""
@@ -110,6 +121,12 @@ final class InputObjectTest extends FieldDefinitionTest
             
               """An error message."""
               msg: String
+            }
+            
+            """User Error"""
+            type UpdateBook_FieldErrors {
+              """Error for book"""
+              book: UpdateBook_BookError
             }
             
             input book {

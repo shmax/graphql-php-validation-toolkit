@@ -40,8 +40,8 @@ final class NonNullTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Error for authorId"""
-              authorId: DeleteAuthor_AuthorIdError
+              """Validation errors for DeleteAuthor"""
+              suberrors: DeleteAuthor_FieldErrors
             }
             
             """User errors for AuthorId"""
@@ -58,6 +58,12 @@ final class NonNullTest extends FieldDefinitionTest
               unknownAuthor
             }
             
+            """User Error"""
+            type DeleteAuthor_FieldErrors {
+              """Error for authorId"""
+              authorId: DeleteAuthor_AuthorIdError
+            }
+            
             type Mutation {
               deleteAuthor(authorId: String!): DeleteAuthorResult
             }
@@ -67,7 +73,6 @@ final class NonNullTest extends FieldDefinitionTest
 
     public function testInputObjectWrappedType(): void
     {
-
         $this->_checkSchema(new ValidatedFieldDefinition([
             'type' => Type::boolean(),
             'name' => 'updateAuthor',
@@ -126,8 +131,8 @@ final class NonNullTest extends FieldDefinitionTest
               """Whether all validation passed. True for yes, false for no."""
               valid: Boolean!
             
-              """Error for author"""
-              author: UpdateAuthor_AuthorError
+              """Validation errors for UpdateAuthor"""
+              suberrors: UpdateAuthor_FieldErrors
             }
             
             """User errors for Author"""
@@ -172,6 +177,12 @@ final class NonNullTest extends FieldDefinitionTest
             
               """An error message."""
               msg: String
+            }
+            
+            """User Error"""
+            type UpdateAuthor_FieldErrors {
+              """Error for author"""
+              author: UpdateAuthor_AuthorError
             }
             
             input bookInput {

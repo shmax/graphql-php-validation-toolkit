@@ -87,7 +87,6 @@ final class ListOfInputObjectValidationTest extends TestCase
         ]);
 
         $this->query = new ObjectType(['name' => 'Query']);
-
         $this->schema = $this->_createSchema();
     }
 

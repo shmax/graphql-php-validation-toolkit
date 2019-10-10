@@ -42,6 +42,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
+            'isRoot' => true,
             'fields' => [
                 $resultFieldName => [
                     'type' => $config['type'],
