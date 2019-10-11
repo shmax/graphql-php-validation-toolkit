@@ -17,6 +17,7 @@ use function count;
 
 abstract class FieldDefinitionTest extends TestCase
 {
+//    protected $outputPath = 'tmp/';
     protected function _checkSchema(ValidatedFieldDefinition $field, $expected): void {
         $mutation = new ObjectType([
             'name' => 'Mutation',
@@ -49,19 +50,20 @@ abstract class FieldDefinitionTest extends TestCase
         });
 
 
-        $t = array_map(function($type) {
+        $typeMap = array_map(function($type) {
             $type->description = null;
             return Utils::toNowDoc(SchemaPrinter::printType($type), 8);
         }, $types);
 
-        $lines = preg_split('/\\n/', Utils::varExport($t, true));
+        if(!empty($this->outputPath)) {
+            $lines = preg_split('/\\n/', Utils::varExport($typeMap, true));
+            $numLines = count($lines);
+            for ($i = 0; $i < $numLines; $i++) {
+                $lines[$i] = str_repeat(" ", 12) . $lines[$i];
+            }
 
-        $numLines = count($lines);
-        for ($i = 0; $i < $numLines; $i++) {
-            $lines[$i] = str_repeat(" ", 12) .$lines[$i];
+            file_put_contents($this->outputPath . 'schema.php', implode("\n", $lines));
         }
-
-        file_put_contents("D:/Users/Shmax/schema.php", implode("\n", $lines));
 
         foreach($expectedMap as $typeName => $expected) {
             self::assertEquals(Utils::nowdoc($expected), SchemaPrinter::printType($types[$typeName]));
