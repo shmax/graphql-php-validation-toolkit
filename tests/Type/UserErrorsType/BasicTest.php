@@ -45,42 +45,6 @@ final class BasicTest extends FieldDefinitionTest
         ], ['upsertSku']);
     }
 
-    public function testArgCollisionWithResultName(): void
-    {
-        $this->expectExceptionMessage("'result' is a reserved field name at the root definition.");
-        new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateBook',
-            'validate' => static function() {},
-            'args' => [
-                'result' => [
-
-                ]
-            ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]);
-    }
-
-    public function testArgCollisionWithValidName(): void
-    {
-        $this->expectExceptionMessage("'valid' is a reserved field name at the root definition.");
-        new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateBook',
-            'validate' => static function() {},
-            'args' => [
-                'valid' => [
-
-                ]
-            ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]);
-    }
-
     public function testRenameResultsField(): void
     {
         $this->_checkSchema(new ValidatedFieldDefinition([

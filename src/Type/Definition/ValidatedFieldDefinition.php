@@ -34,12 +34,6 @@ class ValidatedFieldDefinition extends FieldDefinition
         $validFieldName = $config['validName'] ?? 'valid';
         $resultFieldName = $config['resultName'] ?? 'result';
 
-        foreach(array_keys($config['args']) as $key) {
-            if($key == $validFieldName || $key == $resultFieldName) {
-                throw new \Exception("'$key' is a reserved field name at the root definition.");
-            }
-        }
-
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'isRoot' => true,
