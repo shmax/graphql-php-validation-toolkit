@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use GraphQL\GraphQL;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -29,6 +30,32 @@ abstract class FieldDefinitionTest extends TestCase
         ]);
 
         self::assertEquals(Utils::nowdoc($expected), SchemaPrinter::doPrint(new Schema(['mutation' => $mutation])));
+    }
+
+    protected function _checkValidation(ValidatedFieldDefinition $field, string $qry, array $args, array $expected ) {
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'Query']),
+            'mutation' => new ObjectType([
+                'name' => 'Mutation',
+                'fields' => static function () use($field) {
+                    return [
+                        $field->name => $field,
+                    ];
+                },
+            ])
+        ]);
+
+        $res = GraphQL::executeQuery(
+            $schema,
+            $qry,
+            [],
+            null,
+            $args
+        );
+
+        static::assertEquals($res->errors, [], "There should be no errors in your query");
+        static::assertEquals($expected, $res->data[$field->name]);
+
     }
 
     protected function _checkTypes($field, array $expectedMap): void {
