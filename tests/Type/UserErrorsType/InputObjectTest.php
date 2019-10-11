@@ -186,4 +186,51 @@ final class InputObjectTest extends FieldDefinitionTest
             ]
         );
     }
+
+    public function testValidateOnDeeplyNestedField(): void
+    {
+        $this->_checkTypes(
+            UserErrorsType::create([
+                'type' => new InputObjectType([
+                    'name' => 'book',
+                    'fields' => [
+                        'author' => [
+                            'type' => new InputObjectType([
+                                'name' => 'address',
+                                'fields' => [
+                                    'zip' => [
+                                        'validate' => static function() {},
+                                        'type' => Type::string()
+                                    ]
+                                ]
+                            ])
+                        ]
+                    ],
+                ]),
+            ], ['updateBook']),
+            [
+              'UpdateBookError' => '
+                    type UpdateBookError {
+                      """Error for author"""
+                      author: UpdateBook_AuthorError
+                    }
+              ',
+              'UpdateBook_AuthorError' => '
+                    type UpdateBook_AuthorError {
+                      """Error for zip"""
+                      zip: UpdateBook_Author_ZipError
+                    }
+              ',
+              'UpdateBook_Author_ZipError' => '
+                    type UpdateBook_Author_ZipError {
+                      """A numeric error code. 0 on success, non-zero on failure."""
+                      code: Int
+                    
+                      """An error message."""
+                      msg: String
+                    }
+              ',
+            ]
+        );
+    }
 }

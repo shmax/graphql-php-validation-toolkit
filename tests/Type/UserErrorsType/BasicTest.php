@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinitionTest;
 use GraphQL\Tests\Utils;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
@@ -148,6 +149,28 @@ final class BasicTest extends FieldDefinitionTest
             }
 
         ');
+    }
+
+    public function testNoValidateCallbacks(): void
+    {
+        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere");
+        UserErrorsType::create([
+            'type' => new InputObjectType([
+                'name' => 'book',
+                'fields' => [
+                    'author' => [
+                        'type' => new InputObjectType([
+                            'name' => 'address',
+                            'fields' => [
+                                'zip' => [
+                                    'type' => Type::string()
+                                ]
+                            ]
+                        ])
+                    ]
+                ],
+            ]),
+        ], ['updateBook']);
     }
 
     public function testValidationWithNoErrorCodes(): void

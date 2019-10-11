@@ -195,6 +195,11 @@ class UserErrorsType extends ObjectType
             }
             return $userErrorType;
         }
+
+        if(count($path) == 1) {
+            throw new Exception("You must specify at least one 'validate' callback somewhere");
+        }
+
         return null;
     }
 
