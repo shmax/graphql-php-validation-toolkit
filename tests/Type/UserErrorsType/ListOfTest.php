@@ -36,307 +36,187 @@ final class ListOfTest extends FieldDefinitionTest
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testListOfStringWithValidation(): void
+    public function testListOfStringWithValidationOnSelf(): void
     {
         $this->_checkTypes(UserErrorsType::create([
             'type' => Type::listOf(Type::string()),
             'errorCodes' => ['invalidPhoneNumber'],
             'validate' => static function (string $phoneNumber) {}
-            ], ['phoneNumber']),
-            []);
-    }
-
-    public function testListOfInputObjectWithValidation(): void
-    {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateAddressBook',
-            'args' => [
-                'addresses' => [
-                    'type' => Type::listOf(new InputObjectType([
-                        'name' => 'Address',
-                        'fields' => [
-                            'city' => [
-                                'type' => Type::string()
-                            ],
-                            'zip' => [
-                                'type' => Type::int()
-                            ]
-                        ]
-                    ])),
-                    'errorCodes' => ['notEnoughData'],
-                    'validate' => static function (array $address) {
-                        if (empty($address['city'] && $address['zip'])) {
-                            return ['notEnoughData', 'You must a city or a zip code'];
-                        }
-                        return 0;
+            ], ['phoneNumber'], true),
+            [
+                'PhoneNumberError' => '
+                    type PhoneNumberError {
+                      """An error code"""
+                      code: PhoneNumberErrorCode
+                    
+                      """A natural language description of the issue"""
+                      msg: String
+                    
+                      """A path describing this items\'s location in the nested array"""
+                      path: [Int]
                     }
-                ],
-            ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]),'
-            input Address {
-              city: String
-              zip: Int
-            }
-            
-            type Mutation {
-              updateAddressBook(addresses: [Address]): UpdateAddressBookResult
-            }
-            
-            """User errors for UpdateAddressBook"""
-            type UpdateAddressBookResult {
-              """The payload, if any"""
-              result: Boolean
-            
-              """Whether all validation passed. True for yes, false for no."""
-              valid: Boolean!
-            
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
-            }
-            
-            """User errors for Addresses"""
-            type UpdateAddressBook_AddressesError {
-              """An error code"""
-              code: UpdateAddressBook_AddressesErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            
-              """A path describing this items\'s location in the nested array"""
-              path: [Int]
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_AddressesErrorCode {
-              notEnoughData
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for addresses"""
-              addresses: [UpdateAddressBook_AddressesError]
-            }
-
-        ');
-    }
-
-    public function testListOfInputObjectWithValidationAndSubvalidation(): void
-    {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateAddressBook',
-            'args' => [
-                'addresses' => [
-                    'type' => Type::listOf(new InputObjectType([
-                        'name' => 'Address',
-                        'fields' => [
-                            'city' => [
-                                'errorCodes' => [
-                                    'invalidCity'
-                                ],
-                                'validate' => function($city) {
-                                    if ($city == "Toledo") {
-                                        return ['invalidCity', "Sorry, Toledo is not allowed"];
-                                    }
-                                    return 0;
-                                },
-                                'type' => Type::string()
-                            ],
-                            'zip' => [
-                                'errorCodes' => ['invalidZip', 'tooFarAway' ],
-                                'validate' => function($zip) {
-                                    if(!is_numeric($zip)) {
-                                        return ["invalidZip", "Invalid zip format; should be numeric"];
-                                    }
-                                    return 0;
-                                },
-                                'type' => Type::int()
-                            ]
-                        ]
-                    ])),
-                    'errorCodes' => ['notEnoughData'],
-                    'validate' => static function (array $address) {
-                        if (empty($address['city'] && $address['zip'])) {
-                            return ['notEnoughData', 'You must specify a city or a zip code'];
-                        }
-                        return 0;
-                    }
-                ],
-            ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]),'
-            input Address {
-              city: String
-              zip: Int
-            }
-            
-            type Mutation {
-              updateAddressBook(addresses: [Address]): UpdateAddressBookResult
-            }
-            
-            """User errors for UpdateAddressBook"""
-            type UpdateAddressBookResult {
-              """The payload, if any"""
-              result: Boolean
-            
-              """Whether all validation passed. True for yes, false for no."""
-              valid: Boolean!
-            
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
-            }
-            
-            """User errors for Addresses"""
-            type UpdateAddressBook_AddressesError {
-              """An error code"""
-              code: UpdateAddressBook_AddressesErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            
-              """Validation errors for Addresses"""
-              suberrors: UpdateAddressBook_Addresses_FieldErrors
-            
-              """A path describing this items\'s location in the nested array"""
-              path: [Int]
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_AddressesErrorCode {
-              notEnoughData
-            }
-            
-            """User errors for City"""
-            type UpdateAddressBook_Addresses_CityError {
-              """An error code"""
-              code: UpdateAddressBook_Addresses_CityErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_Addresses_CityErrorCode {
-              invalidCity
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_Addresses_FieldErrors {
-              """Error for city"""
-              city: UpdateAddressBook_Addresses_CityError
-            
-              """Error for zip"""
-              zip: UpdateAddressBook_Addresses_ZipError
-            }
-            
-            """User errors for Zip"""
-            type UpdateAddressBook_Addresses_ZipError {
-              """An error code"""
-              code: UpdateAddressBook_Addresses_ZipErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_Addresses_ZipErrorCode {
-              invalidZip
-              tooFarAway
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for addresses"""
-              addresses: [UpdateAddressBook_AddressesError]
-            }
-
-        ');
-    }
-
-    public function testListOfListOfListOfScalarWithValidationOnSelfAndWrappedType(): void
-    {
-        $this->_checkSchema( new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateAddressBook',
-            'errorCodes' => ['atLeastOnePhoneNumberRequired'],
-            'validate' => static function($data) {
-                if(empty($data['phoneNumbers'])) {
-                    return ['atLeastOnePhoneNumberRequired', "You must provide at least one phone number"];
-                }
-                return 0;
-            },
-            'args' => [
-                'phoneNumbers' => [
-                    'type' => Type::listOf(Type::listOf(Type::listOf(Type::id()))),
-                    'errorCodes'=> ['mustHaveSevenDigits'],
-                    'validate' => static function ($phoneNumber) {
-                        if(strlen($phoneNumber) != 7) {
-                            return ['mustHaveSevenDigits', "Phone numbers must have 7 digits"];
-                        }
-                        return 0;
-                    },
-                    'validateItem' => static function ($value) {
-                        return $value ? 0 : 1;
-                    }
-                 ]
+              '
             ]
-        ]), '
-            type Mutation {
-              updateAddressBook(phoneNumbers: [[[ID]]]): UpdateAddressBookResult
-            }
-            
-            """Error code"""
-            enum UpdateAddressBookErrorCode {
-              atLeastOnePhoneNumberRequired
-            }
-            
-            """User errors for UpdateAddressBook"""
-            type UpdateAddressBookResult {
-              """The payload, if any"""
-              result: Boolean
-            
-              """Whether all validation passed. True for yes, false for no."""
-              valid: Boolean!
-            
-              """An error code"""
-              code: UpdateAddressBookErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for phoneNumbers"""
-              phoneNumbers: [UpdateAddressBook_PhoneNumbersError]
-            }
-            
-            """User errors for PhoneNumbers"""
-            type UpdateAddressBook_PhoneNumbersError {
-              """An error code"""
-              code: UpdateAddressBook_PhoneNumbersErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            
-              """A path describing this items\'s location in the nested array"""
-              path: [Int]
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_PhoneNumbersErrorCode {
-              mustHaveSevenDigits
-            }
+        );
+    }
 
-        ');
+    public function testListOfInputObjectWithValidationOnSelf(): void
+    {
+        $this->_checkTypes(UserErrorsType::create(
+            [
+                'type' => Type::listOf(new InputObjectType([
+                    'name' => 'Address',
+                    'fields' => [
+                        'city' => [
+                            'type' => Type::string()
+                        ],
+                        'zip' => [
+                            'type' => Type::int()
+                        ]
+                    ]
+                ])),
+                'errorCodes' => ['notEnoughData'],
+                'validate' => static function () {}
+            ],
+            ['address'],
+            true
+        ),
+            [
+                'AddressError' => '
+                    type AddressError {
+                      """An error code"""
+                      code: AddressErrorCode
+                    
+                      """A natural language description of the issue"""
+                      msg: String
+                    
+                      """A path describing this items\'s location in the nested array"""
+                      path: [Int]
+                    }
+                '
+            ]
+        );
+    }
+
+    public function testListOfInputObjectWithValidationOnFields(): void
+    {
+        $this->_checkTypes(UserErrorsType::create(
+            [
+                'type' => Type::listOf(new InputObjectType([
+                    'name' => 'Address',
+                    'fields' => [
+                        'city' => [
+                            'type' => Type::string(),
+                            'validate' => static function() {}
+                        ],
+                        'zip' => [
+                            'type' => Type::int(),
+                            'validate' => static function() {}
+                        ]
+                    ]
+                ]))
+            ],
+            ['address'],
+            true
+        ),
+            [
+              'AddressError' => '
+                    type AddressError {
+                      """Validation errors for Address"""
+                      suberrors: Address_FieldErrors
+                    
+                      """A path describing this items\'s location in the nested array"""
+                      path: [Int]
+                    }
+              ',
+              'Address_FieldErrors' => '
+                    type Address_FieldErrors {
+                      """Error for city"""
+                      city: Address_CityError
+                    
+                      """Error for zip"""
+                      zip: Address_ZipError
+                    }
+              '
+            ]
+        );
+    }
+
+    public function testListOfInputObjectWithValidationOnSelfAndFields(): void
+    {
+        $this->_checkTypes(UserErrorsType::create(
+            [
+                'validate' => static function() {},
+                'type' => Type::listOf(new InputObjectType([
+                    'name' => 'Address',
+                    'fields' => [
+                        'city' => [
+                            'type' => Type::string(),
+                            'validate' => static function() {}
+                        ],
+                        'zip' => [
+                            'type' => Type::int(),
+                            'validate' => static function() {}
+                        ]
+                    ]
+                ]))
+            ],
+            ['address'],
+            true
+        ),
+            [
+                'AddressError' => '
+                    type AddressError {
+                      """A numeric error code. 0 on success, non-zero on failure."""
+                      code: Int
+                    
+                      """An error message."""
+                      msg: String
+                    
+                      """Validation errors for Address"""
+                      suberrors: Address_FieldErrors
+                    
+                      """A path describing this items\'s location in the nested array"""
+                      path: [Int]
+                    }
+                ',
+                'Address_FieldErrors' => '
+                    type Address_FieldErrors {
+                      """Error for city"""
+                      city: Address_CityError
+                    
+                      """Error for zip"""
+                      zip: Address_ZipError
+                    }
+                '
+            ]
+        );
+    }
+
+    public function testListOfListOfListOfScalarWithValidation(): void
+    {
+        $this->_checkTypes(UserErrorsType::create(
+            [
+                'validate' => static function() {},
+                'type' => Type::listOf(Type::listOf(Type::listOf(Type::string())))
+            ],
+            ['ids'],
+            true
+        ),
+            [
+                'IdsError' => '
+                    type IdsError {
+                      """A numeric error code. 0 on success, non-zero on failure."""
+                      code: Int
+                    
+                      """An error message."""
+                      msg: String
+                    
+                      """A path describing this items\'s location in the nested array"""
+                      path: [Int]
+                    }
+                ',
+            ]
+        );
     }
 }
