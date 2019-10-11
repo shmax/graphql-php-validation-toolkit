@@ -42,7 +42,7 @@ class UserErrorsType extends ObjectType
         }
 
         if ($isParentList) {
-            $this->_addPath($finalFields);
+            $this->_addPathField($finalFields);
         }
 
         parent::__construct([
@@ -54,7 +54,8 @@ class UserErrorsType extends ObjectType
 
     protected function _getType($config) {
         $type = $config['type'];
-        if ($type instanceof NonNull || $type instanceof ListOfType) {
+        
+        if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
         return $type;
@@ -146,7 +147,7 @@ class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addPath(&$finalFields) {
+    protected function _addPathField(&$finalFields) {
         if (!empty($finalFields['code']) || !empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
@@ -177,8 +178,6 @@ class UserErrorsType extends ObjectType
      * @param string   $name
      *
      * @return static|null
-     *
-     * @throws Exception
      */
     public static function create(array $config, array $path, bool $isParentList = false, string $name = '') : ?self
     {

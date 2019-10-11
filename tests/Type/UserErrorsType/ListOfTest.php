@@ -38,65 +38,12 @@ final class ListOfTest extends FieldDefinitionTest
 
     public function testListOfStringWithValidation(): void
     {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateAddressBook',
-            'args' => [
-                'phoneNumbers' => [
-                    'type' => Type::listOf(Type::string()),
-                    'errorCodes' => ['invalidPhoneNumber'],
-                    'validate' => static function (string $phoneNumber) {
-                        if (!is_numeric($phoneNumber)) {
-                            return ['invalidPhoneNumber', 'You must provide a valid phone number'];
-                        }
-                        return 0;
-                    }
-                ],
-            ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]),'
-            type Mutation {
-              updateAddressBook(phoneNumbers: [String]): UpdateAddressBookResult
-            }
-            
-            """User errors for UpdateAddressBook"""
-            type UpdateAddressBookResult {
-              """The payload, if any"""
-              result: Boolean
-            
-              """Whether all validation passed. True for yes, false for no."""
-              valid: Boolean!
-            
-              """Validation errors for UpdateAddressBook"""
-              suberrors: UpdateAddressBook_FieldErrors
-            }
-            
-            """User Error"""
-            type UpdateAddressBook_FieldErrors {
-              """Error for phoneNumbers"""
-              phoneNumbers: [UpdateAddressBook_PhoneNumbersError]
-            }
-            
-            """User errors for PhoneNumbers"""
-            type UpdateAddressBook_PhoneNumbersError {
-              """An error code"""
-              code: UpdateAddressBook_PhoneNumbersErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            
-              """A path describing this items\'s location in the nested array"""
-              path: [Int]
-            }
-            
-            """Error code"""
-            enum UpdateAddressBook_PhoneNumbersErrorCode {
-              invalidPhoneNumber
-            }
-
-        ');
+        $this->_checkTypes(UserErrorsType::create([
+            'type' => Type::listOf(Type::string()),
+            'errorCodes' => ['invalidPhoneNumber'],
+            'validate' => static function (string $phoneNumber) {}
+            ], ['phoneNumber']),
+            []);
     }
 
     public function testListOfInputObjectWithValidation(): void
