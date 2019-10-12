@@ -70,7 +70,7 @@ class UserErrorsType extends ObjectType
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
-            $newType = static::create(
+            if($newType = static::create(
                 [
                     'validate' => $field->config['validate'] ?? null,
                     'errorCodes' => $field->config['errorCodes'] ?? null,
@@ -79,24 +79,20 @@ class UserErrorsType extends ObjectType
                 ],
                 array_merge($path, [$key]),
                 $field->type instanceof ListOfType
-            );
+            )) {
+                $errType = [
+                    'description' => 'Error for ' . $key,
+                    'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
+                    'resolve' => static function ($value) use ($key) {
+                        return $value[$key] ?? null;
+                    },
+                ];
 
-            if (!$newType) {
-                continue;
+                $createSubErrors ? $fields[$key] = $errType : $finalFields[$key] = $errType;
             }
-
-            $errType = [
-                'description' => 'Error for ' . $key,
-                'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
-                'resolve' => static function ($value) use ($key) {
-                    return $value[$key] ?? null;
-                },
-            ];
-
-            $createSubErrors ? $fields[$key] = $errType : $finalFields[$key] = $errType;
         }
 
-        if ($createSubErrors && !empty($fields)) {
+        if (!empty($fields)) {
             /**
              * errors property
              */
