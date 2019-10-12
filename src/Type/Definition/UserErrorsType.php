@@ -88,11 +88,11 @@ class UserErrorsType extends ObjectType
                     },
                 ];
 
-                $createSubErrors ? $fields[$key] = $errType : $finalFields[$key] = $errType;
+                $fields[$key] = $errType;
             }
         }
 
-        if (!empty($fields)) {
+        if ($createSubErrors && count($fields)) {
             /**
              * errors property
              */
@@ -107,6 +107,9 @@ class UserErrorsType extends ObjectType
                     return $value[static::SUBERRORS_NAME] ?? null;
                 },
             ];
+        }
+        else {
+            $finalFields += $fields;
         }
     }
 
