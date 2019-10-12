@@ -197,7 +197,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     protected function _validateInputObjectFields($type, array $config, $value, &$res, $isParentList = false) {
-        $createSubErrors = !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
+        $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
 
         $fields = $type->getFields();
         if (is_array($value)) {

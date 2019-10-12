@@ -61,8 +61,12 @@ class UserErrorsType extends ObjectType
         return $type;
     }
 
+    static public function needSuberrors(array $config, bool $isParentList) : bool {
+        return !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
+    }
+
     protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields, $isParentList) {
-        $createSubErrors = !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
+        $createSubErrors = static::needSuberrors($config, $isParentList);
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
