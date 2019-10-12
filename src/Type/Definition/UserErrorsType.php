@@ -16,7 +16,7 @@ use function ucfirst;
 
 class UserErrorsType extends ObjectType
 {
-    protected const ERROR_NAME = 'suberrors';
+    public const SUBERRORS_NAME = 'suberrors';
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
 
@@ -101,7 +101,7 @@ class UserErrorsType extends ObjectType
             /**
              * errors property
              */
-            $finalFields[static::ERROR_NAME] = [
+            $finalFields[static::SUBERRORS_NAME] = [
                 'type' => $this->_set(new ObjectType([
                     'name' => $this->_nameFromPath(array_merge($path, ['fieldErrors'])),
                     'description' => 'User Error',
@@ -109,7 +109,7 @@ class UserErrorsType extends ObjectType
                 ]), $config),
                 'description' => 'Validation errors for ' . ucfirst($path[count($path)-1]),
                 'resolve' => static function (array $value) {
-                    return $value['errors'] ?? null;
+                    return $value[static::SUBERRORS_NAME] ?? null;
                 },
             ];
         }

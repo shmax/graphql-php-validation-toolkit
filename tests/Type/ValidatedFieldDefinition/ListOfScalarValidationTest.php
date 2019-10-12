@@ -77,6 +77,7 @@ final class ListOfScalarValidationTest extends TestCase
                                 phoneNumbers {
                                     path
                                     code
+                                    msg
                                 }
                             }
                             result
@@ -102,15 +103,15 @@ final class ListOfScalarValidationTest extends TestCase
                     [
                         'phoneNumbers' =>
                             [
-                                0 =>
-                                    [
-                                        'path' =>
-                                            [
-                                                0,
-                                                1,
-                                            ],
-                                        'code' => 'invalidPhoneNumber',
-                                    ],
+                                [
+                                    'path' =>
+                                        [
+                                            0,
+                                            1,
+                                        ],
+                                    'code' => 'invalidPhoneNumber',
+                                    'msg' => 'That does not seem to be a valid phone number',
+                                ],
                             ],
                     ],
                 'result' => null,
