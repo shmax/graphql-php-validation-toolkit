@@ -64,7 +64,7 @@ The type generation process is recursive, traveling down through any nested `Inp
 |-------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `code`      | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type.             |
 | `msg`       | `string`                      | A plain, natural language description of the error.                                                                                                   |
-| `suberrors` | `<field-name>_Suberrors`      | If your field has a complex type (eg. `InputObjectType` or `ListOfType`), then a `suberrors` field will be added with its own custom, generated type. |
+| `suberrors` | `<field-name>_Suberrors`      | A `suberrors` field will be added to a generated field of type `InputObjectType` if any of the following are true: <ol><li>It is the root node</li><li>The field has a `validate` method</li><li>The `InputObjectType` is wrapped in a `ListOfType`</li></ol> 
 
 The top-level `<field-name>ResultType` will have a few additional fields:
 

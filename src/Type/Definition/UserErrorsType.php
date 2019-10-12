@@ -89,12 +89,7 @@ class UserErrorsType extends ObjectType
                 },
             ];
 
-            if($createSubErrors) {
-                $fields[$key] = $errType;
-            }
-            else {
-                $finalFields[$key] = $errType;
-            }
+            $createSubErrors ? $fields[$key] = $errType : $finalFields[$key] = $errType;
         }
 
         if ($createSubErrors && !empty($fields)) {

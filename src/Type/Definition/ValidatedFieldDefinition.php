@@ -206,11 +206,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $error = $this->_validate($config, $subValue);
 
                 if($error) {
-                    if ($createSubErrors) {
-                        $res[UserErrorsType::SUBERRORS_NAME][$key] = $error;
-                    } else {
-                        $res[$key] = $error;
-                    }
+                    $createSubErrors ? $res[UserErrorsType::SUBERRORS_NAME][$key] = $error : $res[$key] = $error;
                 }
             }
         }
