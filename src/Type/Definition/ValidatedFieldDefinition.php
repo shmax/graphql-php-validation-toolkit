@@ -118,7 +118,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $wrappedType = $config['type']->getWrappedType(true);
                     $err = $this->_validate([
                         'type' => $wrappedType
-                    ], $subValue);
+                    ], $subValue, $config['type'] instanceof ListOfType);
 
                     if(isset($err['errors'])) {
                         $i = 5;
@@ -139,7 +139,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @param mixed $value
      * @return mixed[]
      */
-    protected function _validate(array $arg, $value) : array
+    protected function _validate(array $arg, $value, bool $isParentList = false) : array
     {
         $res = [];
 
@@ -155,7 +155,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                $this->_validateInputObject($arg, $value, $res);
+                $this->_validateInputObject($arg, $value, $res, $isParentList);
                 break;
 
             default:
@@ -181,7 +181,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         }
     }
 
-    protected function _validateInputObject($arg, $value, &$res) {
+    protected function _validateInputObject($arg, $value, &$res, bool $isParentList) {
         $type = $arg['type'];
         if (isset($arg['validate'])) {
             $err = $arg['validate']($value) ?? [];
@@ -191,7 +191,7 @@ class ValidatedFieldDefinition extends FieldDefinition
             }
         }
 
-        $this->_validateInputObjectFields($type, $arg, $value, $res);
+        $this->_validateInputObjectFields($type, $arg, $value, $res, $isParentList);
     }
 
     protected function _validateInputObjectFields($type, array $config, $value, &$res, $isParentList = false) {
