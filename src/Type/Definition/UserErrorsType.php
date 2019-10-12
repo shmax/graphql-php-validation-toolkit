@@ -84,7 +84,7 @@ class UserErrorsType extends ObjectType
                     'description' => 'Error for ' . $key,
                     'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
                     'resolve' => static function ($value) use ($key) {
-                        return $value[$key] ?? null;
+                        return $value[$key];
                     },
                 ];
 
