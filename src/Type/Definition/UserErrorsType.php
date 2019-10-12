@@ -65,12 +65,16 @@ class UserErrorsType extends ObjectType
         return !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
     }
 
+    protected function _inputObjectFieldType($field, $type) {
+        return $field->type instanceof ListOfType ? Type::listOf($type) : $type;
+    }
+
     protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields, $isParentList) {
         $createSubErrors = static::needSuberrors($config, $isParentList);
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
-            if($newType = static::create(
+            if ($newType = static::create(
                 [
                     'validate' => $field->config['validate'] ?? null,
                     'errorCodes' => $field->config['errorCodes'] ?? null,
@@ -80,21 +84,19 @@ class UserErrorsType extends ObjectType
                 array_merge($path, [$key]),
                 $field->type instanceof ListOfType
             )) {
-                $errType = [
+                $fields[$key] = [
                     'description' => 'Error for ' . $key,
-                    'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
+                    'type' => $this->_inputObjectFieldType($field, $newType),
                     'resolve' => static function ($value) use ($key) {
                         return $value[$key];
                     },
                 ];
-
-                $fields[$key] = $errType;
             }
         }
 
         if ($createSubErrors && count($fields)) {
             /**
-             * errors property
+             * suberrors property
              */
             $finalFields[static::SUBERRORS_NAME] = [
                 'type' => $this->_set(new ObjectType([
