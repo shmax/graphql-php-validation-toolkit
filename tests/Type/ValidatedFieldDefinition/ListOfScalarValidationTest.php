@@ -26,9 +26,8 @@ final class ListOfScalarValidationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->query  = new ObjectType(['name' => 'Query']);
         $this->schema = new Schema([
-            'query' => $this->query,
+            'query' => new ObjectType(['name' => 'Query']),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => static function () {

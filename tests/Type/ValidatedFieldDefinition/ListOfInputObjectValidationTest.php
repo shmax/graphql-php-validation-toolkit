@@ -19,9 +19,6 @@ use function strlen;
 
 final class ListOfInputObjectValidationTest extends FieldDefinitionTest
 {
-    /** @var InputObjectType */
-    protected $bookAttributesInputType;
-
     /** @var mixed[] */
     protected $data = [
         'people' => [
@@ -31,17 +28,13 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
         ],
     ];
 
-    /** @var ObjectType */
-    protected $query;
-
     /** @var Schema */
     protected $schema;
 
     protected function setUp(): void
     {
-        $this->query = new ObjectType(['name' => 'Query']);
         $this->schema = new Schema([
-            'query' => $this->query,
+            'query' => new ObjectType(['name' => 'Query']),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {

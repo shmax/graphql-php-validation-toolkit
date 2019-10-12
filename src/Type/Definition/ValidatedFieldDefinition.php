@@ -120,11 +120,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                         'type' => $wrappedType
                     ], $subValue, $config['type'] instanceof ListOfType);
 
-                    if(isset($err['errors'])) {
-                        $i = 5;
-                    }
-
-                    $err = $err['errors'] ?? null;
+//                    $err = $err[UserErrorsType::SUBERRORS_NAME] ?? $err;
                 }
 
                 if ($err) {
@@ -172,11 +168,17 @@ class ValidatedFieldDefinition extends FieldDefinition
             try {
                 $this->_validateItems($config, $value, [0], $config['validate']);
             } catch (ValidateItemsError $e) {
-                $i = 5;
-                $res[] = [
-                    'error' => $e->error,
-                    'path' => $e->path,
-                ];
+                if(isset($e->error['suberrors'])) {
+                    $err = $e->error;
+                }
+                else {
+                    $err = [
+                        'error' => $e->error,
+                    ];
+                }
+                $err['path'] = $e->path;
+                $res[] = $err;
+
             }
         }
     }

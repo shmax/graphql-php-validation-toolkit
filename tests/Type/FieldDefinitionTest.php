@@ -53,7 +53,7 @@ abstract class FieldDefinitionTest extends TestCase
             $args
         );
 
-        static::assertEquals($res->errors, [], "There should be no errors in your query");
+        static::assertEquals([], $res->errors, "There should be no errors in your query");
         static::assertEquals($expected, $res->data[$field->name]);
 
     }

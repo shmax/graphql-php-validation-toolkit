@@ -119,7 +119,7 @@ final class InputObjectValidationTest extends FieldDefinitionTest
         );
     }
 
-    public function testInputObjectValidationOnParentAndFailField(): void
+    public function testInputObjectSuberrorsValidationOnSelf(): void
     {
         $this->_checkValidation(
             new ValidatedFieldDefinition([
@@ -127,7 +127,7 @@ final class InputObjectValidationTest extends FieldDefinitionTest
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'validate' => static function($atts) {
+                        'validate' => static function ($atts) {
                             return 0;
                         },
                         'type' => new InputObjectType([
@@ -210,7 +210,7 @@ final class InputObjectValidationTest extends FieldDefinitionTest
                                             'code' => 1,
                                             'msg' => 'We have no record of that author',
                                         ],
-                                    ]
+                                ]
                             ],
                     ],
                 'result' => null,
@@ -218,5 +218,84 @@ final class InputObjectValidationTest extends FieldDefinitionTest
         );
     }
 
-
+    public function testListOfInputObjectSuberrorsValidationOnChildField(): void
+    {
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBook',
+                'type' => Type::boolean(),
+                'args' => [
+                    'bookAttributes' => [
+                        'validate' => static function () {
+                        },
+                        'type' => Type::listOf(new InputObjectType([
+                            'name' => 'BookAttributes',
+                            'fields' => [
+                                'title' => [
+                                    'type' => Type::string(),
+                                    'description' => 'Enter a book title, no more than 10 characters in length',
+                                    'validate' => static function (string $title) {
+                                        if (strlen($title) > 10) {
+                                            return [1, 'book title must be less than 10 characters'];
+                                        }
+                                        return 0;
+                                    },
+                                ]
+                            ],
+                        ])),
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return !$value;
+                },
+            ]),
+            Utils::nowdoc('
+                mutation UpdateBook(
+                        $bookAttributes: [BookAttributes]
+                    ) {
+                    updateBook (
+                        bookAttributes: $bookAttributes
+                    ) {
+                        valid
+                        suberrors {
+                            bookAttributes {
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                }
+                            }
+                        }
+                        result
+                    }
+                }
+            '),
+            [
+                'bookAttributes' => [[
+                    'title' => 'The Catcher in the Rye'
+                ]],
+            ],
+            [
+                'valid' => false,
+                'suberrors' =>
+                    [
+                        'bookAttributes' =>
+                            [
+                                [
+                                    'suberrors' =>
+                                        [
+                                            'title' =>
+                                                [
+                                                    'code' => 1,
+                                                    'msg' => 'book title must be less than 10 characters',
+                                                ],
+                                        ],
+                                ],
+                            ],
+                    ],
+                'result' => null,
+            ]
+        );
+    }
 }
