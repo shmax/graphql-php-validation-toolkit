@@ -62,15 +62,6 @@ try {
                 ],
                 'args' => [
                     'authors' => [
-                        'errorCodes' => [
-                            'notEnoughInfo'
-                        ],
-                        'validate' => function(array $author) {
-                            if(empty($author['firstName']) && empty($author['latName'])) {
-                                return ['notEnoughInfo', 'Minimally, you must enter a first or last name'];
-                            }
-                            return 0;
-                        },
                         'type' => Type::listOf(new InputObjectType([
                             'name' => 'AuthorInput',
                             'fields' => [

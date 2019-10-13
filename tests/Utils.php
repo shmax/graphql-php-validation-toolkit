@@ -39,4 +39,32 @@ class Utils
 
         return implode("\n", $lines);
     }
+
+    // same as native var_export, but uses short array syntax
+    static function varExport($expression, bool $return = false) {
+        $export = var_export($expression, true);
+        $patterns = [
+            "/array \(/" => '[',
+            "/^([ ]*)\)(,?)$/m" => '$1]$2',
+            "/=>[ ]?\n[ ]+\[/" => '=> [',
+            "/([ ]*)(\'[^\']+\') => ([\[\'])/" => '$1$2 => $3',
+        ];
+        $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
+        if ($return) {
+            return $export;
+        }
+
+        echo $export;
+    }
+
+    static function toNowDoc($str, $numSpaces=0) {
+        $lines = preg_split('/\\n/', $str);
+        for($i = 0; $i < count($lines); $i++) {
+            $lines[$i] = str_repeat(" ", $numSpaces) . $lines[$i];
+        }
+        array_unshift($lines, "");
+        $lines[] = "  ";
+        $res = implode($lines,  "\n");
+        return $res;
+    }
 }

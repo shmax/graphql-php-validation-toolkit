@@ -16,7 +16,7 @@ use function ucfirst;
 
 class UserErrorsType extends ObjectType
 {
-    protected const ERROR_NAME = 'suberrors';
+    public const SUBERRORS_NAME = 'suberrors';
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
 
@@ -38,11 +38,11 @@ class UserErrorsType extends ObjectType
 
         $type = $this->_getType($config);
         if ($type instanceof InputObjectType) {
-            $this->_buildInputObjectType($type, $config, $path, $finalFields);
+            $this->_buildInputObjectType($type, $config, $path, $finalFields, $isParentList);
         }
 
         if ($isParentList) {
-            $this->_addSuberrorCodes($finalFields);
+            $this->_addPathField($finalFields);
         }
 
         parent::__construct([
@@ -54,17 +54,22 @@ class UserErrorsType extends ObjectType
 
     protected function _getType($config) {
         $type = $config['type'];
-        if ($type instanceof NonNull || $type instanceof ListOfType) {
+        
+        if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
         return $type;
     }
 
-    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields) {
+    static public function needSuberrors(array $config, bool $isParentList) : bool {
+        return !empty($config['validate']) || !empty($config['isRoot']) || $isParentList;
+    }
+
+    protected function _buildInputObjectFields(InputObjectType $type, $config, $path) {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
-            $newType = static::create(
+            if ($newType = static::create(
                 [
                     'validate' => $field->config['validate'] ?? null,
                     'errorCodes' => $field->config['errorCodes'] ?? null,
@@ -73,26 +78,29 @@ class UserErrorsType extends ObjectType
                 ],
                 array_merge($path, [$key]),
                 $field->type instanceof ListOfType
-            );
-
-            if (!$newType) {
-                continue;
+            )) {
+                $fields[$key] = [
+                    'description' => 'Error for ' . $key,
+                    'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
+                    'resolve' => static function ($value) use ($key) {
+                        return $value[$key] ?? null;
+                    },
+                ];
             }
-
-            $fields[$key] = [
-                'description' => 'Error for ' . $key,
-                'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
-                'resolve' => static function ($value) use ($key) {
-                    return $value[$key] ?? null;
-                },
-            ];
         }
+        return $fields;
+    }
 
-        if ($fields) {
+    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields, $isParentList) {
+        $createSubErrors = static::needSuberrors($config, $isParentList);
+
+        $fields = $this->_buildInputObjectFields($type, $config, $path);
+
+        if ($createSubErrors && count($fields)) {
             /**
-             * errors property
+             * suberrors property
              */
-            $finalFields[static::ERROR_NAME] = [
+            $finalFields[static::SUBERRORS_NAME] = [
                 'type' => $this->_set(new ObjectType([
                     'name' => $this->_nameFromPath(array_merge($path, ['fieldErrors'])),
                     'description' => 'User Error',
@@ -100,9 +108,12 @@ class UserErrorsType extends ObjectType
                 ]), $config),
                 'description' => 'Validation errors for ' . ucfirst($path[count($path)-1]),
                 'resolve' => static function (array $value) {
-                    return $value['errors'] ?? null;
+                    return $value[static::SUBERRORS_NAME] ?? null;
                 },
             ];
+        }
+        else {
+            $finalFields += $fields;
         }
     }
 
@@ -138,8 +149,8 @@ class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addSuberrorCodes(&$finalFields) {
-        if (isset($finalFields['code'])) {
+    protected function _addPathField(&$finalFields) {
+        if (!empty($finalFields['code']) || !empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this items\'s location in the nested array',
@@ -169,8 +180,6 @@ class UserErrorsType extends ObjectType
      * @param string   $name
      *
      * @return static|null
-     *
-     * @throws Exception
      */
     public static function create(array $config, array $path, bool $isParentList = false, string $name = '') : ?self
     {
@@ -188,6 +197,11 @@ class UserErrorsType extends ObjectType
             }
             return $userErrorType;
         }
+
+        if(count($path) == 1) {
+            throw new Exception("You must specify at least one 'validate' callback somewhere");
+        }
+
         return null;
     }
 

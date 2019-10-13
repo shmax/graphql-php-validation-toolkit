@@ -26,9 +26,8 @@ final class ListOfScalarValidationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->query  = new ObjectType(['name' => 'Query']);
         $this->schema = new Schema([
-            'query' => $this->query,
+            'query' => new ObjectType(['name' => 'Query']),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => static function () {
@@ -77,6 +76,7 @@ final class ListOfScalarValidationTest extends TestCase
                                 phoneNumbers {
                                     path
                                     code
+                                    msg
                                 }
                             }
                             result
@@ -102,15 +102,15 @@ final class ListOfScalarValidationTest extends TestCase
                     [
                         'phoneNumbers' =>
                             [
-                                0 =>
-                                    [
-                                        'path' =>
-                                            [
-                                                0,
-                                                1,
-                                            ],
-                                        'code' => 'invalidPhoneNumber',
-                                    ],
+                                [
+                                    'path' =>
+                                        [
+                                            0,
+                                            1,
+                                        ],
+                                    'code' => 'invalidPhoneNumber',
+                                    'msg' => 'That does not seem to be a valid phone number',
+                                ],
                             ],
                     ],
                 'result' => null,

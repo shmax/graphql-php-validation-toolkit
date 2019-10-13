@@ -95,7 +95,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
             },
         ], ['updateBook']);
 
-        self::assertCount(3, array_keys($types));
+        self::assertCount(2, array_keys($types));
         self::assertTrue(isset($types['UpdateBook_AuthorIdErrorCode']));
         self::assertEquals(
             SchemaPrinter::printType($types['UpdateBook_AuthorIdErrorCode']),

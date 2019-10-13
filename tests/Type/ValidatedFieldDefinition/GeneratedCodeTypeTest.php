@@ -126,7 +126,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['code'], "invalidBookId");
-        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['msg'], "Invalid Book Id");
+        static::assertEquals("invalidBookId", $res->data['updateBook']['suberrors']['bookId']['code']);
+        static::assertEquals("Invalid Book Id", $res->data['updateBook']['suberrors']['bookId']['msg']);
     }
 }

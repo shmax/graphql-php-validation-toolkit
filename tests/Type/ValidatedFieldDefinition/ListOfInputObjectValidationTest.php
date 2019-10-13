@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
+use GraphQL\Tests\Type\FieldDefinitionTest;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -16,17 +17,8 @@ use function count;
 use function preg_match;
 use function strlen;
 
-final class ListOfInputObjectValidationTest extends TestCase
+final class ListOfInputObjectValidationTest extends FieldDefinitionTest
 {
-    /** @var Type */
-    protected $bookType;
-
-    /** @var InputObjectType */
-    protected $bookAttributesInputType;
-
-    /** @var Type */
-    protected $personType;
-
     /** @var mixed[] */
     protected $data = [
         'people' => [
@@ -36,64 +28,13 @@ final class ListOfInputObjectValidationTest extends TestCase
         ],
     ];
 
-    /** @var ObjectType */
-    protected $query;
-
     /** @var Schema */
     protected $schema;
 
     protected function setUp(): void
     {
-        $this->personType = new ObjectType([
-            'name' => 'Person',
-            'fields' => [
-                'firstName' => [
-                    'type' => Type::string(),
-                    'phoneNumbers' => [
-                        'type' => Type::listOf(Type::string()),
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->bookAttributesInputType = new InputObjectType([
-            'name' => 'BookAttributes',
-            'fields' => [
-                'title' => [
-                    'type' => Type::string(),
-                    'description' => 'Enter a book title, no more than 10 characters in length',
-                    'validate' => static function (string $title) {
-                        if (strlen($title) > 10) {
-                            return [1, 'book title must be less than 10 chaacters'];
-                        }
-                        return 0;
-                    },
-                ],
-                'author' => [
-                    'type' => Type::id(),
-                    'description' => 'Provide a valid author id',
-                    'errorCodes' => [
-                        'unknownAuthor',
-                        'authorDeceased',
-                    ],
-                    'validate' => function (string $authorId) {
-                        if (!isset($this->data['people'][$authorId])) {
-                            return ['unknownAuthor', 'We have no record of that author'];
-                        }
-                        return 0;
-                    },
-                ],
-            ],
-        ]);
-
-        $this->query = new ObjectType(['name' => 'Query']);
-
-        $this->schema = $this->_createSchema();
-    }
-
-    protected function _createSchema() {
-        return new Schema([
-            'query' => $this->query,
+        $this->schema = new Schema([
+            'query' => new ObjectType(['name' => 'Query']),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {
@@ -101,15 +42,37 @@ final class ListOfInputObjectValidationTest extends TestCase
                         'updateBooks' => new ValidatedFieldDefinition([
                             'name' => 'updateBooks',
                             'type' => Type::boolean(),
-                            'validate' => static function ($book) {
-                                return isset($book['author']) || isset($book['title']) ? 0: [1, 'You must set an author or a title'];
-                            },
                             'args' => [
                                 'bookAttributes' => [
-                                    'type' => Type::listOf($this->bookAttributesInputType),
-                                    'validate' => static function ($var) {
-                                        return $var ? 0: 1;
-                                    },
+                                    'type' => Type::listOf(new InputObjectType([
+                                        'name' => 'BookAttributes',
+                                        'fields' => [
+                                            'title' => [
+                                                'type' => Type::string(),
+                                                'description' => 'Enter a book title, no more than 10 characters in length',
+                                                'validate' => static function (string $title) {
+                                                    if (strlen($title) > 10) {
+                                                        return [1, 'book title must be less than 10 chaacters'];
+                                                    }
+                                                    return 0;
+                                                },
+                                            ],
+                                            'author' => [
+                                                'type' => Type::id(),
+                                                'description' => 'Provide a valid author id',
+                                                'errorCodes' => [
+                                                    'unknownAuthor',
+                                                    'authorDeceased',
+                                                ],
+                                                'validate' => function (string $authorId) {
+                                                    if (!isset($this->data['people'][$authorId])) {
+                                                        return ['unknownAuthor', 'We have no record of that author'];
+                                                    }
+                                                    return 0;
+                                                },
+                                            ],
+                                        ],
+                                    ]))
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
@@ -135,12 +98,14 @@ final class ListOfInputObjectValidationTest extends TestCase
                     ) {
                         valid
                         result
-                        code
-                        msg
                         suberrors {
                             bookAttributes {
-                                code
-                                msg
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                }
                                 path
                             }
                         }
@@ -156,8 +121,8 @@ final class ListOfInputObjectValidationTest extends TestCase
                         'author' => 3,
                     ],
                     [
-                        'title' => null,
-                        'author' => null,
+                        'title' => '',
+                        'author' => '',
                     ],
                 ],
             ]
@@ -166,13 +131,23 @@ final class ListOfInputObjectValidationTest extends TestCase
         static::assertEmpty($res->errors);
 
         static::assertEquals(
-            array (
+            [
                 'valid' => false,
                 'result' => null,
-                'code' => 1,
-                'msg' => 'You must set an author or a title',
-                'suberrors' => null,
-            ),
+                'suberrors' =>
+                    [
+                        'bookAttributes' =>
+                            [
+                                [
+                                    'suberrors' =>
+                                        [
+                                            'title' => null,
+                                        ],
+                                    'path' => [ 1 ],
+                                ],
+                            ],
+                    ],
+            ],
             $res->data['updateBooks']
         );
 

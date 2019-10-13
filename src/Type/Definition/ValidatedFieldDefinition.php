@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use PHPStan\Type\CompoundType;
 use ReflectionClass;
 use ReflectionException;
 use function array_filter;
@@ -29,20 +28,23 @@ class ValidatedFieldDefinition extends FieldDefinition
     {
         $args = $config['args'];
         $name = $config['name'] ?? lcfirst($this->tryInferName());
-
         $this->typeSetter = $config['typeSetter'] ?? null;
+
+        $validFieldName = $config['validName'] ?? 'valid';
+        $resultFieldName = $config['resultName'] ?? 'result';
 
         $type = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
+            'isRoot' => true,
             'fields' => [
-                'result' => [
+                $resultFieldName => [
                     'type' => $config['type'],
                     'description' => 'The payload, if any',
                     'resolve' => static function ($value) {
                         return $value['result'] ?? null;
                     },
                 ],
-                'valid' => [
+                $validFieldName => [
                     'type' => Type::nonNull(Type::boolean()),
                     'description' => 'Whether all validation passed. True for yes, false for no.',
                     'resolve' => static function ($value) {
@@ -62,23 +64,30 @@ class ValidatedFieldDefinition extends FieldDefinition
             'type' => $type,
             'args' => $args,
             'name' => $name,
-            'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
+            'resolve' => function ($value, $args1, $context, $info) use ($config, $args, $validFieldName, $resultFieldName) {
                 // validate inputs
-                $config['type']  = new InputObjectType([
+                $config['type'] = new InputObjectType([
                     'name'=>'',
                     'fields' => $args,
                 ]);
+                $config['isRoot'] = true;
+
                 $errors          = $this->_validate($config, $args1);
                 $result          = $errors;
-                $result['valid'] = !$errors;
+                $result[$validFieldName] = !$errors;
 
                 if (!empty($result['valid'])) {
-                    $result['result'] = $config['resolve']($value, $args1, $context, $info);
+                    $result[$resultFieldName] = $config['resolve']($value, $args1, $context, $info);
                 }
 
                 return $result;
             },
         ]);
+    }
+
+    private function _noop($value) {
+        // this is just a no-op validation function to fallback to when no validation function is provided
+        return 0;
     }
 
     /**
@@ -105,7 +114,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $path[count($path)-1] = $idx;
                 $newPath              = $path;
                 $newPath[]            = 0;
-                $this->_validateItems($config, $subValue, $newPath, $validate);
+                $this->_validateItems($config, $subValue, $newPath, $validate );
             } else {
                 $path[count($path) - 1] = $idx;
                 $err                    = $validate($subValue);
@@ -114,9 +123,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $wrappedType = $config['type']->getWrappedType(true);
                     $err = $this->_validate([
                         'type' => $wrappedType
-                    ], $subValue);
-
-                    $err = $err['errors'] ?? null;
+                    ], $subValue, $config['type'] instanceof ListOfType);
                 }
 
                 if ($err) {
@@ -131,7 +138,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @param mixed $value
      * @return mixed[]
      */
-    protected function _validate(array $arg, $value) : array
+    protected function _validate(array $arg, $value, bool $isParentList = false) : array
     {
         $res = [];
 
@@ -147,7 +154,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                $this->_validateInputObjectType($arg, $value, $res);
+                $this->_validateInputObject($arg, $value, $res, $isParentList);
                 break;
 
             default:
@@ -159,20 +166,24 @@ class ValidatedFieldDefinition extends FieldDefinition
         return array_filter($res);
     }
 
-    protected function _validateListOfType($config, $value, &$res) {
-        if (isset($config['validate'])) {
-            try {
-                $this->_validateItems($config, $value, [0], $config['validate']);
-            } catch (ValidateItemsError $e) {
-                $res['errors'] = [
+    protected function _validateListOfType(array $config, $value, array &$res) {
+        try {
+            $this->_validateItems($config, $value, [0], $config['validate'] ?? [$this, "_noop"]);
+        } catch (ValidateItemsError $e) {
+            if(isset($e->error['suberrors'])) {
+                $err = $e->error;
+            }
+            else {
+                $err = [
                     'error' => $e->error,
-                    'path' => $e->path,
                 ];
             }
+            $err['path'] = $e->path;
+            $res[] = $err;
         }
     }
 
-    protected function _validateInputObjectType($arg, $value, &$res) {
+    protected function _validateInputObject($arg, $value, &$res, bool $isParentList) {
         $type = $arg['type'];
         if (isset($arg['validate'])) {
             $err = $arg['validate']($value) ?? [];
@@ -182,17 +193,22 @@ class ValidatedFieldDefinition extends FieldDefinition
             }
         }
 
-        $this->_validateFields($type, $value, $res);
+        $this->_validateInputObjectFields($type, $arg, $value, $res, $isParentList);
     }
 
-    protected function _validateFields($type, $value, &$res) {
+    protected function _validateInputObjectFields($type, array $config, $value, &$res, $isParentList = false) {
+        $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
+
         $fields = $type->getFields();
         if (is_array($value)) {
             foreach ($value as $key => $subValue) {
                 $config                 = $fields[$key]->config;
-                $res['errors'][$key] = $this->_validate($config, $subValue);
+                $error = $this->_validate($config, $subValue);
+
+                if($error) {
+                    $createSubErrors ? $res[UserErrorsType::SUBERRORS_NAME][$key] = $error : $res[$key] = $error;
+                }
             }
-            $res['errors'] = array_filter($res['errors'] ?? []);
         }
     }
 
