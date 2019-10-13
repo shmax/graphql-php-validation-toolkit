@@ -42,9 +42,6 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                         'updateBooks' => new ValidatedFieldDefinition([
                             'name' => 'updateBooks',
                             'type' => Type::boolean(),
-                            'validate' => static function ($book) {
-                                return !empty($book['author']) || !empty($book['title']) ? 0: [1, 'You must set an author or a title'];
-                            },
                             'args' => [
                                 'bookAttributes' => [
                                     'type' => Type::listOf(new InputObjectType([
@@ -75,10 +72,7 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                                                 },
                                             ],
                                         ],
-                                    ])),
-                                    'validate' => static function ($var) {
-                                        return $var ? 0: 1;
-                                    },
+                                    ]))
                                 ],
                             ],
                             'resolve' => static function ($value) : bool {
@@ -104,12 +98,14 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                     ) {
                         valid
                         result
-                        code
-                        msg
                         suberrors {
                             bookAttributes {
-                                code
-                                msg
+                                suberrors {
+                                    title {
+                                        code
+                                        msg
+                                    }
+                                }
                                 path
                             }
                         }
@@ -135,13 +131,23 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
         static::assertEmpty($res->errors);
 
         static::assertEquals(
-            array (
+            [
                 'valid' => false,
                 'result' => null,
-                'code' => 1,
-                'msg' => 'You must set an author or a title',
-                'suberrors' => null,
-            ),
+                'suberrors' =>
+                    [
+                        'bookAttributes' =>
+                            [
+                                [
+                                    'suberrors' =>
+                                        [
+                                            'title' => null,
+                                        ],
+                                    'path' => [ 1 ],
+                                ],
+                            ],
+                    ],
+            ],
             $res->data['updateBooks']
         );
 

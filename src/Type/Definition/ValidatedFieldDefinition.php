@@ -102,7 +102,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems($config, array $value, array $path, callable $validate) : void
+    protected function _validateItems($config, array $value, array $path, ?callable $validate) : void
     {
         foreach ($value as $idx => $subValue) {
             if (is_array($subValue) && !$this->_isAssoc($subValue)) {
@@ -112,7 +112,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $this->_validateItems($config, $subValue, $newPath, $validate);
             } else {
                 $path[count($path) - 1] = $idx;
-                $err                    = $validate($subValue);
+                $err                    = is_callable($validate) ? $validate($subValue) : null;
 
                 if(empty($err)) {
                     $wrappedType = $config['type']->getWrappedType(true);
@@ -164,22 +164,19 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     protected function _validateListOfType(array $config, $value, array &$res) {
-        if (isset($config['validate'])) {
-            try {
-                $this->_validateItems($config, $value, [0], $config['validate']);
-            } catch (ValidateItemsError $e) {
-                if(isset($e->error['suberrors'])) {
-                    $err = $e->error;
-                }
-                else {
-                    $err = [
-                        'error' => $e->error,
-                    ];
-                }
-                $err['path'] = $e->path;
-                $res[] = $err;
-
+        try {
+            $this->_validateItems($config, $value, [0], $config['validate'] ?? null);
+        } catch (ValidateItemsError $e) {
+            if(isset($e->error['suberrors'])) {
+                $err = $e->error;
             }
+            else {
+                $err = [
+                    'error' => $e->error,
+                ];
+            }
+            $err['path'] = $e->path;
+            $res[] = $err;
         }
     }
 
