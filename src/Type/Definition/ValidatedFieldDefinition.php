@@ -85,6 +85,11 @@ class ValidatedFieldDefinition extends FieldDefinition
         ]);
     }
 
+    private function _noop($value) {
+        // this is just a no-op validation function to fallback to when no validation function is provided
+        return 0;
+    }
+
     /**
      * @param   mixed[] $arr
      */
@@ -102,25 +107,23 @@ class ValidatedFieldDefinition extends FieldDefinition
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems($config, array $value, array $path, ?callable $validate) : void
+    protected function _validateItems($config, array $value, array $path, callable $validate) : void
     {
         foreach ($value as $idx => $subValue) {
             if (is_array($subValue) && !$this->_isAssoc($subValue)) {
                 $path[count($path)-1] = $idx;
                 $newPath              = $path;
                 $newPath[]            = 0;
-                $this->_validateItems($config, $subValue, $newPath, $validate);
+                $this->_validateItems($config, $subValue, $newPath, $validate );
             } else {
                 $path[count($path) - 1] = $idx;
-                $err                    = is_callable($validate) ? $validate($subValue) : null;
+                $err                    = $validate($subValue);
 
                 if(empty($err)) {
                     $wrappedType = $config['type']->getWrappedType(true);
                     $err = $this->_validate([
                         'type' => $wrappedType
                     ], $subValue, $config['type'] instanceof ListOfType);
-
-//                    $err = $err[UserErrorsType::SUBERRORS_NAME] ?? $err;
                 }
 
                 if ($err) {
@@ -165,7 +168,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
     protected function _validateListOfType(array $config, $value, array &$res) {
         try {
-            $this->_validateItems($config, $value, [0], $config['validate'] ?? null);
+            $this->_validateItems($config, $value, [0], $config['validate'] ?? [$this, "_noop"]);
         } catch (ValidateItemsError $e) {
             if(isset($e->error['suberrors'])) {
                 $err = $e->error;
