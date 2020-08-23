@@ -46,8 +46,8 @@
     "test": "phpunit",
     "test-with-coverage": "phpunit --coverage-html tmp",
     "lint" : "phpcs",
-    "fix-style" : "phpcbf",
-    "static-analysis": "phpstan analyse --ansi --memory-limit 256M",
-    "check-all": "composer lint && composer static-analysis src && composer test"
+    "fix" : "phpcbf",
+    "stan": "phpstan analyse --ansi --memory-limit 256M",
+    "check": "composer lint && composer stan src && composer test"
   }
 }

@@ -37,7 +37,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         parent::__construct([
             'type' => $lazy ? function() use($name, $config, $args) {
-				return is_callable($this->type) ? ($this->type = static::_create($name, $args, $config)) : $this->type;
+				return static::_create($name, $args, $config);
 			} : static::_create($name, $args, $config),
             'args' => $args,
             'name' => $name,

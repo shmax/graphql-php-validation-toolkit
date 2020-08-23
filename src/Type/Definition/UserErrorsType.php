@@ -79,11 +79,11 @@ class UserErrorsType extends ObjectType
                     'typeSetter' => $config['typeSetter'] ?? null
                 ],
                 array_merge($path, [$key]),
-                $field->type instanceof ListOfType
+                $field->getType() instanceof ListOfType
             )) {
                 $fields[$key] = [
                     'description' => 'Error for ' . $key,
-                    'type' => $field->type instanceof ListOfType ? Type::listOf($newType) : $newType,
+                    'type' => $field->getType() instanceof ListOfType ? Type::listOf($newType) : $newType,
                     'resolve' => static function ($value) use ($key) {
                         return $value[$key] ?? null;
                     },
