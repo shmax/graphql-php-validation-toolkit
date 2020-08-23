@@ -20,6 +20,8 @@ class ValidatedFieldDefinition extends FieldDefinition
 {
     /** @var callable */
     protected $typeSetter;
+    protected $validFieldName;
+    protected $resultFieldName;
 
     /**
      * @param mixed[] $config
@@ -28,43 +30,17 @@ class ValidatedFieldDefinition extends FieldDefinition
     {
         $args = $config['args'];
         $name = $config['name'] ?? lcfirst($this->tryInferName());
-        $this->typeSetter = $config['typeSetter'] ?? null;
 
-        $validFieldName = $config['validName'] ?? 'valid';
-        $resultFieldName = $config['resultName'] ?? 'result';
-
-        $type = UserErrorsType::create([
-            'errorCodes' => $config['errorCodes'] ?? null,
-            'isRoot' => true,
-            'fields' => [
-                $resultFieldName => [
-                    'type' => $config['type'],
-                    'description' => 'The payload, if any',
-                    'resolve' => static function ($value) {
-                        return $value['result'] ?? null;
-                    },
-                ],
-                $validFieldName => [
-                    'type' => Type::nonNull(Type::boolean()),
-                    'description' => 'Whether all validation passed. True for yes, false for no.',
-                    'resolve' => static function ($value) {
-                        return $value['valid'];
-                    },
-                ],
-            ],
-            'validate' => $config['validate'] ?? null,
-            'type' => new InputObjectType([
-                'fields' => $args,
-                'name' => '',
-            ]),
-            'typeSetter' => $this->typeSetter,
-        ], [$name], false, ucfirst($name) . 'Result');
+        $this->validFieldName = $config['validName'] ?? 'valid';
+        $this->resultFieldName = $config['resultName'] ?? 'result';
 
         parent::__construct([
-            'type' => $type,
+            'type' => function() use($name, $config, $args) {
+				return static::_create($name, $args, $config);
+			},
             'args' => $args,
             'name' => $name,
-            'resolve' => function ($value, $args1, $context, $info) use ($config, $args, $validFieldName, $resultFieldName) {
+            'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
                 // validate inputs
                 $config['type'] = new InputObjectType([
                     'name'=>'',
@@ -74,16 +50,45 @@ class ValidatedFieldDefinition extends FieldDefinition
 
                 $errors          = $this->_validate($config, $args1);
                 $result          = $errors;
-                $result[$validFieldName] = !$errors;
+                $result[$this->validFieldName] = !$errors;
 
                 if (!empty($result['valid'])) {
-                    $result[$resultFieldName] = $config['resolve']($value, $args1, $context, $info);
+                    $result[$this->resultFieldName] = $config['resolve']($value, $args1, $context, $info);
                 }
 
                 return $result;
             },
         ]);
     }
+
+    protected function _create($name, $args, $config) {
+		return UserErrorsType::create([
+			'errorCodes' => $config['errorCodes'] ?? null,
+			'isRoot' => true,
+			'fields' => [
+				$this->resultFieldName => [
+					'type' => $config['type'],
+					'description' => 'The payload, if any',
+					'resolve' => static function ($value) {
+						return $value['result'] ?? null;
+					},
+				],
+				$this->validFieldName => [
+					'type' => Type::nonNull(Type::boolean()),
+					'description' => 'Whether all validation passed. True for yes, false for no.',
+					'resolve' => static function ($value) {
+						return $value['valid'];
+					},
+				],
+			],
+			'validate' => $config['validate'] ?? null,
+			'type' => new InputObjectType([
+				'fields' => $args,
+				'name' => '',
+			]),
+			'typeSetter' => $config['typeSetter'] ?? null,
+		], [$name], false, ucfirst($name) . 'Result');
+	}
 
     private function _noop($value) {
         // this is just a no-op validation function to fallback to when no validation function is provided
