@@ -33,12 +33,11 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         $this->validFieldName = $config['validName'] ?? 'valid';
         $this->resultFieldName = $config['resultName'] ?? 'result';
-        $lazy = !empty($config['lazy']) ?? false;
 
         parent::__construct([
-            'type' => $lazy ? function() use($name, $config, $args) {
+            'type' => function() use($name, $config, $args) {
 				return static::_create($name, $args, $config);
-			} : static::_create($name, $args, $config),
+			},
             'args' => $args,
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
