@@ -148,7 +148,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         $res = [];
 	    
         if (is_callable($arg['type'])) {
-	    $arg['type'] =  $arg['type']();
+            $arg['type'] =  $arg['type']();
         }
 
         $type = $arg['type'];
