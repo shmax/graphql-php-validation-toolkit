@@ -146,6 +146,10 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected function _validate(array $arg, $value, bool $isParentList = false) : array
     {
         $res = [];
+	    
+        if (is_callable($arg['type'])) {
+	    $arg['type'] =  $arg['type']();
+        }
 
         $type = $arg['type'];
         switch ($type) {
