@@ -6,13 +6,6 @@ php:
 - 7.2
 - 7.3
 
-env:
-  matrix:
-  - EXECUTOR= DEPENDENCIES=--prefer-lowest
-  - EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest
-  - EXECUTOR=
-  - EXECUTOR=coroutine
-
 cache:
   directories:
   - $HOME/.composer/cache
@@ -21,7 +14,7 @@ before_install:
 - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
 - travis_retry composer self-update
 
-install: travis_retry composer update --prefer-dist
+install: composer update
 
 script: ./vendor/bin/phpunit --group default
 
@@ -32,7 +25,7 @@ jobs:
   include:
   - stage: Test
     install:
-    - travis_retry composer update --prefer-dist {$DEPENDENCIES}
+    - composer update
 
   - stage: Test
     env: COVERAGE
@@ -41,7 +34,6 @@ jobs:
     - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
     script:
     - ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-    - EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
     after_script:
     - ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
     - wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
@@ -50,12 +42,12 @@ jobs:
   - stage: Code Quality
     php: 7.1
     env: CODING_STANDARD
-    install: travis_retry composer install --prefer-dist
+    install: composer install
     script:
     - ./vendor/bin/phpcs
 
   - stage: Code Quality
     php: 7.1
     env: STATIC_ANALYSIS
-    install: travis_retry composer install --prefer-dist
+    install: composer install
     script: composer stan
