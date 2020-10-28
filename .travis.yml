@@ -42,12 +42,12 @@ jobs:
   - stage: Code Quality
     php: 7.1
     env: CODING_STANDARD
-    install: travis_retry composer install --prefer-dist
+    install: travis_retry composer install --prefer-dist {$DEPENDENCIES}
     script:
     - ./vendor/bin/phpcs
 
   - stage: Code Quality
     php: 7.1
     env: STATIC_ANALYSIS
-    install: travis_retry composer install --prefer-dist
+    install: travis_retry composer install --prefer-dist {$DEPENDENCIES}
     script: composer stan
