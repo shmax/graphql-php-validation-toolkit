@@ -6,13 +6,6 @@ php:
 - 7.2
 - 7.3
 
-env:
-  matrix:
-  - EXECUTOR= DEPENDENCIES=--prefer-lowest
-  - EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest
-  - EXECUTOR=
-  - EXECUTOR=coroutine
-
 cache:
   directories:
   - $HOME/.composer/cache
@@ -41,7 +34,6 @@ jobs:
     - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
     script:
     - ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-    - EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
     after_script:
     - ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
     - wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
