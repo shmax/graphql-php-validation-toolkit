@@ -25,7 +25,7 @@ jobs:
   include:
   - stage: Test
     install:
-    - composer update {$DEPENDENCIES}
+    - composer update
 
   - stage: Test
     env: COVERAGE
@@ -42,12 +42,12 @@ jobs:
   - stage: Code Quality
     php: 7.1
     env: CODING_STANDARD
-    install: composer install {$DEPENDENCIES}
+    install: composer install
     script:
     - ./vendor/bin/phpcs
 
   - stage: Code Quality
     php: 7.1
     env: STATIC_ANALYSIS
-    install: composer install {$DEPENDENCIES}
+    install: composer install
     script: composer stan
