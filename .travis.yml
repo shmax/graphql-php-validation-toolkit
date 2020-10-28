@@ -14,7 +14,7 @@ before_install:
 - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
 - travis_retry composer self-update
 
-install: travis_retry composer update --prefer-dist
+install: composer update
 
 script: ./vendor/bin/phpunit --group default
 
@@ -25,7 +25,7 @@ jobs:
   include:
   - stage: Test
     install:
-    - travis_retry composer update --prefer-dist {$DEPENDENCIES}
+    - composer update {$DEPENDENCIES}
 
   - stage: Test
     env: COVERAGE
