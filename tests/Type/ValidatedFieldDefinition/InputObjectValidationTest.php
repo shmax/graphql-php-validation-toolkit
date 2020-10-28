@@ -35,31 +35,33 @@ final class InputObjectValidationTest extends FieldDefinitionTest
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'type' => new InputObjectType([
-                            'name' => 'BookAttributes',
-                            'fields' => [
-                                'title' => [
-                                    'type' => Type::string(),
-                                    'description' => 'Enter a book title, no more than 10 characters in length',
-                                    'validate' => static function (string $title) {
-                                        if (strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 chaacters'];
-                                        }
-                                        return 0;
-                                    },
-                                ],
-                                'author' => [
-                                    'type' => Type::id(),
-                                    'description' => 'Provide a valid author id',
-                                    'validate' => function (string $authorId) {
-                                        if (!isset($this->data['people'][$authorId])) {
-                                            return [1, 'We have no record of that author'];
-                                        }
-                                        return 0;
-                                    },
-                                ],
-                            ],
-                        ]),
+                        'type' => function() { // lazy load
+            				return new InputObjectType([
+								'name' => 'BookAttributes',
+								'fields' => [
+									'title' => [
+										'type' => Type::string(),
+										'description' => 'Enter a book title, no more than 10 characters in length',
+										'validate' => static function (string $title) {
+											if (strlen($title) > 10) {
+												return [1, 'book title must be less than 10 chaacters'];
+											}
+											return 0;
+										},
+									],
+									'author' => [
+										'type' => Type::id(),
+										'description' => 'Provide a valid author id',
+										'validate' => function (string $authorId) {
+											if (!isset($this->data['people'][$authorId])) {
+												return [1, 'We have no record of that author'];
+											}
+											return 0;
+										},
+									],
+								],
+							]);
+            			},
                     ],
                 ],
                 'resolve' => static function ($value): bool {

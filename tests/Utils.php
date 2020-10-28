@@ -64,7 +64,6 @@ class Utils
         }
         array_unshift($lines, "");
         $lines[] = "  ";
-        $res = implode($lines,  "\n");
-        return $res;
+        return implode("\n", $lines);
     }
 }
