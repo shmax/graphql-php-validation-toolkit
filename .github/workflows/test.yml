@@ -1,4 +1,4 @@
-name: Static Analysis
+name: Test
 
 on:
   pull_request:
@@ -39,5 +39,8 @@ jobs:
             export $ENV
             vendor/bin/phpunit --coverage-clover=coverage.xml
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Upload coverage file
+          uses: actions/upload-artifact@v3
+          with:
+            name: phpunit-${{ matrix.deps }}-${{ matrix.php-version }}.coverage
+            path: coverage.xml
