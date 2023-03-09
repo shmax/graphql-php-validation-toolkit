@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\GraphQL;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
@@ -34,7 +35,7 @@ abstract class FieldDefinitionTest extends TestCase
 
     protected function _checkValidation(ValidatedFieldDefinition $field, string $qry, array $args, array $expected ) {
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query']),
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => static function () use($field) {
@@ -73,7 +74,7 @@ abstract class FieldDefinitionTest extends TestCase
         $types = $schema->getTypeMap();
 
         $types = array_filter($types, function($type) {
-            return ! Type::isBuiltInType($type);
+            return ! $type->isBuiltInType();
         });
 
 

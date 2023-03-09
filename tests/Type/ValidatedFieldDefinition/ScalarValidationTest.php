@@ -68,7 +68,7 @@ final class ScalarValidationTest extends TestCase
             ],
         ]);
 
-        $this->query = new ObjectType(['name' => 'Query']);
+        $this->query = new ObjectType(['name' => 'Query', 'fields'=>[]]);
 
         $this->schema = new Schema([
             'query' => $this->query,

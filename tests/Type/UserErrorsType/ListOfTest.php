@@ -28,10 +28,8 @@ final class ListOfTest extends FieldDefinitionTest
               query: UpsertSkuError
             }
             
-            """User errors for UpsertSku"""
-            type UpsertSkuError {
-            
-            }
+            "User errors for UpsertSku"
+            type UpsertSkuError
 
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
@@ -46,13 +44,13 @@ final class ListOfTest extends FieldDefinitionTest
             [
                 'PhoneNumberError' => '
                     type PhoneNumberError {
-                      """An error code"""
+                      "An error code"
                       code: PhoneNumberErrorCode
                     
-                      """A natural language description of the issue"""
+                      "A natural language description of the issue"
                       msg: String
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
               '
@@ -84,13 +82,13 @@ final class ListOfTest extends FieldDefinitionTest
             [
                 'AddressError' => '
                     type AddressError {
-                      """An error code"""
+                      "An error code"
                       code: AddressErrorCode
                     
-                      """A natural language description of the issue"""
+                      "A natural language description of the issue"
                       msg: String
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
                 '
@@ -122,19 +120,19 @@ final class ListOfTest extends FieldDefinitionTest
             [
               'AddressError' => '
                     type AddressError {
-                      """Validation errors for Address"""
+                      "Validation errors for Address"
                       suberrors: Address_FieldErrors
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
               ',
               'Address_FieldErrors' => '
                     type Address_FieldErrors {
-                      """Error for city"""
+                      "Error for city"
                       city: Address_CityError
                     
-                      """Error for zip"""
+                      "Error for zip"
                       zip: Address_ZipError
                     }
               '
@@ -167,25 +165,25 @@ final class ListOfTest extends FieldDefinitionTest
             [
                 'AddressError' => '
                     type AddressError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     
-                      """Validation errors for Address"""
+                      "Validation errors for Address"
                       suberrors: Address_FieldErrors
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
                 ',
                 'Address_FieldErrors' => '
                     type Address_FieldErrors {
-                      """Error for city"""
+                      "Error for city"
                       city: Address_CityError
                     
-                      """Error for zip"""
+                      "Error for zip"
                       zip: Address_ZipError
                     }
                 '
@@ -206,13 +204,13 @@ final class ListOfTest extends FieldDefinitionTest
             [
                 'IdsError' => '
                     type IdsError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
                 ',
@@ -244,43 +242,43 @@ final class ListOfTest extends FieldDefinitionTest
             [
               'UpdateBookError' => '
                     type UpdateBookError {
-                      """Validation errors for UpdateBook"""
+                      "Validation errors for UpdateBook"
                       suberrors: UpdateBook_FieldErrors
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
               ',
               'UpdateBook_FieldErrors' => '
                     type UpdateBook_FieldErrors {
-                      """Error for author"""
+                      "Error for author"
                       author: [UpdateBook_AuthorError]
                     }
               ',
               'UpdateBook_AuthorError' => '
                     type UpdateBook_AuthorError {
-                      """Validation errors for Author"""
+                      "Validation errors for Author"
                       suberrors: UpdateBook_Author_FieldErrors
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
               ',
               'UpdateBook_Author_FieldErrors' => '
                     type UpdateBook_Author_FieldErrors {
-                      """Error for zip"""
+                      "Error for zip"
                       zip: [UpdateBook_Author_ZipError]
                     }
               ',
               'UpdateBook_Author_ZipError' => '
                     type UpdateBook_Author_ZipError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     
-                      """A path describing this items\'s location in the nested array"""
+                      "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
               ',

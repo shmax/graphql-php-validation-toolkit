@@ -32,40 +32,40 @@ final class NonNullTest extends FieldDefinitionTest
                 return !empty($data);
             },
         ]),'
-            """User errors for DeleteAuthor"""
+            type Mutation {
+              deleteAuthor(authorId: String!): DeleteAuthorResult
+            }
+            
+            "User errors for DeleteAuthor"
             type DeleteAuthorResult {
-              """The payload, if any"""
+              "The payload, if any"
               result: Boolean
             
-              """Whether all validation passed. True for yes, false for no."""
+              "Whether all validation passed. True for yes, false for no."
               valid: Boolean!
             
-              """Validation errors for DeleteAuthor"""
+              "Validation errors for DeleteAuthor"
               suberrors: DeleteAuthor_FieldErrors
             }
             
-            """User errors for AuthorId"""
-            type DeleteAuthor_AuthorIdError {
-              """An error code"""
-              code: DeleteAuthor_AuthorIdErrorCode
-            
-              """A natural language description of the issue"""
-              msg: String
-            }
-            
-            """Error code"""
-            enum DeleteAuthor_AuthorIdErrorCode {
-              unknownAuthor
-            }
-            
-            """User Error"""
+            "User Error"
             type DeleteAuthor_FieldErrors {
-              """Error for authorId"""
+              "Error for authorId"
               authorId: DeleteAuthor_AuthorIdError
             }
             
-            type Mutation {
-              deleteAuthor(authorId: String!): DeleteAuthorResult
+            "User errors for AuthorId"
+            type DeleteAuthor_AuthorIdError {
+              "An error code"
+              code: DeleteAuthor_AuthorIdErrorCode
+            
+              "A natural language description of the issue"
+              msg: String
+            }
+            
+            "Error code"
+            enum DeleteAuthor_AuthorIdErrorCode {
+              unknownAuthor
             }
 
         ');
@@ -85,7 +85,7 @@ final class NonNullTest extends FieldDefinitionTest
                                 'type' => Type::string(),
                                 'description' => 'A first name',
                                 'validate' => static function($firstName) {
-                                    if(strlen($firstName > 100)) {
+                                    if(strlen($firstName) > 100) {
                                         return 1;
                                     }
                                     return 0;
@@ -95,7 +95,7 @@ final class NonNullTest extends FieldDefinitionTest
                                 'type' => Type::string(),
                                 'description' => 'A last name',
                                 'validate' => static function($lastName) {
-                                    if(strlen($lastName > 100)) {
+                                    if(strlen($lastName) > 100) {
                                         return 1;
                                     }
                                     return 0;
@@ -123,74 +123,74 @@ final class NonNullTest extends FieldDefinitionTest
               updateAuthor(author: bookInput!): UpdateAuthorResult
             }
             
-            """User errors for UpdateAuthor"""
+            input bookInput {
+              "A first name"
+              firstName: String
+            
+              "A last name"
+              lastName: String
+            }
+            
+            "User errors for UpdateAuthor"
             type UpdateAuthorResult {
-              """The payload, if any"""
+              "The payload, if any"
               result: Boolean
             
-              """Whether all validation passed. True for yes, false for no."""
+              "Whether all validation passed. True for yes, false for no."
               valid: Boolean!
             
-              """Validation errors for UpdateAuthor"""
+              "Validation errors for UpdateAuthor"
               suberrors: UpdateAuthor_FieldErrors
             }
             
-            """User errors for Author"""
+            "User Error"
+            type UpdateAuthor_FieldErrors {
+              "Error for author"
+              author: UpdateAuthor_AuthorError
+            }
+            
+            "User errors for Author"
             type UpdateAuthor_AuthorError {
-              """An error code"""
+              "An error code"
               code: UpdateAuthor_AuthorErrorCode
             
-              """A natural language description of the issue"""
+              "A natural language description of the issue"
               msg: String
             
-              """Validation errors for Author"""
+              "Validation errors for Author"
               suberrors: UpdateAuthor_Author_FieldErrors
             }
             
-            """Error code"""
+            "Error code"
             enum UpdateAuthor_AuthorErrorCode {
               notEnoughInfo
             }
             
-            """User Error"""
+            "User Error"
             type UpdateAuthor_Author_FieldErrors {
-              """Error for firstName"""
+              "Error for firstName"
               firstName: UpdateAuthor_Author_FirstNameError
             
-              """Error for lastName"""
+              "Error for lastName"
               lastName: UpdateAuthor_Author_LastNameError
             }
             
-            """User errors for FirstName"""
+            "User errors for FirstName"
             type UpdateAuthor_Author_FirstNameError {
-              """A numeric error code. 0 on success, non-zero on failure."""
+              "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
-              """An error message."""
+              "An error message."
               msg: String
             }
             
-            """User errors for LastName"""
+            "User errors for LastName"
             type UpdateAuthor_Author_LastNameError {
-              """A numeric error code. 0 on success, non-zero on failure."""
+              "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
-              """An error message."""
+              "An error message."
               msg: String
-            }
-            
-            """User Error"""
-            type UpdateAuthor_FieldErrors {
-              """Error for author"""
-              author: UpdateAuthor_AuthorError
-            }
-            
-            input bookInput {
-              """A first name"""
-              firstName: String
-            
-              """A last name"""
-              lastName: String
             }
 
         ');

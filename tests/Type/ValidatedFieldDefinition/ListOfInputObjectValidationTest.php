@@ -34,7 +34,7 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
     protected function setUp(): void
     {
         $this->schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query']),
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {

@@ -25,10 +25,8 @@ final class ScalarTest extends TestCase
               query: UpsertSkuError
             }
             
-            """User errors for UpsertSku"""
-            type UpsertSkuError {
-            
-            }
+            "User errors for UpsertSku"
+            type UpsertSkuError
 
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
@@ -48,16 +46,16 @@ final class ScalarTest extends TestCase
               query: PaletteError
             }
             
-            """User errors for Palette"""
+            "User errors for Palette"
             type PaletteError {
-              """An error code"""
+              "An error code"
               code: PaletteErrorCode
             
-              """A natural language description of the issue"""
+              "A natural language description of the issue"
               msg: String
             }
             
-            """Error code"""
+            "Error code"
             enum PaletteErrorCode {
               invalidColor
             }

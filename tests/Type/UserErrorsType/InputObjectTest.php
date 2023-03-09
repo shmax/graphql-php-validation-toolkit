@@ -59,28 +59,28 @@ final class InputObjectTest extends FieldDefinitionTest
               ',
                 'UpdateBookError' => '
                     type UpdateBookError {
-                      """Error for title"""
+                      "Error for title"
                       title: UpdateBook_TitleError
                     
-                      """Error for authorId"""
+                      "Error for authorId"
                       authorId: UpdateBook_AuthorIdError
                     }
               ',
                 'UpdateBook_TitleError' => '
                     type UpdateBook_TitleError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     }
               ',
                 'UpdateBook_AuthorIdError' => '
                     type UpdateBook_AuthorIdError {
-                      """An error code"""
+                      "An error code"
                       code: UpdateBook_AuthorIdErrorCode
                     
-                      """A natural language description of the issue"""
+                      "A natural language description of the issue"
                       msg: String
                     }
               ',
@@ -113,10 +113,10 @@ final class InputObjectTest extends FieldDefinitionTest
             [
                 'UpdateBookError' => '
                     type UpdateBookError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     }
               ',
@@ -146,40 +146,40 @@ final class InputObjectTest extends FieldDefinitionTest
             [
                 'UpdateBookError' => '
                     type UpdateBookError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     
-                      """Validation errors for UpdateBook"""
+                      "Validation errors for UpdateBook"
                       suberrors: UpdateBook_FieldErrors
                     }
                 ',
                 'UpdateBook_FieldErrors' => '
                     type UpdateBook_FieldErrors {
-                      """Error for title"""
+                      "Error for title"
                       title: UpdateBook_TitleError
                     
-                      """Error for authorId"""
+                      "Error for authorId"
                       authorId: UpdateBook_AuthorIdError
                     }
                 ',
                 'UpdateBook_TitleError' => '
                     type UpdateBook_TitleError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     }
                 ',
                 'UpdateBook_AuthorIdError' => '
                     type UpdateBook_AuthorIdError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     }
                 ',
@@ -211,22 +211,22 @@ final class InputObjectTest extends FieldDefinitionTest
             [
               'UpdateBookError' => '
                     type UpdateBookError {
-                      """Error for author"""
+                      "Error for author"
                       author: UpdateBook_AuthorError
                     }
               ',
               'UpdateBook_AuthorError' => '
                     type UpdateBook_AuthorError {
-                      """Error for zip"""
+                      "Error for zip"
                       zip: UpdateBook_Author_ZipError
                     }
               ',
               'UpdateBook_Author_ZipError' => '
                     type UpdateBook_Author_ZipError {
-                      """A numeric error code. 0 on success, non-zero on failure."""
+                      "A numeric error code. 0 on success, non-zero on failure."
                       code: Int
                     
-                      """An error message."""
+                      "An error message."
                       msg: String
                     }
               ',

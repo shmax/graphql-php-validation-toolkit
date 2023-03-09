@@ -19,7 +19,7 @@ final class GeneratedCodeTypeTest extends TestCase
     public function testIntCodeType() : void
     {
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query']),
+            'query' => new ObjectType(['name' => 'Query', 'fields'=>[]]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {
@@ -74,7 +74,7 @@ final class GeneratedCodeTypeTest extends TestCase
     public function testStringCodeType() : void
     {
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query']),
+            'query' => new ObjectType(['name' => 'Query', 'fields'=>[]]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {

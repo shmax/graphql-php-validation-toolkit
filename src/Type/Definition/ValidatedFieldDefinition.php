@@ -125,7 +125,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $err                    = $validate($subValue);
 
                 if(empty($err)) {
-                    $wrappedType = $config['type']->getWrappedType(true);
+                    $wrappedType = $config['type']->getInnermostType();
                     $err = $this->_validate([
                         'type' => $wrappedType
                     ], $subValue, $config['type'] instanceof ListOfType);

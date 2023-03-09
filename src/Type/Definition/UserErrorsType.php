@@ -58,7 +58,7 @@ class UserErrorsType extends ObjectType
 		}
 
         if ($type instanceof WrappingType) {
-            $type = $type->getWrappedType(true);
+            $type = $type->getInnermostType();
         }
         return $type;
     }

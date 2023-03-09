@@ -26,11 +26,9 @@ final class BasicTest extends FieldDefinitionTest
             schema {
               query: UpsertSkuError
             }
-            
-            """User errors for UpsertSku"""
-            type UpsertSkuError {
-            
-            }
+
+            "User errors for UpsertSku"
+            type UpsertSkuError
 
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
@@ -62,18 +60,18 @@ final class BasicTest extends FieldDefinitionTest
               updateBook: UpdateBookResult
             }
             
-            """User errors for UpdateBook"""
+            "User errors for UpdateBook"
             type UpdateBookResult {
-              """The payload, if any"""
+              "The payload, if any"
               _result: Boolean
             
-              """Whether all validation passed. True for yes, false for no."""
+              "Whether all validation passed. True for yes, false for no."
               valid: Boolean!
             
-              """A numeric error code. 0 on success, non-zero on failure."""
+              "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
-              """An error message."""
+              "An error message."
               msg: String
             }
 
@@ -97,18 +95,18 @@ final class BasicTest extends FieldDefinitionTest
               updateBook: UpdateBookResult
             }
             
-            """User errors for UpdateBook"""
+            "User errors for UpdateBook"
             type UpdateBookResult {
-              """The payload, if any"""
+              "The payload, if any"
               result: Boolean
             
-              """Whether all validation passed. True for yes, false for no."""
+              "Whether all validation passed. True for yes, false for no."
               _valid: Boolean!
             
-              """A numeric error code. 0 on success, non-zero on failure."""
+              "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
-              """An error message."""
+              "An error message."
               msg: String
             }
 
@@ -151,12 +149,12 @@ final class BasicTest extends FieldDefinitionTest
               query: UpsertSkuError
             }
             
-            """User errors for UpsertSku"""
+            "User errors for UpsertSku"
             type UpsertSkuError {
-              """A numeric error code. 0 on success, non-zero on failure."""
+              "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
-              """An error message."""
+              "An error message."
               msg: String
             }
 
