@@ -1,19 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinitionTest;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
-use function count;
 
 final class ListOfTest extends FieldDefinitionTest
 {
@@ -36,10 +31,11 @@ final class ListOfTest extends FieldDefinitionTest
 
     public function testListOfStringWithValidationOnSelf(): void
     {
-        $this->_checkTypes(UserErrorsType::create([
-            'type' => Type::listOf(Type::string()),
-            'errorCodes' => ['invalidPhoneNumber'],
-            'validate' => static function (string $phoneNumber) {}
+        $this->_checkTypes(
+            UserErrorsType::create([
+                'type' => Type::listOf(Type::string()),
+                'errorCodes' => ['invalidPhoneNumber'],
+                'validate' => static function (string $phoneNumber) {},
             ], ['phoneNumber'], true),
             [
                 'PhoneNumberError' => '
@@ -53,28 +49,29 @@ final class ListOfTest extends FieldDefinitionTest
                       "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
-              '
+              ',
             ]
         );
     }
 
     public function testListOfInputObjectWithValidationOnSelf(): void
     {
-        $this->_checkTypes(UserErrorsType::create(
+        $this->_checkTypes(
+            UserErrorsType::create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
                     'fields' => [
                         'city' => [
-                            'type' => Type::string()
+                            'type' => Type::string(),
                         ],
                         'zip' => [
-                            'type' => Type::int()
-                        ]
-                    ]
+                            'type' => Type::int(),
+                        ],
+                    ],
                 ])),
                 'errorCodes' => ['notEnoughData'],
-                'validate' => static function () {}
+                'validate' => static function () {},
             ],
             ['address'],
             true
@@ -91,34 +88,35 @@ final class ListOfTest extends FieldDefinitionTest
                       "A path describing this items\'s location in the nested array"
                       path: [Int]
                     }
-                '
+                ',
             ]
         );
     }
 
     public function testListOfInputObjectWithValidationOnFields(): void
     {
-        $this->_checkTypes(UserErrorsType::create(
+        $this->_checkTypes(
+            UserErrorsType::create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
                     'fields' => [
                         'city' => [
                             'type' => Type::string(),
-                            'validate' => static function() {}
+                            'validate' => static function () {},
                         ],
                         'zip' => [
                             'type' => Type::int(),
-                            'validate' => static function() {}
-                        ]
-                    ]
-                ]))
+                            'validate' => static function () {},
+                        ],
+                    ],
+                ])),
             ],
             ['address'],
             true
         ),
             [
-              'AddressError' => '
+                'AddressError' => '
                     type AddressError {
                       "Validation errors for Address"
                       suberrors: Address_FieldErrors
@@ -127,7 +125,7 @@ final class ListOfTest extends FieldDefinitionTest
                       path: [Int]
                     }
               ',
-              'Address_FieldErrors' => '
+                'Address_FieldErrors' => '
                     type Address_FieldErrors {
                       "Error for city"
                       city: Address_CityError
@@ -135,29 +133,30 @@ final class ListOfTest extends FieldDefinitionTest
                       "Error for zip"
                       zip: Address_ZipError
                     }
-              '
+              ',
             ]
         );
     }
 
     public function testListOfInputObjectWithValidationOnSelfAndFields(): void
     {
-        $this->_checkTypes(UserErrorsType::create(
+        $this->_checkTypes(
+            UserErrorsType::create(
             [
-                'validate' => static function() {},
+                'validate' => static function () {},
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
                     'fields' => [
                         'city' => [
                             'type' => Type::string(),
-                            'validate' => static function() {}
+                            'validate' => static function () {},
                         ],
                         'zip' => [
                             'type' => Type::int(),
-                            'validate' => static function() {}
-                        ]
-                    ]
-                ]))
+                            'validate' => static function () {},
+                        ],
+                    ],
+                ])),
             ],
             ['address'],
             true
@@ -186,17 +185,18 @@ final class ListOfTest extends FieldDefinitionTest
                       "Error for zip"
                       zip: Address_ZipError
                     }
-                '
+                ',
             ]
         );
     }
 
     public function testListOfListOfListOfScalarWithValidation(): void
     {
-        $this->_checkTypes(UserErrorsType::create(
+        $this->_checkTypes(
+            UserErrorsType::create(
             [
-                'validate' => static function() {},
-                'type' => Type::listOf(Type::listOf(Type::listOf(Type::string())))
+                'validate' => static function () {},
+                'type' => Type::listOf(Type::listOf(Type::listOf(Type::string()))),
             ],
             ['ids'],
             true
@@ -230,17 +230,17 @@ final class ListOfTest extends FieldDefinitionTest
                                 'name' => 'address',
                                 'fields' => [
                                     'zip' => [
-                                        'validate' => static function() {},
-                                        'type' => Type::listOf(Type::string())
-                                    ]
-                                ]
-                            ]))
-                        ]
+                                        'validate' => static function () {},
+                                        'type' => Type::listOf(Type::string()),
+                                    ],
+                                ],
+                            ])),
+                        ],
                     ],
                 ])),
             ], ['updateBook'], true),
             [
-              'UpdateBookError' => '
+                'UpdateBookError' => '
                     type UpdateBookError {
                       "Validation errors for UpdateBook"
                       suberrors: UpdateBook_FieldErrors
@@ -249,13 +249,13 @@ final class ListOfTest extends FieldDefinitionTest
                       path: [Int]
                     }
               ',
-              'UpdateBook_FieldErrors' => '
+                'UpdateBook_FieldErrors' => '
                     type UpdateBook_FieldErrors {
                       "Error for author"
                       author: [UpdateBook_AuthorError]
                     }
               ',
-              'UpdateBook_AuthorError' => '
+                'UpdateBook_AuthorError' => '
                     type UpdateBook_AuthorError {
                       "Validation errors for Author"
                       suberrors: UpdateBook_Author_FieldErrors
@@ -264,13 +264,13 @@ final class ListOfTest extends FieldDefinitionTest
                       path: [Int]
                     }
               ',
-              'UpdateBook_Author_FieldErrors' => '
+                'UpdateBook_Author_FieldErrors' => '
                     type UpdateBook_Author_FieldErrors {
                       "Error for zip"
                       zip: [UpdateBook_Author_ZipError]
                     }
               ',
-              'UpdateBook_Author_ZipError' => '
+                'UpdateBook_Author_ZipError' => '
                     type UpdateBook_Author_ZipError {
                       "A numeric error code. 0 on success, non-zero on failure."
                       code: Int

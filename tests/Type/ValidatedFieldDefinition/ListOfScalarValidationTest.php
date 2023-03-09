@@ -1,20 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
 use GraphQL\Tests\Utils;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use function count;
-use function preg_match;
-use function strlen;
 
 final class ListOfScalarValidationTest extends TestCase
 {
@@ -37,9 +31,10 @@ final class ListOfScalarValidationTest extends TestCase
                             'type' => Type::boolean(),
                             'errorCodes' => ['atLeastOneList'],
                             'validate' => static function (array $args) {
-                                if (count($args['phoneNumbers']) < 1) {
+                                if (\count($args['phoneNumbers']) < 1) {
                                     return ['atLeastOneList', 'You must submit at least one list of numbers'];
                                 }
+
                                 return 0;
                             },
                             'args' => [
@@ -47,13 +42,14 @@ final class ListOfScalarValidationTest extends TestCase
                                     'type' => Type::listOf(Type::listOf(Type::string())),
                                     'errorCodes' => ['invalidPhoneNumber'],
                                     'validate' => static function ($phoneNumber) {
-                                        $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-                                        return !$res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                                        $res = \preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
+
+                                        return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
                                     },
                                 ],
                             ],
-                            'resolve' => static function (array $phoneNumbers) : bool {
-                                return !empty($phoneNumbers);
+                            'resolve' => static function (array $phoneNumbers): bool {
+                                return ! empty($phoneNumbers);
                             },
                         ]),
                     ];
@@ -96,25 +92,22 @@ final class ListOfScalarValidationTest extends TestCase
         );
 
         static::assertEquals(
-            array (
+            [
                 'valid' => false,
-                'suberrors' =>
-                    [
-                        'phoneNumbers' =>
-                            [
-                                [
-                                    'path' =>
-                                        [
-                                            0,
-                                            1,
-                                        ],
-                                    'code' => 'invalidPhoneNumber',
-                                    'msg' => 'That does not seem to be a valid phone number',
-                                ],
+                'suberrors' => [
+                    'phoneNumbers' => [
+                        [
+                            'path' => [
+                                0,
+                                1,
                             ],
+                            'code' => 'invalidPhoneNumber',
+                            'msg' => 'That does not seem to be a valid phone number',
+                        ],
                     ],
+                ],
                 'result' => null,
-            ),
+            ],
             $res->data['setPhoneNumbers']
         );
 
@@ -153,13 +146,13 @@ final class ListOfScalarValidationTest extends TestCase
         );
 
         static::assertEquals(
-            array (
+            [
                 'valid' => false,
                 'code' => 'atLeastOneList',
                 'msg' => 'You must submit at least one list of numbers',
                 'suberrors' => null,
                 'result' => null,
-            ),
+            ],
             $res->data['setPhoneNumbers']
         );
 
@@ -206,22 +199,19 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => false,
-                'suberrors' =>
-                    [
-                        'phoneNumbers' =>
-                            [
-                                [
-                                    'code' => 'invalidPhoneNumber',
-                                    'msg' => 'That does not seem to be a valid phone number',
-                                    'path' =>
-                                        [
-                                            0 => 1,
-                                            1 => 1,
-                                        ],
-                                ],
+                'suberrors' => [
+                    'phoneNumbers' => [
+                        [
+                            'code' => 'invalidPhoneNumber',
+                            'msg' => 'That does not seem to be a valid phone number',
+                            'path' => [
+                                0 => 1,
+                                1 => 1,
                             ],
+                        ],
                     ],
-                'result' => NULL,
+                ],
+                'result' => null,
             ],
             $res->data['setPhoneNumbers']
         );

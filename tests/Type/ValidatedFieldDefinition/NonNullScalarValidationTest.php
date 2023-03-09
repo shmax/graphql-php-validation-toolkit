@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
@@ -89,7 +87,7 @@ final class NonNullScalarValidationTest extends TestCase
                                     },
                                 ],
                             ],
-                            'resolve' => function ($value, $args) : array {
+                            'resolve' => function ($value, $args): array {
                                 return $this->data['books'][$args['bookId']];
                             },
                         ]),
@@ -129,7 +127,7 @@ final class NonNullScalarValidationTest extends TestCase
         static::assertTrue($res->data['updateBook']['valid']);
     }
 
-    public function testNonNullScalarValidationFail() : void
+    public function testNonNullScalarValidationFail(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

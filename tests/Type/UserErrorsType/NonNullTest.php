@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
@@ -22,16 +20,17 @@ final class NonNullTest extends FieldDefinitionTest
                     'errorCodes' => ['unknownAuthor'],
                     'validate' => static function (array $authorId) {
                         if (empty($authorId)) {
-                            return ['unknownAuthor', "Invalid author id"];
+                            return ['unknownAuthor', 'Invalid author id'];
                         }
+
                         return 0;
-                    }
+                    },
                 ],
             ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
+            'resolve' => static function (array $data): bool {
+                return ! empty($data);
             },
-        ]),'
+        ]), '
             type Mutation {
               deleteAuthor(authorId: String!): DeleteAuthorResult
             }
@@ -84,22 +83,24 @@ final class NonNullTest extends FieldDefinitionTest
                             'firstName' => [
                                 'type' => Type::string(),
                                 'description' => 'A first name',
-                                'validate' => static function($firstName) {
-                                    if(strlen($firstName) > 100) {
+                                'validate' => static function ($firstName) {
+                                    if (strlen($firstName) > 100) {
                                         return 1;
                                     }
+
                                     return 0;
-                                }
+                                },
                             ],
                             'lastName' => [
                                 'type' => Type::string(),
                                 'description' => 'A last name',
-                                'validate' => static function($lastName) {
-                                    if(strlen($lastName) > 100) {
+                                'validate' => static function ($lastName) {
+                                    if (strlen($lastName) > 100) {
                                         return 1;
                                     }
+
                                     return 0;
-                                }
+                                },
                             ],
                         ],
                     ])),
@@ -108,17 +109,18 @@ final class NonNullTest extends FieldDefinitionTest
                         if (empty($author['firstName'] && empty($author['lastName']))) {
                             return [
                                 'notEnoughInfo',
-                                "Please provide at least a first or a last name"
+                                'Please provide at least a first or a last name',
                             ];
                         }
+
                         return 0;
-                    }
+                    },
                 ],
             ],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
+            'resolve' => static function (array $data): bool {
+                return ! empty($data);
             },
-        ]),'
+        ]), '
             type Mutation {
               updateAuthor(author: bookInput!): UpdateAuthorResult
             }
@@ -194,6 +196,5 @@ final class NonNullTest extends FieldDefinitionTest
             }
 
         ');
-
     }
 }

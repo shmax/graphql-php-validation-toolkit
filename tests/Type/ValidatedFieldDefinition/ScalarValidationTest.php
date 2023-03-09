@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
@@ -39,7 +37,7 @@ final class ScalarValidationTest extends TestCase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->personType = new ObjectType([
             'name' => 'Person',
@@ -68,7 +66,7 @@ final class ScalarValidationTest extends TestCase
             ],
         ]);
 
-        $this->query = new ObjectType(['name' => 'Query', 'fields'=>[]]);
+        $this->query = new ObjectType(['name' => 'Query', 'fields' => []]);
 
         $this->schema = new Schema([
             'query' => $this->query,
@@ -92,8 +90,8 @@ final class ScalarValidationTest extends TestCase
                                     },
                                 ],
                             ],
-                            'resolve' => static function ($value) : bool {
-                                return !!$value;
+                            'resolve' => static function ($value): bool {
+                                return (bool) $value;
                             },
                         ]),
                     ];
@@ -102,7 +100,7 @@ final class ScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNullableScalarValidationOnNullValueSuccess() : void
+    public function testNullableScalarValidationOnNullValueSuccess(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,

@@ -1,15 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinitionTest;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 
 final class InputObjectTest extends FieldDefinitionTest
 {
@@ -23,7 +19,7 @@ final class InputObjectTest extends FieldDefinitionTest
                 'fields' => [
                     'authorId' => [
                         'errorCodes' => ['unknownAuthor'],
-                        'type' => Type::id()
+                        'type' => Type::id(),
                     ],
                 ],
             ]),
@@ -39,14 +35,14 @@ final class InputObjectTest extends FieldDefinitionTest
                     'fields' => [
                         'title' => [
                             'type' => Type::string(),
-                            'validate' => static function() { return 0; }
+                            'validate' => static function () { return 0; },
                         ],
                         'authorId' => [
                             'errorCodes' => ['unknownAuthor'],
                             'validate' => static function (int $authorId) {
                                 return $authorId ? 0 : 1;
                             },
-                            'type' => Type::id()
+                            'type' => Type::id(),
                         ],
                     ],
                 ]),
@@ -90,22 +86,22 @@ final class InputObjectTest extends FieldDefinitionTest
                     }
               ',
             ]
-         );
+        );
     }
 
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkTypes(
             UserErrorsType::create([
-                'validate' => static function() {},
+                'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
                         'title' => [
-                            'type' => Type::string()
+                            'type' => Type::string(),
                         ],
                         'authorId' => [
-                            'type' => Type::id()
+                            'type' => Type::id(),
                         ],
                     ],
                 ]),
@@ -128,17 +124,17 @@ final class InputObjectTest extends FieldDefinitionTest
     {
         $this->_checkTypes(
             UserErrorsType::create([
-                'validate' => static function() {},
+                'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
                         'title' => [
-                            'validate' => static function() {},
-                            'type' => Type::string()
+                            'validate' => static function () {},
+                            'type' => Type::string(),
                         ],
                         'authorId' => [
-                            'validate' => static function() {},
-                            'type' => Type::id()
+                            'validate' => static function () {},
+                            'type' => Type::id(),
                         ],
                     ],
                 ]),
@@ -199,29 +195,29 @@ final class InputObjectTest extends FieldDefinitionTest
                                 'name' => 'address',
                                 'fields' => [
                                     'zip' => [
-                                        'validate' => static function() {},
-                                        'type' => Type::string()
-                                    ]
-                                ]
-                            ])
-                        ]
+                                        'validate' => static function () {},
+                                        'type' => Type::string(),
+                                    ],
+                                ],
+                            ]),
+                        ],
                     ],
                 ]),
             ], ['updateBook']),
             [
-              'UpdateBookError' => '
+                'UpdateBookError' => '
                     type UpdateBookError {
                       "Error for author"
                       author: UpdateBook_AuthorError
                     }
               ',
-              'UpdateBook_AuthorError' => '
+                'UpdateBook_AuthorError' => '
                     type UpdateBook_AuthorError {
                       "Error for zip"
                       zip: UpdateBook_Author_ZipError
                     }
               ',
-              'UpdateBook_Author_ZipError' => '
+                'UpdateBook_Author_ZipError' => '
                     type UpdateBook_Author_ZipError {
                       "A numeric error code. 0 on success, non-zero on failure."
                       code: Int

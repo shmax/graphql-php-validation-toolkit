@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
@@ -11,7 +9,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
-use function array_keys;
 
 final class ErrorCodeTypeGenerationTest extends TestCase
 {
@@ -49,7 +46,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
     public function testFieldsWithNoErrorCodes(): void
     {
         $types = [];
-        $type  = new UserErrorsType([
+        $type = new UserErrorsType([
             'type' => new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
@@ -93,7 +90,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
             },
         ], ['updateBook']);
 
-        self::assertCount(2, array_keys($types));
+        self::assertCount(2, \array_keys($types));
         self::assertTrue(isset($types['UpdateBook_AuthorIdErrorCode']));
         self::assertEquals(
             Utils::nowdoc('

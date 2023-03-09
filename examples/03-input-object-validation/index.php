@@ -1,50 +1,52 @@
-<?php
+<?php declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQL\Type\Schema;
 
 $authors = [
     1 => [
         'id' => 1,
-        'name'=> 'Cormac McCarthy',
-        'deceased' => false
+        'name' => 'Cormac McCarthy',
+        'deceased' => false,
     ],
     2 => [
         'id' => 2,
         'name' => 'J.D.Salinger',
-        'deceased' => true
+        'deceased' => true,
     ],
 ];
 
-class AuthorType extends ObjectType {
+class AuthorType extends ObjectType
+{
     public function __construct()
     {
         parent::__construct([
             'fields' => [
                 'id' => [
                     'type' => Type::id(),
-                    'resolve' => function($author) {
+                    'resolve' => function ($author) {
                         return $author['id'];
-                    }
+                    },
                 ],
                 'name' => [
                     'type' => Type::string(),
-                    'resolve' => function($author) {
+                    'resolve' => function ($author) {
                         return $author['name'];
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
     }
 }
 
-class AuthorAttributes extends InputObjectType {
+class AuthorAttributes extends InputObjectType
+{
     public function __construct()
     {
         parent::__construct([
@@ -53,36 +55,36 @@ class AuthorAttributes extends InputObjectType {
                     'type' => Type::string(),
                     'errorCodes' => [
                         'nameTooLong',
-                        'nameNotUnique'
+                        'nameNotUnique',
                     ],
-                    'validate' => function(string $name) {
+                    'validate' => function (string $name) {
                         global $authors;
 
-                        if(strlen($name) > 15) {
-                            return ['nameTooLong', "Name is too long; please keep it under 15 characters."];
+                        if (strlen($name) > 15) {
+                            return ['nameTooLong', 'Name is too long; please keep it under 15 characters.'];
                         }
 
-                        if(array_search($name, array_column($authors, "name")) !== false) {
+                        if (array_search($name, array_column($authors, 'name')) !== false) {
                             return ['nameNotUnique', 'That name is already in use'];
                         }
 
                         return 0;
-                    }
+                    },
                 ],
                 'age' => [
                     'type' => Type::int(),
                     'errorCodes' => [
-                        'invalidAge'
+                        'invalidAge',
                     ],
-                    'validate' => function(int $age) {
-                        if($age <= 0) {
-                            return ['invalidAge', "Invalid Age; must be positive"];
+                    'validate' => function (int $age) {
+                        if ($age <= 0) {
+                            return ['invalidAge', 'Invalid Age; must be positive'];
                         }
 
                         return 0;
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
     }
 }
@@ -101,25 +103,25 @@ try {
                         'type' => Type::id(),
                         'errorCodes' => [
                             'unknownAuthor',
-                            'deceasedAuthor'
+                            'deceasedAuthor',
                         ],
-                        'validate' => function(string $authorId) use ($authors) {
-                            if (!isset($authors[$authorId])) {
-                                return ['unknownAuthor', "We have no record of that author"];
+                        'validate' => function (string $authorId) use ($authors) {
+                            if (! isset($authors[$authorId])) {
+                                return ['unknownAuthor', 'We have no record of that author'];
                             }
 
                             return 0;
-                        }
+                        },
                     ],
                     'attributes' => [
                         'type' => new AuthorAttributes(),
-                        'validate' => static function($attributes) {
+                        'validate' => static function ($attributes) {
                             // you can do "meta-validation" here, eg check to make sure that certain
                             // combinations of fields are present, or that one field is not conflicting
                             // with another, etc
                             return 0;
-                        }
-                    ]
+                        },
+                    ],
                 ],
                 'resolve' => function ($value, $args) use ($authors) {
                     $authorId = $args['authorId'];
@@ -132,27 +134,26 @@ try {
     ]);
 
     $queryType = new ObjectType([
-        'name'=>'Query',
-        'fields'=>[
-            'author'=> [
+        'name' => 'Query',
+        'fields' => [
+            'author' => [
                 'type' => $authorType,
-                "args" => [
+                'args' => [
                     'authorId' => [
-                        'type' => Type::id()
-                    ]
+                        'type' => Type::id(),
+                    ],
                 ],
-                'resolve' => function($value, $args) use ($authors) {
+                'resolve' => function ($value, $args) use ($authors) {
                     return $authors[$args['authorId']];
-                }
-            ]
-        ]
+                },
+            ],
+        ],
     ]);
 
     $schema = new Schema([
         'mutation' => $mutationType,
-        'query' => $queryType
+        'query' => $queryType,
     ]);
-
 
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);
@@ -163,8 +164,8 @@ try {
 } catch (\Exception $e) {
     $output = [
         'error' => [
-            'message' => $e->getMessage()
-        ]
+            'message' => $e->getMessage(),
+        ],
     ];
 }
 header('Content-Type: application/json; charset=UTF-8');

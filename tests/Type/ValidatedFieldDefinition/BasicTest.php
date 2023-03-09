@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
@@ -22,8 +20,8 @@ final class BasicTest extends TestCase
                     },
                 ],
             ],
-            'resolve' => static function ($value) : bool {
-                return !!$value;
+            'resolve' => static function ($value): bool {
+                return (bool) $value;
             },
         ]);
 
@@ -44,8 +42,8 @@ final class BasicTest extends TestCase
                     },
                 ],
             ],
-            'resolve' => static function ($value) : bool {
-                return !!$value;
+            'resolve' => static function ($value): bool {
+                return (bool) $value;
             },
         ]);
 

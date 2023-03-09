@@ -1,12 +1,8 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
-
-class ValidateItemsError extends Exception
+class ValidateItemsError extends \Exception
 {
     /** @var int[] */
     public $path;
@@ -16,13 +12,14 @@ class ValidateItemsError extends Exception
 
     /**
      * ValidateItemsError constructor.
+     *
      * @param int[] $path
      * @param mixed $error
      */
     public function __construct(array $path, $error)
     {
         parent::__construct();
-        $this->path  = $path;
+        $this->path = $path;
         $this->error = $error;
     }
 }

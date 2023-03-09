@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
@@ -12,10 +10,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
-use function count;
-use function preg_match;
-use function strlen;
 
 final class ListOfInputObjectValidationTest extends FieldDefinitionTest
 {
@@ -51,9 +45,10 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                                                 'type' => Type::string(),
                                                 'description' => 'Enter a book title, no more than 10 characters in length',
                                                 'validate' => static function (string $title) {
-                                                    if (strlen($title) > 10) {
+                                                    if (\strlen($title) > 10) {
                                                         return [1, 'book title must be less than 10 chaacters'];
                                                     }
+
                                                     return 0;
                                                 },
                                             ],
@@ -65,18 +60,19 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                                                     'authorDeceased',
                                                 ],
                                                 'validate' => function (string $authorId) {
-                                                    if (!isset($this->data['people'][$authorId])) {
+                                                    if (! isset($this->data['people'][$authorId])) {
                                                         return ['unknownAuthor', 'We have no record of that author'];
                                                     }
+
                                                     return 0;
                                                 },
                                             ],
                                         ],
-                                    ]))
+                                    ])),
                                 ],
                             ],
-                            'resolve' => static function ($value) : bool {
-                                return !!$value;
+                            'resolve' => static function ($value): bool {
+                                return (bool) $value;
                             },
                         ]),
                     ];
@@ -134,19 +130,16 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
             [
                 'valid' => false,
                 'result' => null,
-                'suberrors' =>
-                    [
-                        'bookAttributes' =>
-                            [
-                                [
-                                    'suberrors' =>
-                                        [
-                                            'title' => null,
-                                        ],
-                                    'path' => [ 1 ],
-                                ],
+                'suberrors' => [
+                    'bookAttributes' => [
+                        [
+                            'suberrors' => [
+                                'title' => null,
                             ],
+                            'path' => [1],
+                        ],
                     ],
+                ],
             ],
             $res->data['updateBooks']
         );

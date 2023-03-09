@@ -1,5 +1,6 @@
 .phpunit.result.cache
 .phpcs-cache
+.php-cs-fixer.cache
 composer.lock
 composer.phar
 phpcs.xml

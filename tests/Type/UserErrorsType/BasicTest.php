@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
@@ -12,7 +10,6 @@ use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
-use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends FieldDefinitionTest
 {
@@ -45,17 +42,18 @@ final class BasicTest extends FieldDefinitionTest
 
     public function testRenameResultsField(): void
     {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateBook',
-            'resultName' => '_result',
-            'validate' => static function() {},
-            'args' => [],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]),
-        '
+        $this->_checkSchema(
+            new ValidatedFieldDefinition([
+                'type' => Type::boolean(),
+                'name' => 'updateBook',
+                'resultName' => '_result',
+                'validate' => static function () {},
+                'args' => [],
+                'resolve' => static function (array $data): bool {
+                    return ! empty($data);
+                },
+            ]),
+            '
             type Mutation {
               updateBook: UpdateBookResult
             }
@@ -75,21 +73,23 @@ final class BasicTest extends FieldDefinitionTest
               msg: String
             }
 
-        ');
+        '
+        );
     }
 
     public function testRenameValidField(): void
     {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateBook',
-            'validName' => '_valid',
-            'validate' => static function() {},
-            'args' => [],
-            'resolve' => static function (array $data) : bool {
-                return !empty($data);
-            },
-        ]),
+        $this->_checkSchema(
+            new ValidatedFieldDefinition([
+                'type' => Type::boolean(),
+                'name' => 'updateBook',
+                'validName' => '_valid',
+                'validate' => static function () {},
+                'args' => [],
+                'resolve' => static function (array $data): bool {
+                    return ! empty($data);
+                },
+            ]),
             '
             type Mutation {
               updateBook: UpdateBookResult
@@ -110,7 +110,8 @@ final class BasicTest extends FieldDefinitionTest
               msg: String
             }
 
-        ');
+        '
+        );
     }
 
     public function testNoValidateCallbacks(): void
@@ -125,11 +126,11 @@ final class BasicTest extends FieldDefinitionTest
                             'name' => 'address',
                             'fields' => [
                                 'zip' => [
-                                    'type' => Type::string()
-                                ]
-                            ]
-                        ])
-                    ]
+                                    'type' => Type::string(),
+                                ],
+                            ],
+                        ]),
+                    ],
                 ],
             ]),
         ], ['updateBook']);

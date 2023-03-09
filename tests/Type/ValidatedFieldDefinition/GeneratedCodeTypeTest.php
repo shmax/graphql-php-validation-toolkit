@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
@@ -15,11 +13,10 @@ use PHPUnit\Framework\TestCase;
 final class GeneratedCodeTypeTest extends TestCase
 {
     /** @var Type */
-
-    public function testIntCodeType() : void
+    public function testIntCodeType(): void
     {
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields'=>[]]),
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {
@@ -35,8 +32,8 @@ final class GeneratedCodeTypeTest extends TestCase
                                     },
                                 ],
                             ],
-                            'resolve' => static function ($value) : bool {
-                                return !!$value;
+                            'resolve' => static function ($value): bool {
+                                return (bool) $value;
                             },
                         ]),
                     ];
@@ -71,10 +68,10 @@ final class GeneratedCodeTypeTest extends TestCase
         static::assertEquals($res->data['updateBook']['suberrors']['bookId']['code'], 1);
     }
 
-    public function testStringCodeType() : void
+    public function testStringCodeType(): void
     {
         $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields'=>[]]),
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {
@@ -86,15 +83,15 @@ final class GeneratedCodeTypeTest extends TestCase
                                 'bookId' => [
                                     'type' => Type::id(),
                                     'errorCodes' => [
-                                        'invalidBookId'
+                                        'invalidBookId',
                                     ],
                                     'validate' => function ($bookId) {
-                                        return empty($bookId) ? ['invalidBookId', "Invalid Book Id"] : 0;
+                                        return empty($bookId) ? ['invalidBookId', 'Invalid Book Id'] : 0;
                                     },
                                 ],
                             ],
-                            'resolve' => static function ($value) : bool {
-                                return !!$value;
+                            'resolve' => static function ($value): bool {
+                                return (bool) $value;
                             },
                         ]),
                     ];
@@ -126,7 +123,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals("invalidBookId", $res->data['updateBook']['suberrors']['bookId']['code']);
-        static::assertEquals("Invalid Book Id", $res->data['updateBook']['suberrors']['bookId']['msg']);
+        static::assertEquals('invalidBookId', $res->data['updateBook']['suberrors']['bookId']['code']);
+        static::assertEquals('Invalid Book Id', $res->data['updateBook']['suberrors']['bookId']['msg']);
     }
 }
