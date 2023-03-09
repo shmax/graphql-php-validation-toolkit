@@ -34,7 +34,7 @@ jobs:
     - ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
     after_script:
     - ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
-    - wget https://scrutinizer-ci.com/ocular.phar
+    - wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
     - php ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
 
   - stage: Code Quality
