@@ -2,9 +2,7 @@ dist: trusty
 language: php
 
 php:
-- 7.1
-- 7.2
-- 7.3
+- 7.4
 
 cache:
   directories:
@@ -40,14 +38,14 @@ jobs:
     - php ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
 
   - stage: Code Quality
-    php: 7.1
+    php: 7.4
     env: CODING_STANDARD
     install: composer install
     script:
     - ./vendor/bin/phpcs
 
   - stage: Code Quality
-    php: 7.1
+    php: 7.4
     env: STATIC_ANALYSIS
     install: composer install
     script: composer stan
