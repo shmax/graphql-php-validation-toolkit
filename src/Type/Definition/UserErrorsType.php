@@ -14,7 +14,7 @@ use function implode;
 use function is_callable;
 use function ucfirst;
 
-class UserErrorsType extends ObjectType
+final class UserErrorsType extends ObjectType
 {
     public const SUBERRORS_NAME = 'suberrors';
     protected const CODE_NAME = 'code';
@@ -193,7 +193,7 @@ class UserErrorsType extends ObjectType
 
         $userErrorType = new static($config, $path, $isParentList);
         if ($userErrorType->getFields()) {
-            $userErrorType->name = $name ?: $userErrorType->name;
+            $userErrorType->name = !empty($name) ? $name : $userErrorType->name;
             if (is_callable($config['typeSetter'] ?? null)) {
                 $config['typeSetter']($userErrorType);
             }
