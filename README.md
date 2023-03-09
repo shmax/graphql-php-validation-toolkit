@@ -1,6 +1,8 @@
 # graphql-php-validation-toolkit
 [![License](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/license)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 [![CI](https://github.com/shmax/graphql-php-validation-toolkit/workflows/CI/badge.svg)](https://github.com/shmax/graphql-php-validation-toolkit/actions?query=workflow:CI+branch:master)
+[![Coverage Status](https://codecov.io/gh/shmax/graphql-php-validation-toolkit/branch/master/graph/badge.svg)](https://codecov.io/gh/shmax/graphql-php-validation-toolkit/branch/master)
+[![Latest Stable Version](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/version)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 
 GraphQL is great when it comes to validating types and checking syntax, but isn't much help when it comes to providing additional validation on user input. The authors of GraphQL have generally opined that the correct response to bad user input is not to throw an exception, but rather to return any validation feedback along with the result.
 
