@@ -7,8 +7,8 @@ on:
       - master
 
 jobs:
-  static-analysis-phpstan:
-    name: Static Analysis with PHPStan
+  phpunit:
+    name: PHPUnit
     runs-on: ubuntu-20.04
 
     strategy:
@@ -33,6 +33,11 @@ jobs:
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2
+
+      - name: Run PHPUnit
+          run: |
+            export $ENV
+            vendor/bin/phpunit --coverage-clover=coverage.xml
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
