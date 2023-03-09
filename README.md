@@ -14,7 +14,7 @@ That's where this small library comes in.
 ## Installation
 Via composer:
 ```
-composer require shmax/graphql-php-validation-toolkit
+composer require shmax/graphql-php-validation-toolkit 
 ```
 
 ## Documentation
