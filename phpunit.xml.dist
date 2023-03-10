@@ -4,25 +4,17 @@
         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
         bootstrap="tests/bootstrap.php"
 >
+    <coverage>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+    </coverage>
     <php>
         <ini name="error_reporting" value="E_ALL"/>
     </php>
-
     <testsuites>
-        <testsuite name="webonyx/graphql-php Test Suite">
+        <testsuite name="shmax/graphql-php-validation-toolkit Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <groups>
-        <exclude>
-            <group>ReactPromise</group>
-        </exclude>
-    </groups>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
 </phpunit>
