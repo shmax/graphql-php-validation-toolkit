@@ -1,6 +1,6 @@
 # graphql-php-validation-toolkit
 [![License](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/license)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
-[![Static Analysis](https://github.com/shmax/graphql-php-validation-toolkit/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/shmax/graphql-php-validation-toolkit/actions/workflows/static-analysis.yml)
+[![PHPStan lvl-3](https://github.com/shmax/graphql-php-validation-toolkit/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/shmax/graphql-php-validation-toolkit/actions/workflows/static-analysis.yml)
 [![Coverage Status](https://codecov.io/gh/shmax/graphql-php-validation-toolkit/branch/master/graph/badge.svg)](https://codecov.io/gh/shmax/graphql-php-validation-toolkit/branch/master)
 [![Latest Stable Version](https://poser.pugx.org/shmax/graphql-php-validation-toolkit/version)](https://packagist.org/packages/shmax/graphql-php-validation-toolkit)
 
