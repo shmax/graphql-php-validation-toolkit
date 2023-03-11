@@ -38,7 +38,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
                 $errors = $this->_validate($config, $args1);
                 $result = $errors;
-                $result[$this->validFieldName] = ! $errors;
+                $result[$this->validFieldName] = empty($errors);
 
                 if (! empty($result['valid'])) {
                     $result[$this->resultFieldName] = $config['resolve']($value, $args1, $context, $info);
@@ -209,7 +209,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $config = $fields[$key]->config;
                 $error = $this->_validate($config, $subValue);
 
-                if ($error) {
+                if (! empty($error)) {
                     $createSubErrors ? $res[UserErrorsType::SUBERRORS_NAME][$key] = $error : $res[$key] = $error;
                 }
             }

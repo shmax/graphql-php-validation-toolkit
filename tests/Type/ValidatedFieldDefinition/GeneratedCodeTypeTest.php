@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 final class GeneratedCodeTypeTest extends TestCase
 {
-    /** @var Type */
     public function testIntCodeType(): void
     {
         $schema = new Schema([

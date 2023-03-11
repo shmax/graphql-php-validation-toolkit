@@ -39,8 +39,8 @@ final class InputObjectTest extends FieldDefinitionTest
                         ],
                         'authorId' => [
                             'errorCodes' => ['unknownAuthor'],
-                            'validate' => static function (int $authorId) {
-                                return $authorId ? 0 : 1;
+                            'validate' => static function (int $authorId): int {
+                                return ($authorId > 0) ? 0 : 1;
                             },
                             'type' => Type::id(),
                         ],

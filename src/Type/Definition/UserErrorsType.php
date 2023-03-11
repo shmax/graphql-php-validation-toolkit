@@ -62,7 +62,7 @@ final class UserErrorsType extends ObjectType
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldType = $this->_getType($field->config);
-            if ($newType = static::create(
+            $newType = static::create(
                 [
                     'validate' => $field->config['validate'] ?? null,
                     'errorCodes' => $field->config['errorCodes'] ?? null,
@@ -71,7 +71,8 @@ final class UserErrorsType extends ObjectType
                 ],
                 \array_merge($path, [$key]),
                 $field->getType() instanceof ListOfType
-            )) {
+            );
+            if (! empty($newType)) {
                 $fields[$key] = [
                     'description' => 'Error for ' . $key,
                     'type' => $field->getType() instanceof ListOfType ? Type::listOf($newType) : $newType,
@@ -91,7 +92,7 @@ final class UserErrorsType extends ObjectType
 
         $fields = $this->_buildInputObjectFields($type, $config, $path);
 
-        if ($createSubErrors && \count($fields)) {
+        if ($createSubErrors && \count($fields) > 0) {
             /**
              * suberrors property.
              */
@@ -186,7 +187,7 @@ final class UserErrorsType extends ObjectType
         }
 
         $userErrorType = new static($config, $path, $isParentList);
-        if ($userErrorType->getFields()) {
+        if (count($userErrorType->getFields()) > 0) {
             $userErrorType->name = ! empty($name) ? $name : $userErrorType->name;
             if (\is_callable($config['typeSetter'] ?? null)) {
                 $config['typeSetter']($userErrorType);
