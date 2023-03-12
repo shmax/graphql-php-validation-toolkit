@@ -6,15 +6,6 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 
 /**
  * @phpstan-import-type ArgumentType from InputObjectField
- * @phpstan-type InputObjectValidatedFieldConfig array{
- *   name?: string,
- *   validate?: callable(): int|array,
- *   errorCodes?: array,
- *   type: ArgumentType,
- *   defaultValue?: mixed,
- *   description?: string|null,
- *   astNode?: InputValueDefinitionNode|null
- * }
  * @phpstan-type ValidatedFieldConfig array{
  *   typeSetter?: callable,
  *   validate?: callable(mixed $value): mixed,

@@ -14,7 +14,6 @@ namespace GraphQL\Type\Definition;
  *   typeSetter?: callable
  * }
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
- * @phpstan-import-type InputObjectValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
 final class UserErrorsType extends ObjectType
