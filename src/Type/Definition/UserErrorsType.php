@@ -2,6 +2,9 @@
 
 namespace GraphQL\Type\Definition;
 
+/**
+ * @phpstan-import-type InputObjectValidatedFieldConfig from ValidatedFieldDefinition
+ */
 final class UserErrorsType extends ObjectType
 {
     public const SUBERRORS_NAME = 'suberrors';
@@ -61,11 +64,14 @@ final class UserErrorsType extends ObjectType
     {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
+
+            /** @phpstan-var InputObjectValidatedFieldConfig */
+            $fieldConfig = $field->config;
             $fieldType = $this->_getType($field->config);
             $newType = static::create(
                 [
-                    'validate' => $field->config['validate'] ?? null,
-                    'errorCodes' => $field->config['errorCodes'] ?? null,
+                    'validate' => $fieldConfig['validate'] ?? null,
+                    'errorCodes' => $fieldConfig['errorCodes'] ?? null,
                     'type' => $fieldType,
                     'typeSetter' => $config['typeSetter'] ?? null,
                 ],

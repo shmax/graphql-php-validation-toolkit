@@ -2,6 +2,17 @@
 
 namespace GraphQL\Type\Definition;
 
+/**
+ * @phpstan-type InputObjectValidatedFieldConfig array{
+ *   name: string,
+ *   validate?: callable(): int|array,
+ *   errorCodes?: array,
+ *   type: ArgumentType,
+ *   defaultValue?: mixed,
+ *   description?: string|null,
+ *   astNode?: InputValueDefinitionNode|null
+ * }
+ */
 class ValidatedFieldDefinition extends FieldDefinition
 {
     /** @var callable */
