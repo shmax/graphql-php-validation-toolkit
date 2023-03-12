@@ -110,7 +110,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
     /**
      * @param   mixed[]  $value
-     * @param   string[] $path
+     * @param   Array<string|int> $path
      *
      * @throws  ValidateItemsError
      */
