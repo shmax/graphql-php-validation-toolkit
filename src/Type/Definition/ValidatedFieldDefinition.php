@@ -2,9 +2,12 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\InputValueDefinitionNode;
+
 /**
+ * @phpstan-import-type ArgumentType from InputObjectField
  * @phpstan-type InputObjectValidatedFieldConfig array{
- *   name: string,
+ *   name?: string,
  *   validate?: callable(): int|array,
  *   errorCodes?: array,
  *   type: ArgumentType,
@@ -12,15 +15,20 @@ namespace GraphQL\Type\Definition;
  *   description?: string|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
+ * @phpstan-type ValidatedFieldConfig array{
+ *   typeSetter?: callable,
+ *   validate?: callable(mixed $value): mixed,
+ *   errorCodes?: array<string>
+ * }
  */
 class ValidatedFieldDefinition extends FieldDefinition
 {
     /** @var callable */
     protected $typeSetter;
 
-    protected $validFieldName;
+    protected string $validFieldName;
 
-    protected $resultFieldName;
+    protected string $resultFieldName;
 
     /**
      * @param mixed[] $config
@@ -60,7 +68,11 @@ class ValidatedFieldDefinition extends FieldDefinition
         ]);
     }
 
-    protected function _create($name, $args, $config)
+    /**
+     * @param array<string,mixed> $args
+     * @param array<string, mixed> $config
+     */
+    protected function _create(string $name, array $args, array $config): UserErrorsType
     {
         return UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
@@ -90,7 +102,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         ], [$name], false, \ucfirst($name) . 'Result');
     }
 
-    private function _noop($value)
+    private function _noop(mixed $value): int
     {
         // this is just a no-op validation function to fallback to when no validation function is provided
         return 0;
@@ -109,12 +121,13 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
+     * @param array<string, mixed> $config
      * @param   mixed[]  $value
      * @param   Array<string|int> $path
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems($config, array $value, array $path, callable $validate): void
+    protected function _validateItems(array $config, array $value, array $path, callable $validate): void
     {
         foreach ($value as $idx => $subValue) {
             if (\is_array($subValue) && ! $this->_isAssoc($subValue)) {
@@ -178,7 +191,11 @@ class ValidatedFieldDefinition extends FieldDefinition
         return \array_filter($res);
     }
 
-    protected function _validateListOfType(array $config, $value, array &$res)
+    /**
+     * @param array<string, mixed> $config
+     * @param array<mixed> $res
+     */
+    protected function _validateListOfType(array $config, mixed $value, array &$res): void
     {
         try {
             $this->_validateItems($config, $value, [0], $config['validate'] ?? [$this, '_noop']);
@@ -195,7 +212,11 @@ class ValidatedFieldDefinition extends FieldDefinition
         }
     }
 
-    protected function _validateInputObject($arg, $value, &$res, bool $isParentList)
+    /**
+     * @param array<mixed> $arg
+     * @param array<mixed> $res
+     */
+    protected function _validateInputObject(array $arg, mixed $value, array &$res, bool $isParentList): void
     {
         $type = $arg['type'];
         if (isset($arg['validate'])) {
@@ -210,7 +231,11 @@ class ValidatedFieldDefinition extends FieldDefinition
         $this->_validateInputObjectFields($type, $arg, $value, $res, $isParentList);
     }
 
-    protected function _validateInputObjectFields($type, array $config, $value, &$res, $isParentList = false)
+    /**
+     * @param array<string, mixed> $config
+     * @param array<mixed> $res
+     */
+    protected function _validateInputObjectFields(InputObjectType $type, array $config, mixed $value, array &$res, bool $isParentList = false): void
     {
         $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
 

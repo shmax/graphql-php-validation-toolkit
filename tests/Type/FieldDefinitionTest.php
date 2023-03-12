@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\GraphQL;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
@@ -13,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 abstract class FieldDefinitionTest extends TestCase
 {
 //    protected $outputPath = 'tmp/';
-    protected function _checkSchema(ValidatedFieldDefinition $field, $expected): void
+    protected function _checkSchema(ValidatedFieldDefinition $field, string $expected): void
     {
         $mutation = new ObjectType([
             'name' => 'Mutation',
@@ -27,7 +28,12 @@ abstract class FieldDefinitionTest extends TestCase
         self::assertEquals(Utils::nowdoc($expected), SchemaPrinter::doPrint(new Schema(['mutation' => $mutation])));
     }
 
-    protected function _checkValidation(ValidatedFieldDefinition $field, string $qry, array $args, array $expected)
+    /**
+     * @param array<string, mixed>|null $args
+     * @param array<mixed> $expected
+     * @throws \Exception
+     */
+    protected function _checkValidation(ValidatedFieldDefinition $field, string $qry, $args, array $expected): void
     {
         $schema = new Schema([
             'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
@@ -53,7 +59,10 @@ abstract class FieldDefinitionTest extends TestCase
         static::assertEquals($expected, $res->data[$field->name]);
     }
 
-    protected function _checkTypes($field, array $expectedMap): void
+    /**
+     * @param array<string, string> $expectedMap
+     */
+    protected function _checkTypes(UserErrorsType $field, array $expectedMap): void
     {
         $mutation = new ObjectType([
             'name' => 'Mutation',

@@ -30,16 +30,6 @@ final class BasicTest extends FieldDefinitionTest
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
-    public function testNoType(): void
-    {
-        $this->expectExceptionMessage('You must specify a type for your field');
-        UserErrorsType::create([
-            'validate' => static function ($value) {
-                return $value ? 0 : 1;
-            },
-        ], ['upsertSku']);
-    }
-
     public function testRenameResultsField(): void
     {
         $this->_checkSchema(

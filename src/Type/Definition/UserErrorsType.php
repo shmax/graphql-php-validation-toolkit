@@ -3,7 +3,19 @@
 namespace GraphQL\Type\Definition;
 
 /**
+ * @phpstan-type UserErrorsConfig array{
+ *   name?: string|null,
+ *   description?: string|null,
+ *   fields?: (callable(): iterable<mixed>)|iterable<mixed>,
+ *   errorCodes?: array<string>,
+ *   type: Type,
+ *   validate?: callable(mixed $value): mixed,
+ *   isRoot?: bool,
+ *   typeSetter?: callable
+ * }
+ * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type InputObjectValidatedFieldConfig from ValidatedFieldDefinition
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
 final class UserErrorsType extends ObjectType
 {
@@ -12,17 +24,13 @@ final class UserErrorsType extends ObjectType
     protected const MESSAGE_NAME = 'msg';
 
     /**
-     * @param mixed[]  $config
-     * @param string[] $path
+     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param  string[] $path
+     * @throws \Exception
      */
     public function __construct(array $config, array $path, bool $isParentList = false)
     {
         $finalFields = $config['fields'] ?? [];
-
-        if (! isset($config['type'])) {
-            throw new \Exception('You must specify a type for your field');
-        }
-
         $this->_addErrorCodes($config, $finalFields, $path);
 
         $type = $this->_getType($config);
@@ -41,7 +49,10 @@ final class UserErrorsType extends ObjectType
         ]);
     }
 
-    protected function _getType($config)
+    /**
+     * @phpstan-param  UserErrorsConfig $config
+     */
+    protected function _getType(array $config): Type
     {
         $type = $config['type'];
         if (\is_callable($type)) {
@@ -55,17 +66,25 @@ final class UserErrorsType extends ObjectType
         return $type;
     }
 
+    /**
+     * @phpstan-param UserErrorsConfig $config
+     */
     public static function needSuberrors(array $config, bool $isParentList): bool
     {
         return ! empty($config['validate']) || ! empty($config['isRoot']) || $isParentList;
     }
 
-    protected function _buildInputObjectFields(InputObjectType $type, $config, $path)
+    /**
+     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param array<string|int> $path
+     * @return array<string,mixed>
+     */
+    protected function _buildInputObjectFields(InputObjectType $type, array $config, array $path): array
     {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
 
-            /** @phpstan-var InputObjectValidatedFieldConfig */
+            /** @phpstan-var ValidatedFieldConfig */
             $fieldConfig = $field->config;
             $fieldType = $this->_getType($field->config);
             $newType = static::create(
@@ -92,12 +111,17 @@ final class UserErrorsType extends ObjectType
         return $fields;
     }
 
-    protected function _buildInputObjectType(InputObjectType $type, $config, $path, &$finalFields, $isParentList)
+    /**
+     * @param UserErrorsConfig $config
+     * @param array<string|int> $path
+     * @param array<mixed> $finalFields
+     * @param bool $isParentList
+     * @return void
+     */
+    protected function _buildInputObjectType(InputObjectType $type, array $config, array $path, array &$finalFields, bool $isParentList)
     {
         $createSubErrors = static::needSuberrors($config, $isParentList);
-
         $fields = $this->_buildInputObjectFields($type, $config, $path);
-
         if ($createSubErrors && \count($fields) > 0) {
             /**
              * suberrors property.
@@ -118,7 +142,12 @@ final class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addErrorCodes($config, &$finalFields, $path)
+    /**
+     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param array<mixed> $finalFields
+     * @phpstan-param array<string|int> $path
+     */
+    protected function _addErrorCodes($config, &$finalFields, array $path): void
     {
         if (isset($config['errorCodes'])) {
             if (! isset($config['validate'])) {
@@ -151,7 +180,10 @@ final class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addPathField(&$finalFields)
+    /**
+     * @phpstan-param array<mixed> $finalFields
+     */
+    protected function _addPathField(array &$finalFields): void
     {
         if (! empty($finalFields['code']) || ! empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
@@ -209,7 +241,10 @@ final class UserErrorsType extends ObjectType
         return null;
     }
 
-    protected static function _generateIntCodeType()
+    /**
+     * @return UnnamedFieldDefinitionConfig
+     */
+    protected static function _generateIntCodeType(): array
     {
         return [
             'type' => Type::int(),
@@ -226,7 +261,10 @@ final class UserErrorsType extends ObjectType
         ];
     }
 
-    protected static function _generateMessageType()
+    /**
+     * @return UnnamedFieldDefinitionConfig
+     */
+    protected static function _generateMessageType(): array
     {
         return [
             'type' => Type::string(),

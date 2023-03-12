@@ -32,7 +32,7 @@ class Utils
     }
 
     // same as native var_export, but uses short array syntax
-    public static function varExport($expression, bool $return = false)
+    public static function varExport(mixed $expression, bool $return = false): ?string
     {
         $export = var_export($expression, true);
         $patterns = [
@@ -47,9 +47,10 @@ class Utils
         }
 
         echo $export;
+        return null;
     }
 
-    public static function toNowDoc($str, $numSpaces = 0)
+    public static function toNowDoc(string $str, int $numSpaces = 0): string
     {
         $lines = \preg_split('/\\n/', $str);
         for ($i = 0; $i < \count($lines); ++$i) {
