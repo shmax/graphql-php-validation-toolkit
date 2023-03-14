@@ -8,14 +8,14 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 /**
  * @phpstan-import-type ArgumentType from InputObjectField
  * @phpstan-import-type InputObjectConfig from InputObjectType
- * @phpstan-import-type ArgumentConfig from Argument
+ * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-type ValidatedFieldConfig array{
  *   typeSetter?: callable,
  *   name?: string,
  *   validName?: string,
  *   resultName?: string,
- *   args: array<ArgumentConfig>,
+ *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
  *   validate?: callable(mixed $value): mixed,
  *   errorCodes?: array<string>,
@@ -68,7 +68,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @phpstan-param array<ArgumentConfig> $args
+     * @phpstan-param array<UnnamedArgumentConfig> $args
      * @phpstan-param ValidatedFieldConfig $config
      */
     protected function _createUserErrorsType(string $name, array $args, array $config): UserErrorsType
