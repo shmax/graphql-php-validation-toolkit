@@ -89,6 +89,7 @@ abstract class FieldDefinitionTest extends TestCase
 
         if (! empty($this->outputPath)) {
             $lines = preg_split('/\\n/', Utils::varExport($typeMap, true));
+            assert($lines !== false);
             $numLines = \count($lines);
             for ($i = 0; $i < $numLines; ++$i) {
                 $lines[$i] = str_repeat(' ', 12) . $lines[$i];

@@ -53,6 +53,7 @@ class Utils
     public static function toNowDoc(string $str, int $numSpaces = 0): string
     {
         $lines = \preg_split('/\\n/', $str);
+        assert($lines !== false);
         for ($i = 0; $i < \count($lines); ++$i) {
             $lines[$i] = str_repeat(' ', $numSpaces) . $lines[$i];
         }

@@ -51,7 +51,7 @@
       "@php-cs-fixer"
     ],
     "php-cs-fixer": "php-cs-fixer fix",
-    "stan": "phpstan analyse --ansi --memory-limit 256M",
+    "stan": "phpstan analyse --ansi --memory-limit 256M src/Type/Definition/ValidatedFieldDefinition.php",
     "check": "composer lint && composer stan src && composer test"
   }
 }

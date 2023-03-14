@@ -2,14 +2,24 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 
 /**
  * @phpstan-import-type ArgumentType from InputObjectField
+ * @phpstan-import-type InputObjectConfig from InputObjectType
+ * @phpstan-import-type ArgumentConfig from Argument
+ * @phpstan-import-type FieldResolver from Executor
  * @phpstan-type ValidatedFieldConfig array{
  *   typeSetter?: callable,
+ *   name?: string,
+ *   validName?: string,
+ *   resultName?: string,
+ *   args: array<ArgumentConfig>,
+ *   resolve?: FieldResolver|null,
  *   validate?: callable(mixed $value): mixed,
- *   errorCodes?: array<string>
+ *   errorCodes?: array<string>,
+ *   type: Type
  * }
  */
 class ValidatedFieldDefinition extends FieldDefinition
@@ -22,7 +32,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected string $resultFieldName;
 
     /**
-     * @param mixed[] $config
+     * @phpstan-param ValidatedFieldConfig $config
      */
     public function __construct(array $config)
     {
@@ -33,9 +43,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         $this->resultFieldName = $config['resultName'] ?? 'result';
 
         parent::__construct([
-            'type' => function () use ($name, $config, $args) {
-                return static::_create($name, $args, $config);
-            },
+            'type' => fn () => static::_createUserErrorsType($name, $args, $config),
             'args' => $args,
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
@@ -60,10 +68,10 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @param array<string,mixed> $args
-     * @param array<string, mixed> $config
+     * @phpstan-param array<ArgumentConfig> $args
+     * @phpstan-param ValidatedFieldConfig $config
      */
-    protected function _create(string $name, array $args, array $config): UserErrorsType
+    protected function _createUserErrorsType(string $name, array $args, array $config): UserErrorsType
     {
         return UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
@@ -204,15 +212,18 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @param array<mixed> $arg
+     * @phpstan-param ValidatedFieldConfig $arg
      * @param array<mixed> $res
      */
-    protected function _validateInputObject(array $arg, mixed $value, array &$res, bool $isParentList): void
+    protected function _validateInputObject(mixed $arg, mixed $value, array &$res, bool $isParentList): void
     {
+        /**
+         * @phpstan-var InputObjectType
+         */
         $type = $arg['type'];
         if (isset($arg['validate'])) {
             $err = $arg['validate']($value) ?? [];
-            if ($err) {
+            if ($err != 0) {
                 $res['error'] = $err;
 
                 return;
@@ -223,7 +234,8 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @phpstan-param InputObjectType $type
+     * @phpstan-param  ValidatedFieldConfig $config
      * @param array<mixed> $res
      */
     protected function _validateInputObjectFields(InputObjectType $type, array $config, mixed $value, array &$res, bool $isParentList = false): void

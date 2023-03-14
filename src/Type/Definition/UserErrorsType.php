@@ -2,17 +2,19 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Type\Definition\Type;
+
 /**
  * @phpstan-type UserErrorsConfig array{
- *   name?: string|null,
- *   description?: string|null,
- *   fields?: (callable(): iterable<mixed>)|iterable<mixed>,
- *   errorCodes?: array<string>,
  *   type: Type,
- *   validate?: callable(mixed $value): mixed,
+ *   errorCodes?: array<string>|null,
+ *   fields?: array<string,mixed>,
+ *   validate?: null|callable(mixed $value): mixed,
  *   isRoot?: bool,
- *   typeSetter?: callable
+ *   typeSetter?: callable|null,
  * }
+ * @phpstan-type Path array<string|int>
+ * @phpstan-import-type ObjectConfig from ObjectType
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
@@ -24,15 +26,14 @@ final class UserErrorsType extends ObjectType
 
     /**
      * @phpstan-param UserErrorsConfig $config
-     * @phpstan-param  string[] $path
-     * @throws \Exception
+     * @phpstan-param Path $path
      */
     public function __construct(array $config, array $path, bool $isParentList = false)
     {
         $finalFields = $config['fields'] ?? [];
         $this->_addErrorCodes($config, $finalFields, $path);
 
-        $type = $this->_getType($config);
+        $type = $this->_resolveType($config['type']);
         if ($type instanceof InputObjectType) {
             $this->_buildInputObjectType($type, $config, $path, $finalFields, $isParentList);
         }
@@ -41,19 +42,21 @@ final class UserErrorsType extends ObjectType
             $this->_addPathField($finalFields);
         }
 
+        $pathEnd = end($path);
+        assert($pathEnd != false);
         parent::__construct([
             'name' => $this->_nameFromPath(\array_merge($path)) . \ucfirst('error'),
-            'description' => 'User errors for ' . \ucfirst($path[\count($path) - 1]),
+            'description' => 'User errors for ' . \ucfirst((string)$pathEnd),
             'fields' => $finalFields,
+            'type' => $config['type']
         ]);
     }
 
     /**
-     * @phpstan-param  UserErrorsConfig $config
+     * @param Type|callable():Type $type
      */
-    protected function _getType(array $config): Type
+    protected function _resolveType(mixed $type): Type
     {
-        $type = $config['type'];
         if (\is_callable($type)) {
             $type = $type();
         }
@@ -75,7 +78,7 @@ final class UserErrorsType extends ObjectType
 
     /**
      * @phpstan-param UserErrorsConfig $config
-     * @phpstan-param array<string|int> $path
+     * @phpstan-param Path $path
      * @return array<string,mixed>
      */
     protected function _buildInputObjectFields(InputObjectType $type, array $config, array $path): array
@@ -85,12 +88,13 @@ final class UserErrorsType extends ObjectType
 
             /** @phpstan-var ValidatedFieldConfig */
             $fieldConfig = $field->config;
-            $fieldType = $this->_getType($field->config);
-            $newType = static::create(
+            $fieldType = $this->_resolveType($field->config['type']);
+            $newType = UserErrorsType::create(
                 [
                     'validate' => $fieldConfig['validate'] ?? null,
                     'errorCodes' => $fieldConfig['errorCodes'] ?? null,
                     'type' => $fieldType,
+                    'fields' => [],
                     'typeSetter' => $config['typeSetter'] ?? null,
                 ],
                 \array_merge($path, [$key]),
@@ -112,14 +116,14 @@ final class UserErrorsType extends ObjectType
 
     /**
      * @param UserErrorsConfig $config
-     * @param array<string|int> $path
+     * @param Path $path
      * @param array<mixed> $finalFields
      * @param bool $isParentList
      * @return void
      */
     protected function _buildInputObjectType(InputObjectType $type, array $config, array $path, array &$finalFields, bool $isParentList)
     {
-        $createSubErrors = static::needSuberrors($config, $isParentList);
+        $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
         $fields = $this->_buildInputObjectFields($type, $config, $path);
         if ($createSubErrors && \count($fields) > 0) {
             /**
@@ -131,7 +135,7 @@ final class UserErrorsType extends ObjectType
                     'description' => 'User Error',
                     'fields' => $fields,
                 ]), $config),
-                'description' => 'Validation errors for ' . \ucfirst($path[\count($path) - 1]),
+                'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
                 'resolve' => static function (array $value) {
                     return $value[static::SUBERRORS_NAME] ?? null;
                 },
@@ -144,7 +148,7 @@ final class UserErrorsType extends ObjectType
     /**
      * @phpstan-param UserErrorsConfig $config
      * @phpstan-param array<mixed> $finalFields
-     * @phpstan-param array<string|int> $path
+     * @phpstan-param Path $path
      */
     protected function _addErrorCodes($config, &$finalFields, array $path): void
     {
@@ -210,20 +214,19 @@ final class UserErrorsType extends ObjectType
     }
 
     /**
-     * @param mixed[]  $config
-     * @param string[] $path
+     * @param UserErrorsConfig $config
+     * @phpstan-param Path $path
      *
      * @return static|null
      */
     public static function create(array $config, array $path, bool $isParentList = false, string $name = ''): ?self
     {
-        $config['fields'] = $config['fields'] ?? [];
         if (\is_callable($config['validate'] ?? null)) {
             $config['fields'][static::CODE_NAME] = $config['fields'][static::CODE_NAME] ?? static::_generateIntCodeType();
             $config['fields'][static::MESSAGE_NAME] = $config['fields'][static::MESSAGE_NAME] ?? static::_generateMessageType();
         }
 
-        $userErrorType = new static($config, $path, $isParentList);
+        $userErrorType = new UserErrorsType($config, $path, $isParentList);
         if (count($userErrorType->getFields()) > 0) {
             $userErrorType->name = ! empty($name) ? $name : $userErrorType->name;
             if (\is_callable($config['typeSetter'] ?? null)) {
@@ -281,10 +284,10 @@ final class UserErrorsType extends ObjectType
     }
 
     /**
-     * @param string[] $path
+     * @param Path $path
      */
     protected function _nameFromPath(array $path): string
     {
-        return \implode('_', \array_map('ucfirst', $path));
+        return \implode('_', \array_map(static fn($node) => ucfirst((string)$node), $path));
     }
 }
