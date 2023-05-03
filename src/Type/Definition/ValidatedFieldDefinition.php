@@ -144,21 +144,18 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @param   mixed[]  $value
      * @param   array<mixed> $res
      * @param   Array<string|int> $path
-     *
-     * @throws  ValidateItemsError
      */
     protected function _validateListOfType(array $config, array $value, array &$res, array $path=[0]): void
     {
         $validate = $config['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
+            $path[\count($path) - 1] = $idx;
             if ($wrappedType instanceof ListOfType) {
-                $path[\count($path) - 1] = $idx;
                 $newPath = $path;
                 $newPath[] = 0;
                 $this->_validateListOfType(["type"=>$wrappedType, "validate" => $validate], $subValue, $res, $newPath );
             } else {
-                $path[\count($path) - 1] = $idx;
                 $err = $validate != null ? $validate($subValue): 0;
 
                 if (empty($err)) {
