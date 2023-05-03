@@ -158,24 +158,26 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param   array<string, mixed> $config
      * @param   mixed[]  $value
+     * @param   array<mixed> $res
      * @param   Array<string|int> $path
      *
      * @throws  ValidateItemsError
      */
-    protected function _validateItems(array $config, array $value, array $path, callable $validate, &$res): void
+    protected function _validateListOfType(array $config, array $value, array &$res, array $path=[0]): void
     {
+        $validate = $config['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
             if ($wrappedType instanceof ListOfType) {
                 $path[\count($path) - 1] = $idx;
                 $newPath = $path;
                 $newPath[] = 0;
-                $this->_validateItems(["type"=>$wrappedType], $subValue, $newPath, $validate, $res);
+                $this->_validateListOfType(["type"=>$wrappedType, "validate" => $validate], $subValue, $res, $newPath );
             } else {
                 $path[\count($path) - 1] = $idx;
-                $err = $validate($subValue);
+                $err = $validate != null ? $validate($subValue): 0;
 
                 if (empty($err)) {
                     $wrappedType = $config['type']->getInnermostType();
@@ -197,15 +199,6 @@ class ValidatedFieldDefinition extends FieldDefinition
                 }
             }
         }
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     * @param array<mixed> $res
-     */
-    protected function _validateListOfType(array $config, mixed $value, array &$res): void
-    {
-        $this->_validateItems($config, $value, [0], $config['validate'] ?? [$this, '_noop'], $res);
     }
 
     /**
