@@ -101,57 +101,6 @@ class ValidatedFieldDefinition extends FieldDefinition
         ], [$name], false, \ucfirst($name) . 'Result');
     }
 
-    private function _noop(mixed $value): int
-    {
-        // this is just a no-op validation function to fallback to when no validation function is provided
-        return 0;
-    }
-
-    /**
-     * @param   mixed[] $arr
-     */
-    protected function _isAssoc(array $arr): bool
-    {
-        if ($arr === []) {
-            return false;
-        }
-
-        return \array_keys($arr) !== \range(0, \count($arr) - 1);
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     * @param   mixed[]  $value
-     * @param   Array<string|int> $path
-     *
-     * @throws  ValidateItemsError
-     */
-    protected function _validateItems(array $config, array $value, array $path, callable $validate): void
-    {
-        foreach ($value as $idx => $subValue) {
-            if (\is_array($subValue) && ! $this->_isAssoc($subValue)) {
-                $path[\count($path) - 1] = $idx;
-                $newPath = $path;
-                $newPath[] = 0;
-                $this->_validateItems($config, $subValue, $newPath, $validate);
-            } else {
-                $path[\count($path) - 1] = $idx;
-                $err = $validate($subValue);
-
-                if (empty($err)) {
-                    $wrappedType = $config['type']->getInnermostType();
-                    $err = $this->_validate([
-                        'type' => $wrappedType,
-                    ], $subValue, $config['type'] instanceof ListOfType);
-                }
-
-                if ($err) {
-                    throw new ValidateItemsError($path, $err);
-                }
-            }
-        }
-    }
-
     /**
      * @param mixed[] $arg
      * @param mixed $value
@@ -191,23 +140,46 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @param array<string, mixed> $config
-     * @param array<mixed> $res
+     * @param   array<string, mixed> $config
+     * @param   mixed[]  $value
+     * @param   array<mixed> $res
+     * @param   Array<string|int> $path
+     *
+     * @throws  ValidateItemsError
      */
-    protected function _validateListOfType(array $config, mixed $value, array &$res): void
+    protected function _validateListOfType(array $config, array $value, array &$res, array $path=[0]): void
     {
-        try {
-            $this->_validateItems($config, $value, [0], $config['validate'] ?? [$this, '_noop']);
-        } catch (ValidateItemsError $e) {
-            if (isset($e->error['suberrors'])) {
-                $err = $e->error;
+        $validate = $config['validate'] ?? null;
+        $wrappedType = $config['type']->getWrappedType();
+        foreach ($value as $idx => $subValue) {
+            if ($wrappedType instanceof ListOfType) {
+                $path[\count($path) - 1] = $idx;
+                $newPath = $path;
+                $newPath[] = 0;
+                $this->_validateListOfType(["type"=>$wrappedType, "validate" => $validate], $subValue, $res, $newPath );
             } else {
-                $err = [
-                    'error' => $e->error,
-                ];
+                $path[\count($path) - 1] = $idx;
+                $err = $validate != null ? $validate($subValue): 0;
+
+                if (empty($err)) {
+                    $wrappedType = $config['type']->getInnermostType();
+                    $err = $this->_validate([
+                        'type' => $wrappedType,
+                    ], $subValue, $config['type'] instanceof ListOfType);
+                }
+
+                if ($err) {
+                    if (isset($err['suberrors'])) {
+                        $err = $err;
+                    } else {
+                        $err = [
+                            'error' => $err,
+                        ];
+                    }
+                    $err['path'] = $path;
+                    $res[] = $err;
+                }
             }
-            $err['path'] = $e->path;
-            $res[] = $err;
         }
     }
 
@@ -223,11 +195,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         $type = $arg['type'];
         if (isset($arg['validate'])) {
             $err = $arg['validate']($value) ?? [];
-            if ($err != 0) {
-                $res['error'] = $err;
-
-                return;
-            }
+            $res['error'] = $err;
         }
 
         $this->_validateInputObjectFields($type, $arg, $value, $res, $isParentList);
