@@ -86,6 +86,7 @@ final class ListOfScalarValidationTest extends TestCase
                     [
                         '123-4567',
                         'xxx456-7890xxx',
+                        '555-whoops',
                     ],
                 ],
             ]
@@ -100,6 +101,14 @@ final class ListOfScalarValidationTest extends TestCase
                             'path' => [
                                 0,
                                 1,
+                            ],
+                            'code' => 'invalidPhoneNumber',
+                            'msg' => 'That does not seem to be a valid phone number',
+                        ],
+                        [
+                            'path' => [
+                                0,
+                                2,
                             ],
                             'code' => 'invalidPhoneNumber',
                             'msg' => 'That does not seem to be a valid phone number',
