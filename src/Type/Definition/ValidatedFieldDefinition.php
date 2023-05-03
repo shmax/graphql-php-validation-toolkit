@@ -101,24 +101,6 @@ class ValidatedFieldDefinition extends FieldDefinition
         ], [$name], false, \ucfirst($name) . 'Result');
     }
 
-    private function _noop(mixed $value): int
-    {
-        // this is just a no-op validation function to fallback to when no validation function is provided
-        return 0;
-    }
-
-    /**
-     * @param   mixed[] $arr
-     */
-    protected function _isAssoc(array $arr): bool
-    {
-        if ($arr === []) {
-            return false;
-        }
-
-        return \array_keys($arr) !== \range(0, \count($arr) - 1);
-    }
-
     /**
      * @param mixed[] $arg
      * @param mixed $value
