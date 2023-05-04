@@ -82,11 +82,6 @@ final class InputObjectTest extends FieldDefinitionTest
                       msg: String
                     }
               ',
-                'UpdateBook_AuthorIdErrorCode' => '
-                    enum UpdateBook_AuthorIdErrorCode {
-                      unknownAuthor
-                    }
-              ',
             ]
         );
     }
