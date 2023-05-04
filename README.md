@@ -156,6 +156,27 @@ Generated `ListOf` error types also have a `path` field that you can query so yo
 ])  
 ```
 
+### Custom Error Codes
+
+If you would like to use custom error codes, add an errorCodes property at the same level as your validate callback and feed it the path to a PHP native enum:
+```php
+enum AuthorErrors {
+  case AuthorNotFound;
+}
+
+'updateAuthor' => [
+  'type' => Types::author(),
+  'errorCodes' => AuthorErrors::class,
+  'validate' => function(string $authorId) {
+    if(Author::find($authorId)) {
+      return 0;
+    }
+    return [AuthorErrors::AuthorNotFound, "We can't find that author"];
+  }
+]   
+```
+
+
 ### Managing Created Types
 This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback:
 
