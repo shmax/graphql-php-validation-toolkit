@@ -10,6 +10,15 @@ use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
+enum UserValidation {
+    case UnknownUser;
+    case UserIsMinor;
+}
+
+enum AuthorValidation {
+    case UnknownAuthor;
+}
+
 final class ErrorCodeTypeGenerationTest extends TestCase
 {
     public function testMultipleErrorCodesOnSelf(): void
@@ -19,10 +28,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
             'validate' => static function ($val) {
                 return $val ? 0 : 1;
             },
-            'errorCodes' => [
-                'unknownUser',
-                'userIsMinor',
-            ],
+            'errorCodes' => UserValidation::class,
             'typeSetter' => static function ($type) use (&$types): void {
                 $types[$type->name] = $type;
             },
@@ -36,8 +42,8 @@ final class ErrorCodeTypeGenerationTest extends TestCase
             Utils::nowdoc('
                 "Error code"
                 enum UpdateUserErrorCode {
-                  unknownUser
-                  userIsMinor
+                  UnknownUser
+                  UserIsMinor
                 }
         ')
         );
@@ -79,7 +85,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                         'validate' => static function ($authorId) {
                             return $authorId ? 0 : 1;
                         },
-                        'errorCodes' => ['unknownAuthor'],
+                        'errorCodes' => AuthorValidation::class,
                         'type' => Type::id(),
                         'description' => 'An author Id',
                     ],
@@ -96,7 +102,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
             Utils::nowdoc('
                 "Error code"
                 enum UpdateBook_AuthorIdErrorCode {
-                  unknownAuthor
+                  UnknownAuthor
                 }
             '),
             SchemaPrinter::printType($types['UpdateBook_AuthorIdErrorCode']),

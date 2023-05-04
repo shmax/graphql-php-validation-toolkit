@@ -17,23 +17,17 @@ try {
                 'type' => Type::boolean(),
                 'validate' => function (array $args) {
                     if (count($args['phoneNumbers']) == 0) {
-                        return ['requiredValue', 'You must enter at least one list of phone number'];
+                        return [1, 'You must enter at least one list of phone number'];
                     }
 
                     return 0;
                 },
-                'errorCodes' => [
-                    'requiredValue',
-                ],
                 'args' => [
                     'phoneNumbers' => [
-                        'errorCodes' => [
-                            'invalidPhoneNumber',
-                        ],
                         'validate' => function ($phoneNumber) {
                             $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
 
-                            return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                            return ! $res ? [1, 'That does not seem to be a valid phone number'] : 0;
                         },
                         'type' => Type::listOf(Type::string()),
                     ],

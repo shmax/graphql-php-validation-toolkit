@@ -6,6 +6,9 @@ use GraphQL\Tests\Type\FieldDefinitionTest;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
+enum AuthorErrorTest {
+    case AuthorNotFound;
+}
 
 final class InputObjectTest extends FieldDefinitionTest
 {
@@ -14,11 +17,11 @@ final class InputObjectTest extends FieldDefinitionTest
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
         new UserErrorsType([
+            'errorCodes' => AuthorErrorTest::class,
             'type' => new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
                     'authorId' => [
-                        'errorCodes' => ['unknownAuthor'],
                         'type' => Type::id(),
                     ],
                 ],
@@ -38,7 +41,6 @@ final class InputObjectTest extends FieldDefinitionTest
                             'validate' => static function () { return 0; },
                         ],
                         'authorId' => [
-                            'errorCodes' => ['unknownAuthor'],
                             'validate' => static function (int $authorId): int {
                                 return ($authorId > 0) ? 0 : 1;
                             },
@@ -73,10 +75,10 @@ final class InputObjectTest extends FieldDefinitionTest
               ',
                 'UpdateBook_AuthorIdError' => '
                     type UpdateBook_AuthorIdError {
-                      "An error code"
-                      code: UpdateBook_AuthorIdErrorCode
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
                     
-                      "A natural language description of the issue"
+                      "An error message."
                       msg: String
                     }
               ',

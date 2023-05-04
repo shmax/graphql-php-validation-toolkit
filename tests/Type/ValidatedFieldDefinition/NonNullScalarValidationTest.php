@@ -77,13 +77,12 @@ final class NonNullScalarValidationTest extends TestCase
                             'args' => [
                                 'bookId' => [
                                     'type' => Type::nonNull(Type::id()),
-                                    'errorCodes' => ['bookNotFound'],
                                     'validate' => function ($bookId) {
                                         if (isset($this->data['books'][$bookId])) {
                                             return 0;
                                         }
 
-                                        return ['bookNotFound', 'Unknown book!'];
+                                        return [1, 'Unknown book!'];
                                     },
                                 ],
                             ],

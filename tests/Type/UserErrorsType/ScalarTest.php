@@ -10,6 +10,10 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
+enum ColorErrors {
+    case invalidColor;
+}
+
 final class ScalarTest extends TestCase
 {
     public function testNoValidation(): void
@@ -32,9 +36,9 @@ final class ScalarTest extends TestCase
     public function testWithValidation(): void
     {
         $type = new UserErrorsType([
-            'errorCodes' => ['invalidColor'],
+            'errorCodes' => ColorErrors::class,
             'validate' => static function ($value) {
-                return $value ? 0 : 1;
+                return $value ? 0 : ColorErrors::invalidColor;
             },
             'type' => new IDType(['name' => 'Color']),
         ], ['palette']);

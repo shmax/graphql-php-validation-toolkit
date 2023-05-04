@@ -19,26 +19,28 @@ mutation {
 	updateAuthors(
     authors: [{
       id:1,
-      firstName: "Richard",
-      lastName: "Matheson"
+      firstName: "Stephen",
+      lastName: "King"
     },{
       id:2,
-      firstName: "Jim",
-      lastName: "Thomas"
+      firstName: "Arthur",
+      lastName: "Clarke"
     }]
   ) {
     valid
     suberrors {
       authors {
         path
-        code
-        msg
         suberrors {
           id {
             code
             msg
           }
           firstName {
+            code
+            msg
+          }
+          lastName {
             code
             msg
           }
@@ -63,22 +65,24 @@ mutation {
       lastName: "Matheson"
     },{
       id:2,
-      firstName: null,
-      lastName: null
+      firstName: "Diana",
+      lastName: "Jones"
     }]
   ) {
     valid
     suberrors {
       authors {
         path
-        code
-        msg
         suberrors {
           id {
             code
             msg
           }
           firstName {
+            code
+            msg
+          }
+          lastName {
             code
             msg
           }

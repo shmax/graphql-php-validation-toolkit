@@ -55,13 +55,9 @@ final class ListOfInputObjectValidationTest extends FieldDefinitionTest
                                             'author' => [
                                                 'type' => Type::id(),
                                                 'description' => 'Provide a valid author id',
-                                                'errorCodes' => [
-                                                    'unknownAuthor',
-                                                    'authorDeceased',
-                                                ],
                                                 'validate' => function (string $authorId) {
                                                     if (! isset($this->data['people'][$authorId])) {
-                                                        return ['unknownAuthor', 'We have no record of that author'];
+                                                        return [1, 'We have no record of that author'];
                                                     }
 
                                                     return 0;

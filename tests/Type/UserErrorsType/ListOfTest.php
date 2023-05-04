@@ -34,19 +34,18 @@ final class ListOfTest extends FieldDefinitionTest
         $this->_checkTypes(
             UserErrorsType::create([
                 'type' => Type::listOf(Type::string()),
-                'errorCodes' => ['invalidPhoneNumber'],
                 'validate' => static function (string $phoneNumber) {},
             ], ['phoneNumber'], true),
             [
                 'PhoneNumberError' => '
                     type PhoneNumberError {
-                      "An error code"
-                      code: PhoneNumberErrorCode
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
                     
-                      "A natural language description of the issue"
+                      "An error message."
                       msg: String
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
               ',
@@ -70,7 +69,6 @@ final class ListOfTest extends FieldDefinitionTest
                         ],
                     ],
                 ])),
-                'errorCodes' => ['notEnoughData'],
                 'validate' => static function () {},
             ],
             ['address'],
@@ -79,13 +77,13 @@ final class ListOfTest extends FieldDefinitionTest
             [
                 'AddressError' => '
                     type AddressError {
-                      "An error code"
-                      code: AddressErrorCode
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
                     
-                      "A natural language description of the issue"
+                      "An error message."
                       msg: String
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
                 ',
@@ -121,7 +119,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "Validation errors for Address"
                       suberrors: Address_FieldErrors
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
               ',
@@ -173,7 +171,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "Validation errors for Address"
                       suberrors: Address_FieldErrors
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
                 ',
@@ -210,7 +208,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "An error message."
                       msg: String
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
                 ',
@@ -245,7 +243,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "Validation errors for UpdateBook"
                       suberrors: UpdateBook_FieldErrors
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
               ',
@@ -260,7 +258,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "Validation errors for Author"
                       suberrors: UpdateBook_Author_FieldErrors
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
               ',
@@ -278,7 +276,7 @@ final class ListOfTest extends FieldDefinitionTest
                       "An error message."
                       msg: String
                     
-                      "A path describing this items\'s location in the nested array"
+                      "A path describing this item\'s location in the nested array"
                       path: [Int]
                     }
               ',

@@ -80,13 +80,12 @@ final class ScalarValidationTest extends TestCase
                             'args' => [
                                 'bookId' => [
                                     'type' => Type::id(),
-                                    'errorCodes' => ['bookNotFound'],
                                     'validate' => function ($bookId) {
                                         if (isset($this->data['books'][$bookId])) {
                                             return 0;
                                         }
 
-                                        return ['bookNotFound', 'Unknown book!'];
+                                        return [1, 'Unknown book!'];
                                     },
                                 ],
                             ],

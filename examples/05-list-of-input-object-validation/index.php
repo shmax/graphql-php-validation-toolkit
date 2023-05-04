@@ -53,15 +53,12 @@ try {
                 'name' => 'updateAuthors',
                 'validate' => function (array $args) {
                     if (count($args['authors']) == 0) {
-                        return ['limitReached', "You can't update more than 10 authors at one time"];
+                        return [1, "You can't update more than 10 authors at one time"];
                     }
 
                     return 0;
                 },
                 'type' => Type::listOf($authorType),
-                'errorCodes' => [
-                    'requiredValue',
-                ],
                 'args' => [
                     'authors' => [
                         'type' => Type::listOf(new InputObjectType([
@@ -69,40 +66,29 @@ try {
                             'fields' => [
                                 'id' => [
                                     'type' => Type::nonNull(Type::id()),
-                                    'errorCodes' => [
-                                        'unknownAuthor',
-                                    ],
                                     'validate' => static function ($authorId) use ($authors) {
                                         if (empty($authors[$authorId])) {
-                                            return ['unknownAuthor', "We don't seem to have that author in our database"];
+                                            return [1, "We don't seem to have that author in our database"];
                                         }
 
                                         return 0;
                                     },
                                 ],
                                 'firstName' => [
-                                    'type' => Type::string(),
-                                    'errorCodes' => [
-                                        'nameTooLong',
-                                        'nameContainsIllegalCharacters',
-                                    ],
+                                    'type' => Type::nonNull(Type::string()),
                                     'validate' => static function (string $firstName) {
-                                        if (strlen($firstName) > 10) {
-                                            return ['nameTooLong', 'Names must be under 10 characters long'];
+                                        if (strlen($firstName) <= 5) {
+                                            return [1, 'First names must be longer than 5 characters'];
                                         }
 
                                         return 0;
                                     },
                                 ],
                                 'lastName' => [
-                                    'type' => Type::string(),
-                                    'errorCodes' => [
-                                        'nameTooLong',
-                                        'nameContainsIllegalCharacters',
-                                    ],
+                                    'type' => Type::nonNull(Type::string()),
                                     'validate' => static function (string $lastName) {
-                                        if (strlen($lastName) > 10) {
-                                            return ['nameTooLong', 'Names must be under 10 characters long'];
+                                        if (strlen($lastName) > 6) {
+                                            return [1, 'Last names must be under 6 characters long'];
                                         }
 
                                         return 0;

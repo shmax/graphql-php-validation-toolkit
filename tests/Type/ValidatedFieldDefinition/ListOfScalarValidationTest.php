@@ -29,10 +29,9 @@ final class ListOfScalarValidationTest extends TestCase
                         'setPhoneNumbers' => new ValidatedFieldDefinition([
                             'name' => 'setPhoneNumbers',
                             'type' => Type::boolean(),
-                            'errorCodes' => ['atLeastOneList'],
                             'validate' => static function (array $args) {
                                 if (\count($args['phoneNumbers']) < 1) {
-                                    return ['atLeastOneList', 'You must submit at least one list of numbers'];
+                                    return [1, 'You must submit at least one list of numbers'];
                                 }
 
                                 return 0;
@@ -40,11 +39,10 @@ final class ListOfScalarValidationTest extends TestCase
                             'args' => [
                                 'phoneNumbers' => [
                                     'type' => Type::listOf(Type::listOf(Type::string())),
-                                    'errorCodes' => ['invalidPhoneNumber'],
                                     'validate' => static function ($phoneNumber) {
                                         $res = \preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
 
-                                        return ! $res ? ['invalidPhoneNumber', 'That does not seem to be a valid phone number'] : 0;
+                                        return ! $res ? [1, 'That does not seem to be a valid phone number'] : 0;
                                     },
                                 ],
                             ],
@@ -102,7 +100,7 @@ final class ListOfScalarValidationTest extends TestCase
                                 0,
                                 1,
                             ],
-                            'code' => 'invalidPhoneNumber',
+                            'code' => 1,
                             'msg' => 'That does not seem to be a valid phone number',
                         ],
                         [
@@ -110,7 +108,7 @@ final class ListOfScalarValidationTest extends TestCase
                                 0,
                                 2,
                             ],
-                            'code' => 'invalidPhoneNumber',
+                            'code' => 1,
                             'msg' => 'That does not seem to be a valid phone number',
                         ],
                     ],
@@ -157,7 +155,7 @@ final class ListOfScalarValidationTest extends TestCase
         static::assertEquals(
             [
                 'valid' => false,
-                'code' => 'atLeastOneList',
+                'code' => 1,
                 'msg' => 'You must submit at least one list of numbers',
                 'suberrors' => null,
                 'result' => null,
@@ -211,7 +209,7 @@ final class ListOfScalarValidationTest extends TestCase
                 'suberrors' => [
                     'phoneNumbers' => [
                         [
-                            'code' => 'invalidPhoneNumber',
+                            'code' => 1,
                             'msg' => 'That does not seem to be a valid phone number',
                             'path' => [
                                 0 => 1,

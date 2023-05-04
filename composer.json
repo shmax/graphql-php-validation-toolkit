@@ -24,7 +24,7 @@
     "mll-lab/php-cs-fixer-config": "^5.0",
     "phpstan/phpstan-strict-rules": "1.5.0",
     "phpunit/phpunit": "^9.5",
-    "webonyx/graphql-php": "^v15.2.1"
+    "webonyx/graphql-php": "^v15.3.0"
   },
   "config": {
     "preferred-install": "dist",

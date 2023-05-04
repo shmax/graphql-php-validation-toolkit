@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\Type;
 /**
  * @phpstan-type UserErrorsConfig array{
  *   type: Type,
- *   errorCodes?: array<string>|null,
+ *   errorCodes?: class-string<\UnitEnum>|null,
  *   fields?: array<string,mixed>,
  *   validate?: null|callable(mixed $value): mixed,
  *   isRoot?: bool,
@@ -85,11 +85,10 @@ final class UserErrorsType extends ObjectType
     {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
-
             /** @phpstan-var ValidatedFieldConfig */
             $fieldConfig = $field->config;
             $fieldType = $this->_resolveType($field->config['type']);
-            $newType = UserErrorsType::create(
+            $newType = self::create(
                 [
                     'validate' => $fieldConfig['validate'] ?? null,
                     'errorCodes' => $fieldConfig['errorCodes'] ?? null,
@@ -157,13 +156,12 @@ final class UserErrorsType extends ObjectType
                 throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
             }
 
+            $type = new PhpEnumType($config['errorCodes'], $this->_nameFromPath(\array_merge($path)) . 'ErrorCode');
+            $type->description = "Error code";
+
             /** code property */
             $finalFields[static::CODE_NAME] = [
-                'type' => $this->_set(new EnumType([
-                    'name' => $this->_nameFromPath(\array_merge($path)) . 'ErrorCode',
-                    'description' => 'Error code',
-                    'values' => $config['errorCodes'],
-                ]), $config),
+                'type' => $this->_set($type, $config),
                 'description' => 'An error code',
                 'resolve' => static function ($value) {
                     return $value['error'][0] ?? null;
@@ -191,7 +189,7 @@ final class UserErrorsType extends ObjectType
         if (! empty($finalFields['code']) || ! empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
-                'description' => 'A path describing this items\'s location in the nested array',
+                'description' => 'A path describing this item\'s location in the nested array',
                 'resolve' => static function ($value) {
                     return $value['path'];
                 },
@@ -258,7 +256,7 @@ final class UserErrorsType extends ObjectType
                         return $error;
                 }
 
-                return $error[0];
+                return $error[0] ?? null;
             },
         ];
     }
@@ -278,7 +276,7 @@ final class UserErrorsType extends ObjectType
                         return '';
                 }
 
-                return $error[1];
+                return $error[1] ?? null;
             },
         ];
     }
@@ -288,6 +286,6 @@ final class UserErrorsType extends ObjectType
      */
     protected function _nameFromPath(array $path): string
     {
-        return \implode('_', \array_map(static fn($node) => ucfirst((string)$node), $path));
+        return \implode('_', \array_map(static fn ($node) => ucfirst((string)$node), $path));
     }
 }

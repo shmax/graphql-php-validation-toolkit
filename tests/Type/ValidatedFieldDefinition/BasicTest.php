@@ -14,7 +14,6 @@ final class BasicTest extends TestCase
             'args' => [
                 'bookId' => [
                     'type' => Type::id(),
-                    'errorCodes' => ['bookNotFound'],
                     'validate' => static function ($bookId) {
                         return $bookId ? 0 : 1;
                     },
@@ -36,7 +35,6 @@ final class BasicTest extends TestCase
             'args' => [
                 'bookId' => [
                     'type' => Type::id(),
-                    'errorCodes' => ['bookNotFound'],
                     'validate' => static function ($bookId) {
                         return $bookId ? 0 : 1;
                     },

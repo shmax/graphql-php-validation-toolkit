@@ -3,10 +3,18 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+
+enum AuthorError {
+    #[Description(description: 'Author not found.')]
+
+    case UnknownAuthor;
+    case AuthorAlreadyDeleted;
+}
 
 $authors = [
     1 => [
@@ -54,16 +62,13 @@ try {
                 'args' => [
                     'id' => [
                         'type' => Type::id(),
-                        'errorCodes' => [
-                            'unknownAuthor',
-                            'authorAlreadyDeleted',
-                        ],
+                        'errorCodes' => AuthorError::class,
                         'validate' => function (string $authorId) use ($authors) {
                             if (isset($authors[$authorId])) {
                                 return 0;
                             }
 
-                            return ['unknownAuthor', 'Unknown author'];
+                            return [AuthorError::UnknownAuthor, 'Unknown author'];
                         },
                     ],
                 ],

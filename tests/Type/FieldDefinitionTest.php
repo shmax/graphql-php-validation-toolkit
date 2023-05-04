@@ -25,7 +25,8 @@ abstract class FieldDefinitionTest extends TestCase
             },
         ]);
 
-        self::assertEquals(Utils::nowdoc($expected), SchemaPrinter::doPrint(new Schema(['mutation' => $mutation])));
+        $actual = SchemaPrinter::doPrint(new Schema(['mutation' => $mutation]));
+        self::assertEquals(Utils::nowdoc($expected), $actual);
     }
 
     /**
@@ -99,7 +100,8 @@ abstract class FieldDefinitionTest extends TestCase
         }
 
         foreach ($expectedMap as $typeName => $expected) {
-            self::assertEquals(Utils::nowdoc($expected), SchemaPrinter::printType($types[$typeName]));
+            $actual = SchemaPrinter::printType($types[$typeName]);
+            self::assertEquals(Utils::nowdoc($expected), $actual);
         }
     }
 }

@@ -17,10 +17,9 @@ final class NonNullTest extends FieldDefinitionTest
             'args' => [
                 'authorId' => [
                     'type' => Type::nonNull(Type::string()),
-                    'errorCodes' => ['unknownAuthor'],
                     'validate' => static function (array $authorId) {
                         if (empty($authorId)) {
-                            return ['unknownAuthor', 'Invalid author id'];
+                            return [1, 'Invalid author id'];
                         }
 
                         return 0;
@@ -55,16 +54,11 @@ final class NonNullTest extends FieldDefinitionTest
             
             "User errors for AuthorId"
             type DeleteAuthor_AuthorIdError {
-              "An error code"
-              code: DeleteAuthor_AuthorIdErrorCode
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
             
-              "A natural language description of the issue"
+              "An error message."
               msg: String
-            }
-            
-            "Error code"
-            enum DeleteAuthor_AuthorIdErrorCode {
-              unknownAuthor
             }
 
         ');
@@ -104,11 +98,10 @@ final class NonNullTest extends FieldDefinitionTest
                             ],
                         ],
                     ])),
-                    'errorCodes' => ['notEnoughInfo'],
                     'validate' => static function (array $author) {
                         if (empty($author['firstName'] && empty($author['lastName']))) {
                             return [
-                                'notEnoughInfo',
+                                1,
                                 'Please provide at least a first or a last name',
                             ];
                         }
@@ -153,19 +146,14 @@ final class NonNullTest extends FieldDefinitionTest
             
             "User errors for Author"
             type UpdateAuthor_AuthorError {
-              "An error code"
-              code: UpdateAuthor_AuthorErrorCode
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
             
-              "A natural language description of the issue"
+              "An error message."
               msg: String
             
               "Validation errors for Author"
               suberrors: UpdateAuthor_Author_FieldErrors
-            }
-            
-            "Error code"
-            enum UpdateAuthor_AuthorErrorCode {
-              notEnoughInfo
             }
             
             "User Error"

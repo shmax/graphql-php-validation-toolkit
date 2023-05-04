@@ -9,6 +9,20 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 
+enum NameErrors {
+    case NameTooLong;
+    case NameNotUnique;
+}
+
+enum AgeErrors {
+    case Negative;
+}
+
+enum AuthorErrors {
+    case UnknownAuthor;
+    case DeceasedAuthor;
+}
+
 $authors = [
     1 => [
         'id' => 1,
@@ -53,19 +67,16 @@ class AuthorAttributes extends InputObjectType
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'errorCodes' => [
-                        'nameTooLong',
-                        'nameNotUnique',
-                    ],
+                    'errorCodes' => NameErrors::class,
                     'validate' => function (string $name) {
                         global $authors;
 
                         if (strlen($name) > 15) {
-                            return ['nameTooLong', 'Name is too long; please keep it under 15 characters.'];
+                            return [NameErrors::NameTooLong, 'Name is too long; please keep it under 15 characters.'];
                         }
 
                         if (array_search($name, array_column($authors, 'name')) !== false) {
-                            return ['nameNotUnique', 'That name is already in use'];
+                            return [NameErrors::NameNotUnique, 'That name is already in use'];
                         }
 
                         return 0;
@@ -73,12 +84,13 @@ class AuthorAttributes extends InputObjectType
                 ],
                 'age' => [
                     'type' => Type::int(),
-                    'errorCodes' => [
-                        'invalidAge',
-                    ],
+                    'errorCodes' => AgeErrors::class,
                     'validate' => function (int $age) {
                         if ($age <= 0) {
-                            return ['invalidAge', 'Invalid Age; must be positive'];
+                            return [
+                                AgeErrors::Negative,
+                                'Invalid Age; must be positive'
+                            ];
                         }
 
                         return 0;
@@ -101,13 +113,10 @@ try {
                 'args' => [
                     'authorId' => [
                         'type' => Type::id(),
-                        'errorCodes' => [
-                            'unknownAuthor',
-                            'deceasedAuthor',
-                        ],
+                        'errorCodes' => AuthorErrors::class,
                         'validate' => function (string $authorId) use ($authors) {
                             if (! isset($authors[$authorId])) {
-                                return ['unknownAuthor', 'We have no record of that author'];
+                                return [AuthorError::UnknownAuthor, 'We have no record of that author'];
                             }
 
                             return 0;

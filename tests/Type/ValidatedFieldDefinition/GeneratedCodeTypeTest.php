@@ -81,11 +81,8 @@ final class GeneratedCodeTypeTest extends TestCase
                             'args' => [
                                 'bookId' => [
                                     'type' => Type::id(),
-                                    'errorCodes' => [
-                                        'invalidBookId',
-                                    ],
                                     'validate' => function ($bookId) {
-                                        return empty($bookId) ? ['invalidBookId', 'Invalid Book Id'] : 0;
+                                        return empty($bookId) ? [1, 'Invalid Book Id'] : 0;
                                     },
                                 ],
                             ],
@@ -122,7 +119,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals('invalidBookId', $res->data['updateBook']['suberrors']['bookId']['code']);
+        static::assertEquals(1, $res->data['updateBook']['suberrors']['bookId']['code']);
         static::assertEquals('Invalid Book Id', $res->data['updateBook']['suberrors']['bookId']['msg']);
     }
 }
