@@ -18,7 +18,7 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
  *   validate?: callable(mixed $value): mixed,
- *   errorCodes?: array<string>,
+ *   errorCodes?: class-string<\UnitEnum>|null,
  *   type: Type
  * }
  */
