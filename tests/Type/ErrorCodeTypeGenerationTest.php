@@ -91,12 +91,9 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-//            'typeSetter' => static function ($type) use (&$types): void {
-//                $types[$type->name] = $type;
-//            },
         ], ['updateBook']);
 
-        self::assertEmpty($types);
+        self::assertEquals($types, []);
         self::assertEquals(SchemaPrinter::printType($type), Utils::nowdoc('
             "User errors for UpdateBook"
             type UpdateBookError
