@@ -156,7 +156,15 @@ final class UserErrorsType extends ObjectType
                 throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
             }
 
-            $type = new PhpEnumType($config['errorCodes'], $this->_nameFromPath(\array_merge($path)) . 'ErrorCode');
+            $type = new PhpEnumType($config['errorCodes']);
+            $type->description = "Error code";
+
+            if(!isset($config['typeSetter'])) {
+                $type->name = $this->_nameFromPath(\array_merge($path)) . 'ErrorCode';
+            }
+            else {
+                $type->name = $type->name . 'ErrorCode';
+            }
             $type->description = "Error code";
 
             /** code property */
@@ -205,7 +213,7 @@ final class UserErrorsType extends ObjectType
     protected function _set(Type $type, array $config)
     {
         if (\is_callable($config['typeSetter'] ?? null)) {
-            $config['typeSetter']($type);
+            return $config['typeSetter']($type);
         }
 
         return $type;

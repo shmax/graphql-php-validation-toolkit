@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinitionTest;
+use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -11,7 +11,7 @@ use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 
-final class BasicTest extends FieldDefinitionTest
+final class Basic extends FieldDefinition
 {
     public function testNoValidationOnSelf(): void
     {

@@ -3,7 +3,7 @@
 namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Type\FieldDefinitionTest;
+use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -11,7 +11,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 
-final class ListOfInputObjectValidationTest extends FieldDefinitionTest
+final class ListOfInputObjectValidation extends FieldDefinition
 {
     /** @var mixed[] */
     protected $data = [

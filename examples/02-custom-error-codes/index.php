@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 
-enum AuthorError {
+enum AuthorValidation {
     #[Description(description: 'Author not found.')]
 
     case UnknownAuthor;
@@ -26,6 +26,8 @@ $authors = [
         'name' => 'J.D.Salinger',
     ],
 ];
+
+$types = [];
 
 class AuthorType extends ObjectType
 {
@@ -58,17 +60,23 @@ try {
         'fields' => [
             'deleteAuthor' => new ValidatedFieldDefinition([
                 'name' => 'deleteAuthor',
+                'typeSetter' => function (Type $type) use ($types) {
+                    if(!isset($types[$type->name])) {
+                        $types[$type->name] = $type;
+                    }
+                    return $types[$type->name];
+                },
                 'type' => Type::boolean(),
                 'args' => [
                     'id' => [
                         'type' => Type::id(),
-                        'errorCodes' => AuthorError::class,
+                        'errorCodes' => AuthorValidation::class,
                         'validate' => function (string $authorId) use ($authors) {
                             if (isset($authors[$authorId])) {
                                 return 0;
                             }
 
-                            return [AuthorError::UnknownAuthor, 'Unknown author'];
+                            return [AuthorValidation::UnknownAuthor, 'Unknown author'];
                         },
                     ],
                 ],

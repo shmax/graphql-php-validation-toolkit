@@ -11,7 +11,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
-abstract class FieldDefinitionTest extends TestCase
+abstract class FieldDefinition extends TestCase
 {
 //    protected $outputPath = 'tmp/';
     protected function _checkSchema(ValidatedFieldDefinition $field, string $expected): void

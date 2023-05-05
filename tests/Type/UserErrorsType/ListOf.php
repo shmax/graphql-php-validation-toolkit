@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinitionTest;
+use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 
-final class ListOfTest extends FieldDefinitionTest
+final class ListOf extends FieldDefinition
 {
     public function testScalarTypeWithNoValidation(): void
     {

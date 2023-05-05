@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinitionTest;
+use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
@@ -10,7 +10,7 @@ enum AuthorErrorTest {
     case AuthorNotFound;
 }
 
-final class InputObjectTest extends FieldDefinitionTest
+final class InputObjectTest extends FieldDefinition
 {
     public function testFieldsWithErrorCodesButNoValidate(): void
     {

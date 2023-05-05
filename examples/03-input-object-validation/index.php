@@ -116,7 +116,7 @@ try {
                         'errorCodes' => AuthorErrors::class,
                         'validate' => function (string $authorId) use ($authors) {
                             if (! isset($authors[$authorId])) {
-                                return [AuthorError::UnknownAuthor, 'We have no record of that author'];
+                                return [AuthorValidation::UnknownAuthor, 'We have no record of that author'];
                             }
 
                             return 0;

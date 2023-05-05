@@ -176,14 +176,27 @@ enum AuthorErrors {
 ]   
 ```
 
+Keep in mind that the library will generate unique names for the error code types, and they can become quite long depending on how deeply they are nested in the field structure:
+
+```php
+    echo $errorType->name; //  Author_Attributes_FirstName_PriceErrorCode
+```
+
+If this becomes a problem for you, be sure to provide a type setter (see [example](examples/02-custom-error-codes)) that returns the type that was set, and then the generated name will simply be the name of the enum class that was passed in, plus "ErrorCode":
+```php
+    echo $errorType->name; //  PriceErrorCode
+```
+
+
+
 
 ### Managing Created Types
-This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback:
+This library will create new types as needed. If you are using some kind of type manager to store and retrieve types, you can integrate it by providing a `typeSetter` callback. Make sure it returns the type that was set:
 
 ```php
 new ValidatedFieldDefinition([
     'typeSetter' => static function ($type) {
-        Types::set($type);
+        return Types::set($type);
     },
 ]);
 ``` 

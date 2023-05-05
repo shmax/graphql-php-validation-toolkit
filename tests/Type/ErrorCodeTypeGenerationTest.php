@@ -21,7 +21,33 @@ enum AuthorValidation {
 
 final class ErrorCodeTypeGenerationTest extends TestCase
 {
-    public function testMultipleErrorCodesOnSelf(): void
+    public function testUniqueNameWhenNoTypeSetter(): void
+    {
+        $type = new UserErrorsType([
+            'validate' => static function ($val) {
+                return $val ? 0 : 1;
+            },
+            'errorCodes' => UserValidation::class,
+            'type' => new IDType(['name' => 'User']),
+        ], ['updateUser']);
+
+        $generatedErrorType = $type->config['fields']['code']['type'];
+
+        static::assertTrue( $generatedErrorType->name == 'UpdateUserErrorCode');
+
+        self::assertEquals(
+            SchemaPrinter::printType($generatedErrorType),
+            Utils::nowdoc('
+                "Error code"
+                enum UpdateUserErrorCode {
+                  UnknownUser
+                  UserIsMinor
+                }
+        ')
+        );
+    }
+
+    public function testShortNameWhenTypeSetter(): void
     {
         $types = [];
         new UserErrorsType([
@@ -29,19 +55,22 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                 return $val ? 0 : 1;
             },
             'errorCodes' => UserValidation::class,
-            'typeSetter' => static function ($type) use (&$types): void {
-                $types[$type->name] = $type;
+            'typeSetter' => static function ($type) use (&$types): Type {
+                if(!isset($types[$type->name])) {
+                    $types[$type->name] = $type;
+                }
+                return $types[$type->name];
             },
             'type' => new IDType(['name' => 'User']),
         ], ['updateUser']);
 
-        static::assertTrue(isset($types['UpdateUserErrorCode']));
+        static::assertTrue(isset($types['UserValidationErrorCode']));
 
         self::assertEquals(
-            SchemaPrinter::printType($types['UpdateUserErrorCode']),
+            SchemaPrinter::printType($types['UserValidationErrorCode']),
             Utils::nowdoc('
                 "Error code"
-                enum UpdateUserErrorCode {
+                enum UserValidationErrorCode {
                   UnknownUser
                   UserIsMinor
                 }
@@ -62,9 +91,9 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types): void {
-                $types[$type->name] = $type;
-            },
+//            'typeSetter' => static function ($type) use (&$types): void {
+//                $types[$type->name] = $type;
+//            },
         ], ['updateBook']);
 
         self::assertEmpty($types);
@@ -91,21 +120,22 @@ final class ErrorCodeTypeGenerationTest extends TestCase
                     ],
                 ],
             ]),
-            'typeSetter' => static function ($type) use (&$types): void {
+            'typeSetter' => static function ($type) use (&$types): Type {
                 $types[$type->name] = $type;
+                return $types[$type->name];
             },
         ], ['updateBook']);
 
         self::assertCount(2, \array_keys($types));
-        self::assertTrue(isset($types['UpdateBook_AuthorIdErrorCode']));
+        self::assertTrue(isset($types['AuthorValidationErrorCode']));
         self::assertEquals(
             Utils::nowdoc('
                 "Error code"
-                enum UpdateBook_AuthorIdErrorCode {
+                enum AuthorValidationErrorCode {
                   UnknownAuthor
                 }
             '),
-            SchemaPrinter::printType($types['UpdateBook_AuthorIdErrorCode']),
+            SchemaPrinter::printType($types['AuthorValidationErrorCode']),
         );
     }
 }
