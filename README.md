@@ -117,6 +117,36 @@ If the value is valid, return `0`, otherwise `1`.
 ])
 ```
 
+### The `required` property
+You can mark any field as `required`, and if the value is not provided, then an automatic validation will happen for you (thus removing the need for you to weaken your validation callback with `null` types). You can set it to `true`, or you can provide an error array similar to the one returned by your validate callback:
+
+```php
+//...
+'updateThing' => new ValidatedFieldDefinition([
+  'type' => Types::thing(),
+  'args' => [
+    'foo' => [
+      'required' => true, // if not provided, then an error of the form [1, 'foo is required'] will be returned.
+      'validate' => function(string $foo) {
+        if(Foo::find($foo)) {
+          return 0;
+        }
+        return 1;
+      }
+    ],
+    'bar' => [
+      'required' => [1, 'Oh, where is the bar?!'],
+      'validate' => function(string $bar) {
+        if(Bar::find($bar)) {
+          return 0;
+        }
+        return 1;
+      }
+    ]
+  ]	  
+])
+```
+
 If you want to return an error message, return an array with the message in the second bucket:
 ```php
 //...
