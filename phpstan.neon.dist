@@ -9,7 +9,7 @@ parameters:
     ignoreErrors:
         - "~Construct empty\\(\\) is not allowed\\. Use more strict comparison~"
         - "~(Method|Property) .+::.+(\\(\\))? (has parameter \\$\\w+ with no|has no return|has no) typehint specified~"
-
+    treatPhpDocTypesAsCertain: false
 includes:
 	- vendor/phpstan/phpstan-phpunit/extension.neon
 	- vendor/phpstan/phpstan-phpunit/rules.neon
