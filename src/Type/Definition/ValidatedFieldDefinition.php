@@ -14,8 +14,8 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
  *   typeSetter?: callable,
  *   name?: string,
  *   validName?: string,
- *   required?: boolean|array,
- *   partial?: boolean,
+ *   partial?: bool,
+ *   required?: bool|array<int,string>,
  *   resultName?: string,
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
@@ -202,7 +202,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
     /**
      * @phpstan-param InputObjectType $type
-     * @phpstan-param  ValidatedFieldConfig $config
+     * @phpstan-param  ValidatedFieldConfig $objectConfig
      * @param array<mixed> $res
      */
     protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res, bool $isParentList = false): void
@@ -224,7 +224,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $error = ['error' => $isRequired];
                 }
             }
-            else if (!$isPartial || ($isPartial && $isKeyPresent)) {
+            else if (!$isPartial || $isKeyPresent) {
                 $error = $this->_validate($config, $value[$key] ?? null);
             }
 

@@ -85,7 +85,6 @@ final class UserErrorsType extends ObjectType
     {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
-            /** @phpstan-var ValidatedFieldConfig */
             $fieldConfig = $field->config;
             $fieldType = $this->_resolveType($field->config['type']);
             $newType = self::create(
