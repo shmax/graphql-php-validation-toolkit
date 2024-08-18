@@ -14,6 +14,8 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
  *   typeSetter?: callable,
  *   name?: string,
  *   validName?: string,
+ *   partial?: bool,
+ *   required?: bool|array<int,string>,
  *   resultName?: string,
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
@@ -200,21 +202,37 @@ class ValidatedFieldDefinition extends FieldDefinition
 
     /**
      * @phpstan-param InputObjectType $type
-     * @phpstan-param  ValidatedFieldConfig $config
+     * @phpstan-param  ValidatedFieldConfig $objectConfig
      * @param array<mixed> $res
      */
-    protected function _validateInputObjectFields(InputObjectType $type, array $config, mixed $value, array &$res, bool $isParentList = false): void
+    protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res, bool $isParentList = false): void
     {
-        $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
+        $createSubErrors = UserErrorsType::needSuberrors($objectConfig, $isParentList);
+        $isPartial = $objectConfig['partial'] ?? true;
 
         $fields = $type->getFields();
-        if (\is_array($value)) {
-            foreach ($value as $key => $subValue) {
-                $config = $fields[$key]->config;
-                $error = $this->_validate($config, $subValue);
+        foreach ($fields as $key => $field) {
+            $config = $field->config;
 
-                if (! empty($error)) {
-                    $createSubErrors ? $res[UserErrorsType::SUBERRORS_NAME][$key] = $error : $res[$key] = $error;
+            $isKeyPresent = array_key_exists($key, $value);
+            $isRequired = $config['required'] ?? false;
+            if($isRequired && !isset($value[$key])) {
+                if ($isRequired === true) {
+                    $error = ['error' => [1, "$key is required"]];
+                }
+                else if (is_array($isRequired)) {
+                    $error = ['error' => $isRequired];
+                }
+            }
+            else if (!$isPartial || $isKeyPresent) {
+                $error = $this->_validate($config, $value[$key] ?? null);
+            }
+
+            if (!empty($error)) {
+                if ($createSubErrors) {
+                    $res[UserErrorsType::SUBERRORS_NAME][$key] = $error;
+                } else {
+                    $res[$key] = $error;
                 }
             }
         }
