@@ -62,7 +62,7 @@ final class NonPartialValidation extends FieldDefinition
                                         'required' => [1, 'Oh, we absolutely must have a bar'],
                                         'validate' => function (string $foo) {
                                             if (strlen($foo) < 10) {
-                                                return [1, 'bar must be more than 10 characters'];
+                                                return [1, 'bar must be more than 10 characters!'];
                                             }
 
                                             return 0;
