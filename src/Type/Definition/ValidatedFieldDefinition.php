@@ -14,7 +14,7 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
  *   typeSetter?: callable,
  *   name?: string,
  *   validName?: string,
- *   required?: bool|array<int,string>|callable(): bool|array,
+ *   required?: bool|array<int,string>|callable(): bool|array<int|string>,
  *   resultName?: string,
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
