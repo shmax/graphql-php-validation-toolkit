@@ -118,7 +118,7 @@ If the value is valid, return `0`, otherwise `1`.
 ```
 
 ### The `required` property
-You can mark any field as `required`, and if the value is not provided, then an automatic validation will happen for you (thus removing the need for you to weaken your validation callback with `null` types). You can set it to `true`, or you can provide an error array similar to the one returned by your validate callback:
+You can mark any field as `required`, and if the value is not provided, then an automatic validation will happen for you (thus removing the need for you to weaken your validation callback with `null` types). You can set it to `true`, or you can provide an error array similar to the one returned by your validate callback. You can also set it to a callable that returns the same bool or error array.
 
 ```php
 //...
@@ -138,6 +138,15 @@ You can mark any field as `required`, and if the value is not provided, then an 
       'required' => [1, 'Oh, where is the bar?!'],
       'validate' => function(string $bar) {
         if(Bar::find($bar)) {
+          return 0;
+        }
+        return 1;
+      }
+    ],
+    'naz' => [
+      'required' => static fn() => !Moderator::loggedIn(),
+      'validate' => function(string $naz) {
+        if(Naz::find($naz)) {
           return 0;
         }
         return 1;

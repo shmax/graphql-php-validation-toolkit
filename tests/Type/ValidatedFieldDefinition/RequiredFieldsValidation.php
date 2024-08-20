@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 
-final class NonPartialValidation extends FieldDefinition
+final class RequiredFieldsValidation extends FieldDefinition
 {
     /** @var mixed[] */
     protected $data = [
@@ -27,11 +27,9 @@ final class NonPartialValidation extends FieldDefinition
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'partial' => false,
                         'type' => function () { // lazy load
                             return new InputObjectType([
                                 'name' => 'BookAttributes',
-                                'partial' => false,
                                 'fields' => [
                                     'title' => [
                                         'type' => Type::string(),
@@ -68,7 +66,18 @@ final class NonPartialValidation extends FieldDefinition
                                             return 0;
                                         },
                                     ],
+                                    'naz' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a naz',
+                                        'required' => static fn () => true,
+                                        'validate' => function (string $naz) {
+                                            if (strlen($naz) < 10) {
+                                                return [1, 'naz must be more than 10 characters!'];
+                                            }
 
+                                            return 0;
+                                        }
+                                    ],
                                     'author' => [
                                         'type' => Type::id(),
                                         'description' => 'Provide a valid author id',
@@ -115,6 +124,10 @@ final class NonPartialValidation extends FieldDefinition
                                     code
                                     msg
                                 }
+                                naz {
+                                    code
+                                    msg
+                                }
                             }
                         }
                         result
@@ -146,6 +159,10 @@ final class NonPartialValidation extends FieldDefinition
                         'author' => [
                             'code' => 1,
                             'msg' => 'We have no record of that author',
+                        ],
+                        'naz' => [
+                            'code' => 1,
+                            'msg' => 'naz is required',
                         ],
                     ],
                 ],
