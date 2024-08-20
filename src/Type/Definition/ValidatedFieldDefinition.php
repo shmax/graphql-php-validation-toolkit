@@ -14,8 +14,7 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
  *   typeSetter?: callable,
  *   name?: string,
  *   validName?: string,
- *   partial?: bool,
- *   required?: bool|array<int,string>,
+ *   required?: bool|array<int,string>|callable(): bool,
  *   resultName?: string,
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
@@ -208,7 +207,6 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res, bool $isParentList = false): void
     {
         $createSubErrors = UserErrorsType::needSuberrors($objectConfig, $isParentList);
-        $isPartial = $objectConfig['partial'] ?? true;
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
@@ -216,6 +214,9 @@ class ValidatedFieldDefinition extends FieldDefinition
 
             $isKeyPresent = array_key_exists($key, $value);
             $isRequired = $config['required'] ?? false;
+            if(is_callable($isRequired)) {
+                $isRequired = $isRequired();
+            }
             if($isRequired && !isset($value[$key])) {
                 if ($isRequired === true) {
                     $error = ['error' => [1, "$key is required"]];
@@ -224,7 +225,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $error = ['error' => $isRequired];
                 }
             }
-            else if (!$isPartial || $isKeyPresent) {
+            else if ($isKeyPresent) {
                 $error = $this->_validate($config, $value[$key] ?? null);
             }
 
