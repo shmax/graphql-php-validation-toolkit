@@ -210,6 +210,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
+            $error = null;
             $config = $field->config;
 
             $isKeyPresent = array_key_exists($key, $value);
