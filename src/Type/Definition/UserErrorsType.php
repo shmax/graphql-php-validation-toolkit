@@ -45,37 +45,54 @@ class UserErrorsType extends ObjectType
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
-    public static function create(array $config, array $path, bool $isParentList = false): ?self
+    protected static function _create(array $config, array $path, bool $isParentList = false): ?self
     {
         $type = $config['type'];
         $resolvedType = self::_resolveType($type);
 
         // Handle InputObjectType
         if ($resolvedType instanceof InputObjectType) {
-            return new UserErrorsInputObjectType($config, $path, $isParentList);
+            try {
+                return new UserErrorsInputObjectType($config, $path, $isParentList);
+            }
+            catch(NoValidatationFoundException $e) {
+                return null;
+            }
         }
 
         // Handle ListOfType
         if ($resolvedType instanceof ListOfType) {
-            return UserErrorsListOfType::createInstance($config, $path);
+            return new UserErrorsListOfType($config, $path, $isParentList);
         }
 
         // Handle NonNull
         if ($resolvedType instanceof NonNull) {
-            return UserErrorsNonNullType::createInstance($config, $path);
+            return new UserErrorsNonNullType($config, $path, $isParentList);
         }
 
         // Handle Scalar types (e.g., bool, int, string)
-        if (self::isScalarType($resolvedType)) {
+        if (self::isScalarType($resolvedType) && isset($config['validate'])) {
             return new self($config, $path, $isParentList); // Scalar types can use the base class directly
         }
 
         return null;
     }
 
+    public static function create(array $config, array $path): self
+    {
+        $result = self::_create($config, $path);
+
+        // If the root is null, no validation was found anywhere in the tree
+        if ($result === null) {
+            throw new NoValidatationFoundException();
+        }
+
+        return $result;
+    }
+
     protected function _addPathField(array &$finalFields): void
     {
-        if (! empty($finalFields['code']) /* || ! empty($finalFields['suberrors']) */) {
+        if (! empty($finalFields['code']) || !empty($finalFields['suberrors'])) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this item\'s location in the nested array',

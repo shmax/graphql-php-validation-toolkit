@@ -32,7 +32,7 @@ final class ListOf extends FieldDefinition
     public function testListOfStringWithValidationOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'type' => Type::listOf(Type::string()),
                 'validate' => static function (string $phoneNumber) {},
             ], ['phoneNumber'], true),
@@ -56,7 +56,7 @@ final class ListOf extends FieldDefinition
     public function testListOfInputObjectWithValidationOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create(
+            UserErrorsType::_create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
@@ -94,7 +94,7 @@ final class ListOf extends FieldDefinition
     public function testListOfInputObjectWithValidationOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create(
+            UserErrorsType::_create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
@@ -139,7 +139,7 @@ final class ListOf extends FieldDefinition
     public function testListOfInputObjectWithValidationOnSelfAndFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create(
+            UserErrorsType::_create(
             [
                 'validate' => static function () {},
                 'type' => Type::listOf(new InputObjectType([
@@ -191,7 +191,7 @@ final class ListOf extends FieldDefinition
     public function testListOfListOfListOfScalarWithValidation(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create(
+            UserErrorsType::_create(
             [
                 'validate' => static function () {},
                 'type' => Type::listOf(Type::listOf(Type::listOf(Type::string()))),
@@ -219,7 +219,7 @@ final class ListOf extends FieldDefinition
     public function testValidateOnDeeplyNestedField(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'book',
                     'fields' => [

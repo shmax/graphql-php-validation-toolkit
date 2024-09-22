@@ -1,6 +1,7 @@
 <?php
 
 namespace GraphQL\Type\Definition;
+
 class UserErrorsInputObjectType extends UserErrorsType
 {
     public const FIELDS_NAME = 'fields';
@@ -9,8 +10,11 @@ class UserErrorsInputObjectType extends UserErrorsType
     {
         $fields = $this->_addFields($config['type'], $config, $path);
 
-        if (! empty($config['validate'])) {
+        if(!empty($fields)) {
             $this->_addFieldsErrorField($fields, $config, $path);
+        }
+        else if (empty($config['validate'])) {
+            throw new NoValidatationFoundException();
         }
 
         parent::__construct($config, $path, $isParentList);
@@ -26,7 +30,7 @@ class UserErrorsInputObjectType extends UserErrorsType
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
-            $newType = self::create([
+            $newType = self::_create([
                 'type' => $field->getType(),
                 'validate' => $fieldConfig['validate'] ?? null,
             ], array_merge($path, [$key]));

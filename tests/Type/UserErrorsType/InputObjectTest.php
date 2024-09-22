@@ -32,7 +32,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -89,7 +89,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -120,7 +120,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnSelfAndOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -183,7 +183,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnDeeplyNestedField(): void
     {
         $this->_checkTypes(
-            UserErrorsType::create([
+            UserErrorsType::_create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [

@@ -18,6 +18,9 @@ final class Basic extends FieldDefinition
     {
         $type = UserErrorsType::create([
             'type' => Type::id(),
+            'validate' => static function () {
+
+            }
         ], ['upsertSku']);
 
         self::assertEquals(Utils::nowdoc('
@@ -26,7 +29,13 @@ final class Basic extends FieldDefinition
             }
 
             "User errors for UpsertSku"
-            type UpsertSkuError
+            type UpsertSkuError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+
+              "An error message."
+              msg: String
+            }
 
         '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
@@ -105,9 +114,22 @@ final class Basic extends FieldDefinition
         );
     }
 
-    public function testNoValidateCallbacks(): void
+    public function testNoValidateCallbacksOnInputObjectType(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere");
+        $this->expectExceptionMessage("You must specify at least one 'validate' or 'validateItem' callback somewhere in the tree.");
+        UserErrorsType::create([
+            'type' => new InputObjectType([
+                'name' => 'book',
+                'fields' => [
+                    'author' => Type::string()
+                ],
+            ]),
+        ], ['updateBook']);
+    }
+
+    public function testNoValidateCallbacksOnNestedInputObjectType(): void
+    {
+        $this->expectExceptionMessage("You must specify at least one 'validate' or 'validateItem' callback somewhere in the tree.");
         UserErrorsType::create([
             'type' => new InputObjectType([
                 'name' => 'book',
