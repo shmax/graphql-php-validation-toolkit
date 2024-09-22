@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Type\Definition\Type;
-
 /**
  * @phpstan-type UserErrorsConfig array{
  *   type: Type,
@@ -18,182 +16,66 @@ use GraphQL\Type\Definition\Type;
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
-final class UserErrorsType extends ObjectType
+class UserErrorsType extends ObjectType
 {
-    public const SUBERRORS_NAME = 'suberrors';
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
+    public const FIELDS_NAME = 'suberrors';
 
-    /**
-     * @phpstan-param UserErrorsConfig $config
-     * @phpstan-param Path $path
-     */
-    public function __construct(array $config, array $path, bool $isParentList = false)
+    protected function __construct(array $config, array $path, bool $isParentList = false)
     {
-        $finalFields = $config['fields'] ?? [];
-        $this->_addErrorCodes($config, $finalFields, $path);
+        $fields = $config['fields'] ?? [];
+        $this->_addErrorFields($config, $fields, $path);
 
-        $type = $this->_resolveType($config['type']);
-        if ($type instanceof InputObjectType) {
-            $this->_buildInputObjectType($type, $config, $path, $finalFields, $isParentList);
-        }
-
+        // Add the path field if this is part of a list type
         if ($isParentList) {
-            $this->_addPathField($finalFields);
+            $this->_addPathField($fields);
         }
 
         $pathEnd = end($path);
         assert($pathEnd != false);
+
         parent::__construct([
-            'name' => $this->_nameFromPath(\array_merge($path)) . \ucfirst('error'),
+            'name' => $this->_nameFromPath($path) . 'Error',
             'description' => 'User errors for ' . \ucfirst((string)$pathEnd),
-            'fields' => $finalFields,
-            'type' => $config['type']
+            'fields' => $fields,
         ]);
     }
 
     /**
-     * @param Type|callable():Type $type
+     * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
-    protected function _resolveType(mixed $type): Type
+    public static function create(array $config, array $path, bool $isParentList = false): ?self
     {
-        if (\is_callable($type)) {
-            $type = $type();
+        $type = $config['type'];
+        $resolvedType = self::_resolveType($type);
+
+        // Handle InputObjectType
+        if ($resolvedType instanceof InputObjectType) {
+            return new UserErrorsInputObjectType($config, $path, $isParentList);
         }
 
-        if ($type instanceof WrappingType) {
-            $type = $type->getInnermostType();
+        // Handle ListOfType
+        if ($resolvedType instanceof ListOfType) {
+            return UserErrorsListOfType::createInstance($config, $path);
         }
 
-        return $type;
-    }
-
-    /**
-     * @phpstan-param UserErrorsConfig $config
-     */
-    public static function needSuberrors(array $config, bool $isParentList): bool
-    {
-        return ! empty($config['validate']) || ! empty($config['isRoot']) || $isParentList;
-    }
-
-    /**
-     * @phpstan-param UserErrorsConfig $config
-     * @phpstan-param Path $path
-     * @return array<string,mixed>
-     */
-    protected function _buildInputObjectFields(InputObjectType $type, array $config, array $path): array
-    {
-        $fields = [];
-        foreach ($type->getFields() as $key => $field) {
-            $fieldConfig = $field->config;
-            $fieldType = $this->_resolveType($field->config['type']);
-            $newType = self::create(
-                [
-                    'validate' => $fieldConfig['validate'] ?? null,
-                    'errorCodes' => $fieldConfig['errorCodes'] ?? null,
-                    'type' => $fieldType,
-                    'fields' => [],
-                    'typeSetter' => $config['typeSetter'] ?? null,
-                ],
-                \array_merge($path, [$key]),
-                $field->getType() instanceof ListOfType
-            );
-            if (! empty($newType)) {
-                $fields[$key] = [
-                    'description' => 'Error for ' . $key,
-                    'type' => $field->getType() instanceof ListOfType ? Type::listOf($newType) : $newType,
-                    'resolve' => static function ($value) use ($key) {
-                        return $value[$key] ?? null;
-                    },
-                ];
-            }
+        // Handle NonNull
+        if ($resolvedType instanceof NonNull) {
+            return UserErrorsNonNullType::createInstance($config, $path);
         }
 
-        return $fields;
-    }
-
-    /**
-     * @param UserErrorsConfig $config
-     * @param Path $path
-     * @param array<mixed> $finalFields
-     * @param bool $isParentList
-     * @return void
-     */
-    protected function _buildInputObjectType(InputObjectType $type, array $config, array $path, array &$finalFields, bool $isParentList)
-    {
-        $createSubErrors = UserErrorsType::needSuberrors($config, $isParentList);
-        $fields = $this->_buildInputObjectFields($type, $config, $path);
-        if ($createSubErrors && \count($fields) > 0) {
-            /**
-             * suberrors property.
-             */
-            $finalFields[static::SUBERRORS_NAME] = [
-                'type' => $this->_set(new ObjectType([
-                    'name' => $this->_nameFromPath(\array_merge($path, ['fieldErrors'])),
-                    'description' => 'User Error',
-                    'fields' => $fields,
-                ]), $config),
-                'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
-                'resolve' => static function (array $value) {
-                    return $value[static::SUBERRORS_NAME] ?? null;
-                },
-            ];
-        } else {
-            $finalFields += $fields;
+        // Handle Scalar types (e.g., bool, int, string)
+        if (self::isScalarType($resolvedType)) {
+            return new self($config, $path, $isParentList); // Scalar types can use the base class directly
         }
+
+        return null;
     }
 
-    /**
-     * @phpstan-param UserErrorsConfig $config
-     * @phpstan-param array<mixed> $finalFields
-     * @phpstan-param Path $path
-     */
-    protected function _addErrorCodes($config, &$finalFields, array $path): void
-    {
-        if (isset($config['errorCodes'])) {
-            if (! isset($config['validate'])) {
-                throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
-            }
-
-            $type = new PhpEnumType($config['errorCodes']);
-            $type->description = "Error code";
-
-            if(!isset($config['typeSetter'])) {
-                $type->name = $this->_nameFromPath(\array_merge($path)) . 'ErrorCode';
-            }
-            else {
-                $type->name = $type->name . 'ErrorCode';
-            }
-            $type->description = "Error code";
-
-            /** code property */
-            $finalFields[static::CODE_NAME] = [
-                'type' => $this->_set($type, $config),
-                'description' => 'An error code',
-                'resolve' => static function ($value) {
-                    return $value['error'][0] ?? null;
-                },
-            ];
-
-            /**
-             * msg property.
-             */
-            $finalFields[static::MESSAGE_NAME] = [
-                'type' => Type::string(),
-                'description' => 'A natural language description of the issue',
-                'resolve' => static function ($value) {
-                    return $value['error'][1] ?? null;
-                },
-            ];
-        }
-    }
-
-    /**
-     * @phpstan-param array<mixed> $finalFields
-     */
     protected function _addPathField(array &$finalFields): void
     {
-        if (! empty($finalFields['code']) || ! empty($finalFields['suberrors'])) {
+        if (! empty($finalFields['code']) /* || ! empty($finalFields['suberrors']) */) {
             $finalFields['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this item\'s location in the nested array',
@@ -204,95 +86,36 @@ final class UserErrorsType extends ObjectType
         }
     }
 
-    /**
-     * @param mixed[] $config
-     *
-     * @return Type
-     */
-    protected function _set(Type $type, array $config)
+    protected static function isScalarType(Type $type): bool
     {
-        if (\is_callable($config['typeSetter'] ?? null)) {
-            return $config['typeSetter']($type);
-        }
-
-        return $type;
+        return $type === Type::boolean()
+            || $type === Type::int()
+            || $type === Type::string()
+            || $type instanceof ScalarType;
     }
 
-    /**
-     * @param UserErrorsConfig $config
-     * @phpstan-param Path $path
-     *
-     * @return static|null
-     */
-    public static function create(array $config, array $path, bool $isParentList = false, string $name = ''): ?self
+    protected static function _resolveType($type): Type
     {
-        if (\is_callable($config['validate'] ?? null)) {
-            $config['fields'][static::CODE_NAME] = $config['fields'][static::CODE_NAME] ?? static::_generateIntCodeType();
-            $config['fields'][static::MESSAGE_NAME] = $config['fields'][static::MESSAGE_NAME] ?? static::_generateMessageType();
-        }
-
-        $userErrorType = new UserErrorsType($config, $path, $isParentList);
-        if (count($userErrorType->getFields()) > 0) {
-            $userErrorType->name = ! empty($name) ? $name : $userErrorType->name;
-            if (\is_callable($config['typeSetter'] ?? null)) {
-                $config['typeSetter']($userErrorType);
-            }
-
-            return $userErrorType;
-        }
-
-        if (\count($path) == 1) {
-            throw new \Exception("You must specify at least one 'validate' callback somewhere");
-        }
-
-        return null;
+        return is_callable($type) ? $type() : $type;
     }
 
-    /**
-     * @return UnnamedFieldDefinitionConfig
-     */
-    protected static function _generateIntCodeType(): array
+    protected function _addErrorFields(array $config, array &$fields, array $path): void
     {
-        return [
-            'type' => Type::int(),
-            'description' => 'A numeric error code. 0 on success, non-zero on failure.',
-            'resolve' => static function ($value) {
-                $error = $value['error'] ?? null;
-                switch (\gettype($error)) {
-                    case 'integer':
-                        return $error;
-                }
+        if (isset($config['validate'])) {
+            $fields[static::CODE_NAME] = [
+                'type' => Type::int(),
+                'description' => 'A numeric error code. 0 on success, non-zero on failure.',
+            ];
 
-                return $error[0] ?? null;
-            },
-        ];
+            $fields[static::MESSAGE_NAME] = [
+                'type' => Type::string(),
+                'description' => 'An error message.',
+            ];
+        }
     }
 
-    /**
-     * @return UnnamedFieldDefinitionConfig
-     */
-    protected static function _generateMessageType(): array
-    {
-        return [
-            'type' => Type::string(),
-            'description' => 'An error message.',
-            'resolve' => static function ($value) {
-                $error = $value['error'] ?? null;
-                switch (\gettype($error)) {
-                    case 'integer':
-                        return '';
-                }
-
-                return $error[1] ?? null;
-            },
-        ];
-    }
-
-    /**
-     * @param Path $path
-     */
     protected function _nameFromPath(array $path): string
     {
-        return \implode('_', \array_map(static fn ($node) => ucfirst((string)$node), $path));
+        return implode('_', array_map('ucfirst', $path));
     }
 }

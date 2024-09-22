@@ -7,6 +7,7 @@ use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UserErrorsType;
+use GraphQL\Type\Definition\UserErrorsType_bak;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
@@ -15,7 +16,7 @@ final class Basic extends FieldDefinition
 {
     public function testNoValidationOnSelf(): void
     {
-        $type = new UserErrorsType([
+        $type = UserErrorsType::create([
             'type' => Type::id(),
         ], ['upsertSku']);
 

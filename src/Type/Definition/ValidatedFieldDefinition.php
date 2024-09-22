@@ -232,7 +232,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
             if (!empty($error)) {
                 if ($createSubErrors) {
-                    $res[UserErrorsType::SUBERRORS_NAME][$key] = $error;
+                    $res[UserErrorsType::FIELDS_NAME][$key] = $error;
                 } else {
                     $res[$key] = $error;
                 }
