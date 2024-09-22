@@ -74,7 +74,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      */
     protected function _createUserErrorsType(string $name, array $args, array $config): UserErrorsType
     {
-        return UserErrorsType::create([
+        $userErrorType = UserErrorsType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'isRoot' => true,
             'fields' => [
@@ -100,6 +100,9 @@ class ValidatedFieldDefinition extends FieldDefinition
             ]),
             'typeSetter' => $config['typeSetter'] ?? null,
         ], [$name], false, \ucfirst($name) . 'Result');
+
+        $userErrorType->name = \ucfirst($name) . 'Result';
+        return $userErrorType;
     }
 
     /**
