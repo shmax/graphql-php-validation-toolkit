@@ -57,13 +57,10 @@ final class InputObjectTest extends FieldDefinition
               ',
                 'UpdateBookError' => '
                     type UpdateBookError {
-                      "Error for title"
-                      title: UpdateBook_TitleError
-                    
-                      "Error for authorId"
-                      authorId: UpdateBook_AuthorIdError
+                      "Validation errors for UpdateBook"
+                      fieldErrors: UpdateBook_FieldErrors
                     }
-              ',
+                ',
                 'UpdateBook_TitleError' => '
                     type UpdateBook_TitleError {
                       "A numeric error code. 0 on success, non-zero on failure."
@@ -89,7 +86,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create([
+            UserErrorsType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -120,7 +117,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnSelfAndOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create([
+            UserErrorsType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -146,7 +143,7 @@ final class InputObjectTest extends FieldDefinition
                       msg: String
                     
                       "Validation errors for UpdateBook"
-                      suberrors: UpdateBook_FieldErrors
+                      fieldErrors: UpdateBook_FieldErrors
                     }
                 ',
                 'UpdateBook_FieldErrors' => '
@@ -183,7 +180,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnDeeplyNestedField(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create([
+            UserErrorsType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -204,16 +201,16 @@ final class InputObjectTest extends FieldDefinition
             [
                 'UpdateBookError' => '
                     type UpdateBookError {
-                      "Error for author"
-                      author: UpdateBook_AuthorError
+                      "Validation errors for UpdateBook"
+                      fieldErrors: UpdateBook_FieldErrors
                     }
-              ',
+                ',
                 'UpdateBook_AuthorError' => '
                     type UpdateBook_AuthorError {
-                      "Error for zip"
-                      zip: UpdateBook_Author_ZipError
+                      "Validation errors for Author"
+                      fieldErrors: UpdateBook_Author_FieldErrors
                     }
-              ',
+                ',
                 'UpdateBook_Author_ZipError' => '
                     type UpdateBook_Author_ZipError {
                       "A numeric error code. 0 on success, non-zero on failure."

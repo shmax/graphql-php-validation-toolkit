@@ -4,7 +4,7 @@ namespace GraphQL\Type\Definition;
 
 class UserErrorsInputObjectType extends UserErrorsType
 {
-    public const FIELDS_NAME = 'fields';
+    public const FIELDS_NAME = 'fieldErrors';
 
     protected function __construct(array $config, array $path, bool $isParentList = false)
     {
@@ -15,11 +15,11 @@ class UserErrorsInputObjectType extends UserErrorsType
             $this->config['fields'] ??= [];
             $this->config['fields'][self::FIELDS_NAME] = [
                 'type' => UserErrorsType::_set(new ObjectType([
-                    'name' => $this->_nameFromPath(array_merge($path, ['fieldErrors'])),
+                    'name' => $this->_nameFromPath(array_merge($path, [self::FIELDS_NAME])),
                     'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
                     'fields' => $errorFields,
                 ]), $config),
-                'description' => 'Validation errors for nested fields.',
+                'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
                 'resolve' => static function ($value) {
                     return $value[self::FIELDS_NAME] ?? null;
                 },
