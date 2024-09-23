@@ -16,7 +16,7 @@ final class InputObjectTest extends FieldDefinition
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
-        new UserErrorsType([
+        UserErrorsType::create([
             'errorCodes' => AuthorErrorTest::class,
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -32,7 +32,7 @@ final class InputObjectTest extends FieldDefinition
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create([
+            UserErrorsType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [

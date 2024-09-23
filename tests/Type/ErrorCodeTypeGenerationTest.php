@@ -23,7 +23,7 @@ final class ErrorCodeTypeGenerationTest extends TestCase
 {
     public function testUniqueNameWhenNoTypeSetter(): void
     {
-        $type = new UserErrorsType([
+        $type = UserErrorsType::create([
             'validate' => static function ($val) {
                 return $val ? 0 : 1;
             },

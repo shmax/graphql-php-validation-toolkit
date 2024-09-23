@@ -25,7 +25,7 @@ class UserErrorsType extends ObjectType
     protected function __construct(array $config, array $path, bool $isParentList = false)
     {
         $fields = $config['fields'] ?? [];
-        $this->_addErrorFields($config, $fields, $path);
+        $this->_addCodeAndMessageFields($config, $fields, $path);
 
         // Add the path field if this is part of a list type
         if ($isParentList) {
@@ -47,35 +47,32 @@ class UserErrorsType extends ObjectType
      */
     protected static function _create(array $config, array $path, bool $isParentList = false): ?self
     {
-        $type = $config['type'];
-        $resolvedType = self::_resolveType($type);
+        $type = null;
+        $resolvedType = self::_resolveType($config['type']);
 
         // Handle InputObjectType
         if ($resolvedType instanceof InputObjectType) {
             try {
-                return new UserErrorsInputObjectType($config, $path, $isParentList);
+                $type = new UserErrorsInputObjectType($config, $path, $isParentList);
             }
             catch(NoValidatationFoundException $e) {
-                return null;
+                $type = null;
             }
         }
-
-        // Handle ListOfType
-        if ($resolvedType instanceof ListOfType) {
-            return new UserErrorsListOfType($config, $path, $isParentList);
+        else if ($resolvedType instanceof ListOfType) {
+            $type = new UserErrorsListOfType($config, $path, $isParentList);
         }
 
-        // Handle NonNull
-        if ($resolvedType instanceof NonNull) {
-            return new UserErrorsNonNullType($config, $path, $isParentList);
+        else if ($resolvedType instanceof NonNull) {
+            $type = new UserErrorsNonNullType($config, $path, $isParentList);
+        } else if (self::isScalarType($resolvedType) && isset($config['validate'])) {
+            $type = new self($config, $path, $isParentList); // Scalar types can use the base class directly
+        }
+        if(isset($type)) {
+            $type = static::_set($type, $config);
         }
 
-        // Handle Scalar types (e.g., bool, int, string)
-        if (self::isScalarType($resolvedType) && isset($config['validate'])) {
-            return new self($config, $path, $isParentList); // Scalar types can use the base class directly
-        }
-
-        return null;
+        return $type;
     }
 
     public static function create(array $config, array $path): self
@@ -116,18 +113,56 @@ class UserErrorsType extends ObjectType
         return is_callable($type) ? $type() : $type;
     }
 
-    protected function _addErrorFields(array $config, array &$fields, array $path): void
+    static protected function _set(Type $type, array $config)
+    {
+        if (\is_callable($config['typeSetter'] ?? null)) {
+            return $config['typeSetter']($type);
+        }
+
+        return $type;
+    }
+
+    protected function _addCodeAndMessageFields(array $config, array &$fields, array $path): void
     {
         if (isset($config['validate'])) {
-            $fields[static::CODE_NAME] = [
-                'type' => Type::int(),
-                'description' => 'A numeric error code. 0 on success, non-zero on failure.',
-            ];
+            if (isset($config['errorCodes'])) {
+                // error code. By default, this is an int, but if the user supplies the optional `errorCodes`
+                // enum property, then it takes that type
+
+                if (! isset($config['validate'])) {
+                    throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
+                }
+                $type = new PhpEnumType($config['errorCodes']);
+                if(!isset($config['typeSetter'])) {
+                    $type->name = $this->_nameFromPath(\array_merge($path)) . 'ErrorCode';
+                }
+                else {
+                    $type->name = $type->name . 'ErrorCode';
+                }
+                $fields[static::CODE_NAME] = [
+                    'type' => static::_set($type, $config),
+                    'description' => 'An enumerated error code.',
+                ];
+            }
+            else {
+                $fields[static::CODE_NAME] = [
+                    'type' => Type::int(),
+                    'description' => 'A numeric error code. 0 on success, non-zero on failure.',
+                ];
+            }
 
             $fields[static::MESSAGE_NAME] = [
                 'type' => Type::string(),
                 'description' => 'An error message.',
             ];
+        }
+        else {
+            if(isset($config['errorCodes'])) {
+                if (! isset($config['validate'])) {
+                    throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
+                }
+            }
+
         }
     }
 

@@ -8,24 +8,31 @@ class UserErrorsInputObjectType extends UserErrorsType
 
     protected function __construct(array $config, array $path, bool $isParentList = false)
     {
-        $fields = $this->_addFields($config['type'], $config, $path);
+        parent::__construct($config, $path, $isParentList);
 
-        if(!empty($fields)) {
-            $this->_addFieldsErrorField($fields, $config, $path);
+        $fields = [];
+        $errorFields = $this->getErrorFields($config['type'], $config, $path);
+        if(!empty($errorFields)) {
+            $this->config['fields'] ??= [];
+            $this->config['fields'][self::FIELDS_NAME] = [
+                'type' => UserErrorsType::_set(new ObjectType([
+                    'name' => $this->_nameFromPath(array_merge($path, ['suberrors'])),
+                    'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
+                    'fields' => $fields,
+                ]), $config),
+                'description' => 'Validation errors for nested fields.',
+                'resolve' => static function ($value) {
+                    return $value[self::FIELDS_NAME] ?? null;
+                },
+            ];
         }
         else if (empty($config['validate'])) {
             throw new NoValidatationFoundException();
         }
-
-        parent::__construct($config, $path, $isParentList);
-
-        if ($isParentList) {
-            $this->_addPathField($fields);
-        }
     }
 
 
-    protected function _addFields(Type $type, array $config, array $path): array
+    protected function getErrorFields(Type $type, array $config, array $path): array
     {
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
@@ -44,23 +51,5 @@ class UserErrorsInputObjectType extends UserErrorsType
         }
 
         return $fields;
-    }
-
-    /**
-     * Adds the 'fields' field to the final fields.
-     */
-    protected function _addFieldsErrorField(array &$fields, array $config, array $path): void
-    {
-        $fields[self::FIELDS_NAME] = [
-            'type' => new ObjectType([
-                'name' => $this->_nameFromPath(array_merge($path, ['suberrors'])),
-                'description' => 'Validation errors for nested fields.',
-                'fields' => $fields,
-            ]),
-            'description' => 'Validation errors for nested fields.',
-            'resolve' => static function ($value) {
-                return $value[self::FIELDS_NAME] ?? null;
-            },
-        ];
     }
 }
