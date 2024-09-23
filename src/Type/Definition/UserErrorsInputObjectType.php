@@ -10,15 +10,14 @@ class UserErrorsInputObjectType extends UserErrorsType
     {
         parent::__construct($config, $path, $isParentList);
 
-        $fields = [];
         $errorFields = $this->getErrorFields($config['type'], $config, $path);
         if(!empty($errorFields)) {
             $this->config['fields'] ??= [];
             $this->config['fields'][self::FIELDS_NAME] = [
                 'type' => UserErrorsType::_set(new ObjectType([
-                    'name' => $this->_nameFromPath(array_merge($path, ['suberrors'])),
+                    'name' => $this->_nameFromPath(array_merge($path, ['fieldErrors'])),
                     'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
-                    'fields' => $fields,
+                    'fields' => $errorFields,
                 ]), $config),
                 'description' => 'Validation errors for nested fields.',
                 'resolve' => static function ($value) {
