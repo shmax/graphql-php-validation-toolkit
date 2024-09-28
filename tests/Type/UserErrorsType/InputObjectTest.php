@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+
 enum AuthorErrorTest {
     case AuthorNotFound;
 }

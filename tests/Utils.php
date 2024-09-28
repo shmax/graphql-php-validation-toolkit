@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests;
+namespace GraphQlPhpValidationToolkit\Tests;
 
 class Utils
 {

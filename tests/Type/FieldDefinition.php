@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type;
+namespace GraphQlPhpValidationToolkit\Tests\Type;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\UserErrorsType;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\Definition\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 abstract class FieldDefinition extends TestCase
@@ -93,6 +93,7 @@ abstract class FieldDefinition extends TestCase
             assert($lines !== false);
             $numLines = \count($lines);
             for ($i = 0; $i < $numLines; ++$i) {
+
                 $lines[$i] = str_repeat(' ', 12) . $lines[$i];
             }
 

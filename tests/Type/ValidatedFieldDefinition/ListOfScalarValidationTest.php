@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Utils;
 use PHPUnit\Framework\TestCase;
 
 final class ListOfScalarValidationTest extends TestCase

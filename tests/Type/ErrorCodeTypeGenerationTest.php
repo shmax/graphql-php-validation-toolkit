@@ -2,12 +2,12 @@
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
 use PHPUnit\Framework\TestCase;
 
 enum UserValidation {

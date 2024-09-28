@@ -1,16 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UserErrorsType;
-use GraphQL\Type\Definition\UserErrorsType_bak;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\Definition\ValidatedFieldDefinition;
 
 final class Basic extends FieldDefinition
 {
@@ -80,7 +79,7 @@ final class Basic extends FieldDefinition
     public function testRenameValidField(): void
     {
         $this->_checkSchema(
-            new ValidatedFieldDefinition([
+            new \GraphQlPhpValidationToolkit\Type\Definition\ValidatedFieldDefinition([
                 'type' => Type::boolean(),
                 'name' => 'updateBook',
                 'validName' => '_valid',
@@ -116,7 +115,7 @@ final class Basic extends FieldDefinition
 
     public function testNoValidateCallbacksOnInputObjectType(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' or 'validateItem' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
         UserErrorsType::create([
             'type' => new InputObjectType([
                 'name' => 'book',
@@ -129,7 +128,7 @@ final class Basic extends FieldDefinition
 
     public function testNoValidateCallbacksOnNestedInputObjectType(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' or 'validateItem' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
         UserErrorsType::create([
             'type' => new InputObjectType([
                 'name' => 'book',

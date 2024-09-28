@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Tests\Utils;
@@ -14,25 +14,16 @@ final class ListOf extends FieldDefinition
 {
     public function testScalarTypeWithNoValidation(): void
     {
-        $type = new UserErrorsType([
+        $this->expectExceptionMessage("You must specify at least one 'validate' or 'validateItem' callback somewhere in the tree.");
+        $type = UserErrorsType::create([
             'type' => Type::listOf(Type::id()),
         ], ['upsertSku']);
-
-        self::assertEquals(Utils::nowdoc('
-            schema {
-              query: UpsertSkuError
-            }
-            
-            "User errors for UpsertSku"
-            type UpsertSkuError
-
-        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
     }
 
     public function testListOfStringWithValidationOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create([
+            UserErrorsType::create([
                 'type' => Type::listOf(Type::string()),
                 'validate' => static function (string $phoneNumber) {},
             ], ['phoneNumber'], true),
@@ -44,9 +35,86 @@ final class ListOf extends FieldDefinition
                     
                       "An error message."
                       msg: String
+                    }
+              ',
+            ]
+        );
+    }
+
+    public function testListOfStringWithValidationOnItem(): void
+    {
+        $this->_checkTypes(
+            UserErrorsType::create([
+                'type' => Type::listOf(Type::string()),
+                'validateItem' => static function (string $phoneNumber) {},
+            ], ['phoneNumber']),
+            [
+                'PhoneNumberError' => '
+                    type PhoneNumberError
+                ',
+            ]
+        );
+    }
+
+    public function testListOfStringWithValidationOnItemAndSelf(): void
+    {
+        $this->_checkTypes(
+            UserErrorsType::create([
+                'type' => Type::listOf(Type::string()),
+                'validate' => static function (array $phoneNumbers) {},
+                'validateItem' => static function (string $phoneNumber) {},
+            ], ['phoneNumber'], true),
+            [
+                'PhoneNumberError' => '
+                    type PhoneNumberError {
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
                     
-                      "A path describing this item\'s location in the nested array"
-                      path: [Int]
+                      "An error message."
+                      msg: String
+                    
+                      "Validation errors for each String in the list"
+                      items: [SimpleError]
+                    }
+                ',
+            ],
+            [
+                'PhoneNumber_StringError' => '
+                    type PhoneNumber_StringError {
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
+                    
+                      "An error message."
+                      msg: String
+                    }
+              ',
+            ]
+        );
+    }
+
+    public function testListOfBoolWithValidationOnItem(): void
+    {
+        $this->_checkTypes(
+            UserErrorsType::create([
+                'type' => Type::listOf(Type::boolean()),
+                'validateItem' => static function (string $phoneNumber) {},
+            ], ['likesPuppies']),
+            [
+                'LikesPuppiesError' => '
+                    type LikesPuppiesError {
+                      "Validation errors for each Boolean in the list"
+                      items: [LikesPuppies_BooleanError]
+                    }
+                ',
+            ],
+            [
+                'LikesPuppiesError_BoolError' => '
+                    type LikesPuppiesError_BoolError {
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
+                    
+                      "An error message."
+                      msg: String
                     }
               ',
             ]
@@ -56,7 +124,7 @@ final class ListOf extends FieldDefinition
     public function testListOfInputObjectWithValidationOnSelf(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create(
+            UserErrorsType::create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
@@ -82,9 +150,6 @@ final class ListOf extends FieldDefinition
                     
                       "An error message."
                       msg: String
-                    
-                      "A path describing this item\'s location in the nested array"
-                      path: [Int]
                     }
                 ',
             ]
@@ -94,7 +159,7 @@ final class ListOf extends FieldDefinition
     public function testListOfInputObjectWithValidationOnFields(): void
     {
         $this->_checkTypes(
-            UserErrorsType::_create(
+            UserErrorsType::create(
             [
                 'type' => Type::listOf(new InputObjectType([
                     'name' => 'Address',
@@ -110,28 +175,48 @@ final class ListOf extends FieldDefinition
                     ],
                 ])),
             ],
-            ['address'],
-            true
+            ['addressList']
         ),
             [
-                'AddressError' => '
-                    type AddressError {
-                      "Validation errors for Address"
-                      suberrors: Address_FieldErrors
-                    
-                      "A path describing this item\'s location in the nested array"
-                      path: [Int]
+                'AddressListError' => '
+                    type AddressListError {
+                      "Validation errors for each Address in the list"
+                      items: [AddressList_AddressError]
                     }
-              ',
-                'Address_FieldErrors' => '
-                    type Address_FieldErrors {
+                ',
+                'AddressList_AddressError' => '
+                    type AddressList_AddressError {
+                      "Validation errors for Address"
+                      fieldErrors: AddressList_Address_FieldErrors
+                    }
+                ',
+                'AddressList_Address_FieldErrors' => '
+                    type AddressList_Address_FieldErrors {
                       "Error for city"
-                      city: Address_CityError
+                      city: AddressList_Address_CityError
                     
                       "Error for zip"
-                      zip: Address_ZipError
+                      zip: AddressList_Address_ZipError
                     }
-              ',
+                ',
+                'AddressList_Address_CityError' => '
+                    type AddressList_Address_CityError {
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
+                    
+                      "An error message."
+                      msg: String
+                    }
+                ',
+                'AddressList_Address_ZipError' => '
+                    type AddressList_Address_ZipError {
+                      "A numeric error code. 0 on success, non-zero on failure."
+                      code: Int
+                    
+                      "An error message."
+                      msg: String
+                    }
+                '
             ]
         );
     }

@@ -1,17 +1,12 @@
 <?php
 
-namespace GraphQL\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\Definition;
 
 class UserErrorsNonNullType extends UserErrorsType
 {
-    public function __construct(array $config, array $path)
+    public function __construct(array $config, array $path, bool $isParentList = false)
     {
         $fields = [];
-        parent::__construct($config, $fields, $path);
-    }
-
-    protected function _buildTypeFields(Type $type, array $config, array $path): array
-    {
-        return []; // NonNull specific logic
+        parent::__construct($config, $path, $isParentList);
     }
 }

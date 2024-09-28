@@ -1,6 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\Definition;
+
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\PhpEnumType;
+use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\Type;
 
 /**
  * @phpstan-type UserErrorsConfig array{
@@ -16,8 +25,10 @@ namespace GraphQL\Type\Definition;
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
-class UserErrorsType extends ObjectType
+abstract class UserErrorsType extends ObjectType
 {
+    static $simpleType;
+
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
     public const FIELDS_NAME = 'suberrors';
@@ -45,46 +56,40 @@ class UserErrorsType extends ObjectType
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
-    protected static function _create(array $config, array $path, bool $isParentList = false): ?self
+    protected static function _create(array $config, array $path, bool $isParentList = false, bool $validationRequired = true): ?self
     {
-        $type = null;
         $resolvedType = self::_resolveType($config['type']);
 
         // Handle InputObjectType
         if ($resolvedType instanceof InputObjectType) {
-            try {
-                $type = new UserErrorsInputObjectType($config, $path, $isParentList);
-            }
-            catch(NoValidatationFoundException $e) {
-                $type = null;
-            }
+            $type = new UserErrorsInputObjectType($config, $path, $isParentList, $validationRequired);
         }
         else if ($resolvedType instanceof ListOfType) {
-            $type = new UserErrorsListOfType($config, $path, $isParentList);
+            $type = new UserErrorsListOfType($config, $path, $isParentList, $validationRequired);
         }
 
         else if ($resolvedType instanceof NonNull) {
             $type = new UserErrorsNonNullType($config, $path, $isParentList);
-        } else if (self::isScalarType($resolvedType) && isset($config['validate'])) {
-            $type = new self($config, $path, $isParentList); // Scalar types can use the base class directly
+        }
+        else if($resolvedType instanceof ScalarType) {
+            $type = new UserErrorsScalarType($config, $path, $isParentList);
+        }
+        else  {
+            throw new \Exception("Unknown type");
         }
         if(isset($type)) {
             $type = static::_set($type, $config);
         }
-
         return $type;
+    }
+
+    static function listItemType(): UserErrorsListItemType {
+        return static::$simpleType ??= new UserErrorsListItemType();
     }
 
     public static function create(array $config, array $path): self
     {
-        $result = self::_create($config, $path);
-
-        // If the root is null, no validation was found anywhere in the tree
-        if ($result === null) {
-            throw new NoValidatationFoundException();
-        }
-
-        return $result;
+        return self::_create($config, $path);
     }
 
     protected function _addPathField(array &$finalFields): void
@@ -102,15 +107,21 @@ class UserErrorsType extends ObjectType
 
     protected static function isScalarType(Type $type): bool
     {
-        return $type === Type::boolean()
-            || $type === Type::int()
-            || $type === Type::string()
-            || $type instanceof ScalarType;
+        $res = $type instanceof ScalarType;
+        return $res;
     }
 
-    protected static function _resolveType($type): Type
+    static protected function _resolveType(mixed $type, $resolveWrapped = false): Type
     {
-        return is_callable($type) ? $type() : $type;
+        if (\is_callable($type)) {
+            $type = $type();
+        }
+
+        if ( $resolveWrapped && $type instanceof WrappingType) {
+            $type = $type->getInnermostType();
+        }
+
+        return $type;
     }
 
     static protected function _set(Type $type, array $config)
@@ -129,7 +140,7 @@ class UserErrorsType extends ObjectType
                 // error code. By default, this is an int, but if the user supplies the optional `errorCodes`
                 // enum property, then it takes that type
 
-                if (! isset($config['validate'])) {
+                if (!isset($config['validate'])) {
                     throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
                 }
                 $type = new PhpEnumType($config['errorCodes']);

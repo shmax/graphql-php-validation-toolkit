@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
 use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -43,10 +43,10 @@ final class NonNull extends FieldDefinition
               valid: Boolean!
             
               "Validation errors for DeleteAuthor"
-              suberrors: DeleteAuthor_FieldErrors
+              fieldErrors: DeleteAuthor_FieldErrors
             }
             
-            "User Error"
+            "Validation errors for DeleteAuthor"
             type DeleteAuthor_FieldErrors {
               "Error for authorId"
               authorId: DeleteAuthor_AuthorIdError
@@ -135,10 +135,10 @@ final class NonNull extends FieldDefinition
               valid: Boolean!
             
               "Validation errors for UpdateAuthor"
-              suberrors: UpdateAuthor_FieldErrors
+              fieldErrors: UpdateAuthor_FieldErrors
             }
             
-            "User Error"
+            "Validation errors for UpdateAuthor"
             type UpdateAuthor_FieldErrors {
               "Error for author"
               author: UpdateAuthor_AuthorError
@@ -146,36 +146,6 @@ final class NonNull extends FieldDefinition
             
             "User errors for Author"
             type UpdateAuthor_AuthorError {
-              "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
-            
-              "An error message."
-              msg: String
-            
-              "Validation errors for Author"
-              suberrors: UpdateAuthor_Author_FieldErrors
-            }
-            
-            "User Error"
-            type UpdateAuthor_Author_FieldErrors {
-              "Error for firstName"
-              firstName: UpdateAuthor_Author_FirstNameError
-            
-              "Error for lastName"
-              lastName: UpdateAuthor_Author_LastNameError
-            }
-            
-            "User errors for FirstName"
-            type UpdateAuthor_Author_FirstNameError {
-              "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
-            
-              "An error message."
-              msg: String
-            }
-            
-            "User errors for LastName"
-            type UpdateAuthor_Author_LastNameError {
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             

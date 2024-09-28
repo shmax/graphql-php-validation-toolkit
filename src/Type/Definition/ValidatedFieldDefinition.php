@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\Definition;
 
 use GraphQL\Executor\Executor;
-use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\Type;
 
 /**
  * @phpstan-import-type ArgumentType from InputObjectField

@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\IDType;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UserErrorsType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
 use PHPUnit\Framework\TestCase;
 
 enum ColorErrors {
@@ -16,26 +15,9 @@ enum ColorErrors {
 
 final class ScalarTest extends TestCase
 {
-    public function testNoValidation(): void
-    {
-        $type = new UserErrorsType([
-            'type' => Type::id(),
-        ], ['upsertSku']);
-
-        self::assertEquals(Utils::nowdoc('
-            schema {
-              query: UpsertSkuError
-            }
-            
-            "User errors for UpsertSku"
-            type UpsertSkuError
-
-        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
-    }
-
     public function testWithValidation(): void
     {
-        $type = new UserErrorsType([
+        $type = UserErrorsType::create([
             'errorCodes' => ColorErrors::class,
             'validate' => static function ($value) {
                 return $value ? 0 : ColorErrors::invalidColor;
@@ -50,14 +32,13 @@ final class ScalarTest extends TestCase
             
             "User errors for Palette"
             type PaletteError {
-              "An error code"
+              "An enumerated error code."
               code: PaletteErrorCode
             
-              "A natural language description of the issue"
+              "An error message."
               msg: String
             }
             
-            "Error code"
             enum PaletteErrorCode {
               invalidColor
             }

@@ -1,6 +1,10 @@
 <?php
 
-namespace GraphQL\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\Definition;
+
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 class UserErrorsInputObjectType extends UserErrorsType
 {
@@ -36,10 +40,15 @@ class UserErrorsInputObjectType extends UserErrorsType
         $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
-            $newType = self::_create([
-                'type' => $field->getType(),
-                'validate' => $fieldConfig['validate'] ?? null,
-            ], array_merge($path, [$key]));
+            try {
+                $newType = self::_create([
+                    'type' => $field->getType(),
+                    'validate' => $fieldConfig['validate'] ?? null,
+                ], array_merge($path, [$key]));
+            } catch (NoValidatationFoundException $e) {
+                // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.
+                continue;
+            }
 
             if ($newType) {
                 $fields[$key] = [
@@ -47,6 +56,10 @@ class UserErrorsInputObjectType extends UserErrorsType
                     'type' => $newType,
                 ];
             }
+        }
+
+        if(empty($fields) && !isset($config['validate'])) {
+            throw new NoValidatationFoundException();
         }
 
         return $fields;
