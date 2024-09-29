@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 use PHPUnit\Framework\TestCase;
 
 enum UserValidation {

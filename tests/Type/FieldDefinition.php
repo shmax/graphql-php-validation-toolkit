@@ -3,29 +3,27 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type;
 
 use GraphQL\GraphQL;
+use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
-use GraphQlPhpValidationToolkit\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 abstract class FieldDefinition extends TestCase
 {
 //    protected $outputPath = 'tmp/';
-    protected function _checkSchema(ValidatedFieldDefinition $field, string $expected): void
+    protected function _checkSchema(Type $field, string $expected): void
     {
-        $mutation = new ObjectType([
-            'name' => 'Mutation',
-            'fields' => static function () use ($field) {
-                return [
-                    $field->name => $field,
-                ];
-            },
-        ]);
+        $actual = SchemaPrinter::doPrint(new Schema(['mutation' => $field]));
+        self::assertEquals(Utils::nowdoc($expected), $actual);
+    }
 
-        $actual = SchemaPrinter::doPrint(new Schema(['mutation' => $mutation]));
+    protected function _checkType(Type $type, string $expected): void {
+        $actual = SchemaPrinter::printType($type);
         self::assertEquals(Utils::nowdoc($expected), $actual);
     }
 

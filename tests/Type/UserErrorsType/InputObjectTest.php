@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
-use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 
 enum AuthorErrorTest {
     case AuthorNotFound;
@@ -32,7 +32,7 @@ final class InputObjectTest extends FieldDefinition
 
     public function testValidateOnFieldsButNotOnSelf(): void
     {
-        $this->_checkTypes(
+        $this->_checkSchema(
             UserErrorsType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -50,43 +50,51 @@ final class InputObjectTest extends FieldDefinition
                     ],
                 ]),
             ], ['updateBook']),
-            [
-                'Mutation' => '
-                    type Mutation {
-                      UpdateBookError: UpdateBookError
-                    }
-              ',
-                'UpdateBookError' => '
-                    type UpdateBookError {
-                      "Validation errors for UpdateBook"
-                      fieldErrors: UpdateBook_FieldErrors
-                    }
-                ',
-                'UpdateBook_TitleError' => '
-                    type UpdateBook_TitleError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-              ',
-                'UpdateBook_AuthorIdError' => '
-                    type UpdateBook_AuthorIdError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-              ',
-            ]
+            '
+                schema {
+                  mutation: UpdateBookError
+                }
+                
+                "User errors for UpdateBook"
+                type UpdateBookError {
+                  "Validation errors for UpdateBook"
+                  fieldErrors: UpdateBook_FieldErrors
+                }
+                
+                "Validation errors for UpdateBook"
+                type UpdateBook_FieldErrors {
+                  "Error for title"
+                  title: UpdateBook_TitleError
+                
+                  "Error for authorId"
+                  authorId: UpdateBook_AuthorIdError
+                }
+                
+                "User errors for Title"
+                type UpdateBook_TitleError {
+                  "A numeric error code. 0 on success, non-zero on failure."
+                  code: Int
+                
+                  "An error message."
+                  msg: String
+                }
+                
+                "User errors for AuthorId"
+                type UpdateBook_AuthorIdError {
+                  "A numeric error code. 0 on success, non-zero on failure."
+                  code: Int
+                
+                  "An error message."
+                  msg: String
+                }
+
+            '
         );
     }
 
     public function testValidateOnSelfButNotOnFields(): void
     {
-        $this->_checkTypes(
+        $this->_checkSchema(
             UserErrorsType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
@@ -101,23 +109,27 @@ final class InputObjectTest extends FieldDefinition
                     ],
                 ]),
             ], ['updateBook']),
-            [
-                'UpdateBookError' => '
-                    type UpdateBookError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-              ',
-            ]
+            '
+                schema {
+                  mutation: UpdateBookError
+                }
+                
+                "User errors for UpdateBook"
+                type UpdateBookError {
+                  "A numeric error code. 0 on success, non-zero on failure."
+                  code: Int
+                
+                  "An error message."
+                  msg: String
+                }
+
+            '
         );
     }
 
     public function testValidateOnSelfAndOnFields(): void
     {
-        $this->_checkTypes(
+        $this->_checkSchema(
             UserErrorsType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
@@ -134,53 +146,57 @@ final class InputObjectTest extends FieldDefinition
                     ],
                 ]),
             ], ['updateBook']),
-            [
-                'UpdateBookError' => '
-                    type UpdateBookError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    
-                      "Validation errors for UpdateBook"
-                      fieldErrors: UpdateBook_FieldErrors
-                    }
-                ',
-                'UpdateBook_FieldErrors' => '
-                    type UpdateBook_FieldErrors {
-                      "Error for title"
-                      title: UpdateBook_TitleError
-                    
-                      "Error for authorId"
-                      authorId: UpdateBook_AuthorIdError
-                    }
-                ',
-                'UpdateBook_TitleError' => '
-                    type UpdateBook_TitleError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-                ',
-                'UpdateBook_AuthorIdError' => '
-                    type UpdateBook_AuthorIdError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-                ',
-            ]
+            '
+            schema {
+              mutation: UpdateBookError
+            }
+            
+            "User errors for UpdateBook"
+            type UpdateBookError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
+            
+              "Validation errors for UpdateBook"
+              fieldErrors: UpdateBook_FieldErrors
+            }
+            
+            "Validation errors for UpdateBook"
+            type UpdateBook_FieldErrors {
+              "Error for title"
+              title: UpdateBook_TitleError
+            
+              "Error for authorId"
+              authorId: UpdateBook_AuthorIdError
+            }
+            
+            "User errors for Title"
+            type UpdateBook_TitleError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
+            }
+            
+            "User errors for AuthorId"
+            type UpdateBook_AuthorIdError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
+            }
+
+            '
         );
     }
 
     public function testValidateOnDeeplyNestedField(): void
     {
-        $this->_checkTypes(
+        $this->_checkSchema(
             UserErrorsType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -199,29 +215,45 @@ final class InputObjectTest extends FieldDefinition
                     ],
                 ]),
             ], ['updateBook']),
-            [
-                'UpdateBookError' => '
-                    type UpdateBookError {
-                      "Validation errors for UpdateBook"
-                      fieldErrors: UpdateBook_FieldErrors
-                    }
-                ',
-                'UpdateBook_AuthorError' => '
-                    type UpdateBook_AuthorError {
-                      "Validation errors for Author"
-                      fieldErrors: UpdateBook_Author_FieldErrors
-                    }
-                ',
-                'UpdateBook_Author_ZipError' => '
-                    type UpdateBook_Author_ZipError {
-                      "A numeric error code. 0 on success, non-zero on failure."
-                      code: Int
-                    
-                      "An error message."
-                      msg: String
-                    }
-              ',
-            ]
+            '
+                schema {
+                  mutation: UpdateBookError
+                }
+                
+                "User errors for UpdateBook"
+                type UpdateBookError {
+                  "Validation errors for UpdateBook"
+                  fieldErrors: UpdateBook_FieldErrors
+                }
+                
+                "Validation errors for UpdateBook"
+                type UpdateBook_FieldErrors {
+                  "Error for author"
+                  author: UpdateBook_AuthorError
+                }
+                
+                "User errors for Author"
+                type UpdateBook_AuthorError {
+                  "Validation errors for Author"
+                  fieldErrors: UpdateBook_Author_FieldErrors
+                }
+                
+                "Validation errors for Author"
+                type UpdateBook_Author_FieldErrors {
+                  "Error for zip"
+                  zip: UpdateBook_Author_ZipError
+                }
+                
+                "User errors for Zip"
+                type UpdateBook_Author_ZipError {
+                  "A numeric error code. 0 on success, non-zero on failure."
+                  code: Int
+                
+                  "An error message."
+                  msg: String
+                }
+
+            '
         );
     }
 }

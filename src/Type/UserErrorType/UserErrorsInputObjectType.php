@@ -1,6 +1,6 @@
 <?php
 
-namespace GraphQlPhpValidationToolkit\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;

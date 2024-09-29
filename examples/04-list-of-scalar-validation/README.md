@@ -1,6 +1,6 @@
 # Validation of InputObjects (or Objects) 
 
-You can add validate lists of things. You can specify a `validate` callback on the `ListOf` field itself, and also specify a `validateItem` callback to be applied to each item in the list. Any errors returned on the list items will each have an `index` property so you will know exactly which items were invalid.
+You can validate lists of things. You can specify a `validate` callback on the `ListOf` field itself, ... TODO fill this in. Any errors returned on the list items will each have an `index` property so you will know exactly which items were invalid.
 
 
 ### Run locally

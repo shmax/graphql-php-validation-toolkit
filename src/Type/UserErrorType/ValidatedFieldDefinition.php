@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Type\Definition;
+namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\FieldDefinition;

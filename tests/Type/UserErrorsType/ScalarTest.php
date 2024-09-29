@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\Definition\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 use PHPUnit\Framework\TestCase;
 
 enum ColorErrors {

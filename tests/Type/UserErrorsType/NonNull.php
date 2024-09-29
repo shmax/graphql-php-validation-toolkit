@@ -2,118 +2,60 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
-use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
 final class NonNull extends FieldDefinition
 {
     public function testStringWrappedType(): void
     {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'deleteAuthor',
-            'args' => [
-                'authorId' => [
-                    'type' => Type::nonNull(Type::string()),
-                    'validate' => static function (array $authorId) {
-                        if (empty($authorId)) {
-                            return [1, 'Invalid author id'];
-                        }
-
-                        return 0;
-                    },
-                ],
-            ],
-            'resolve' => static function (array $data): bool {
-                return ! empty($data);
-            },
-        ]), '
-            type Mutation {
-              deleteAuthor(authorId: String!): DeleteAuthorResult
+        $this->_checkSchema(UserErrorsType::create([
+            'type' => Type::nonNull(Type::string()),
+        ], ['upsertSku']), '
+            schema {
+              mutation: UpsertSkuError
             }
             
-            "User errors for DeleteAuthor"
-            type DeleteAuthorResult {
-              "The payload, if any"
-              result: Boolean
-            
-              "Whether all validation passed. True for yes, false for no."
-              valid: Boolean!
-            
-              "Validation errors for DeleteAuthor"
-              fieldErrors: DeleteAuthor_FieldErrors
-            }
-            
-            "Validation errors for DeleteAuthor"
-            type DeleteAuthor_FieldErrors {
-              "Error for authorId"
-              authorId: DeleteAuthor_AuthorIdError
-            }
-            
-            "User errors for AuthorId"
-            type DeleteAuthor_AuthorIdError {
-              "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
-            
-              "An error message."
-              msg: String
-            }
+            "User errors for UpsertSku"
+            type UpsertSkuError
 
         ');
     }
 
     public function testInputObjectWrappedType(): void
     {
-        $this->_checkSchema(new ValidatedFieldDefinition([
-            'type' => Type::boolean(),
-            'name' => 'updateAuthor',
-            'args' => [
-                'author' => [
-                    'type' => Type::nonNull(new InputObjectType([
-                        'name' => 'bookInput',
-                        'fields' => [
-                            'firstName' => [
-                                'type' => Type::string(),
-                                'description' => 'A first name',
-                                'validate' => static function ($firstName) {
-                                    if (strlen($firstName) > 100) {
-                                        return 1;
-                                    }
+        $this->_checkSchema(UserErrorsType::create([
+            'type'=> Type::nonNull(new InputObjectType([
+                'name' => 'bookInput',
+                'fields' => [
+                    'firstName' => [
+                        'type' => Type::string(),
+                        'description' => 'A first name',
+                        'validate' => static function ($firstName) {
+                            if (strlen($firstName) > 100) {
+                                return 1;
+                            }
 
-                                    return 0;
-                                },
-                            ],
-                            'lastName' => [
-                                'type' => Type::string(),
-                                'description' => 'A last name',
-                                'validate' => static function ($lastName) {
-                                    if (strlen($lastName) > 100) {
-                                        return 1;
-                                    }
+                            return 0;
+                        },
+                    ],
+                    'lastName' => [
+                        'type' => Type::string(),
+                        'description' => 'A last name',
+                        'validate' => static function ($lastName) {
+                            if (strlen($lastName) > 100) {
+                                return 1;
+                            }
 
-                                    return 0;
-                                },
-                            ],
-                        ],
-                    ])),
-                    'validate' => static function (array $author) {
-                        if (empty($author['firstName'] && empty($author['lastName']))) {
-                            return [
-                                1,
-                                'Please provide at least a first or a last name',
-                            ];
-                        }
-
-                        return 0;
-                    },
+                            return 0;
+                        },
+                    ],
                 ],
-            ],
-            'resolve' => static function (array $data): bool {
-                return ! empty($data);
-            },
-        ]), '
+            ])),
+        ], ['upsertSku']), '
             type Mutation {
               updateAuthor(author: bookInput!): UpdateAuthorResult
             }
