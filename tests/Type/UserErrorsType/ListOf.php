@@ -49,6 +49,36 @@ final class ListOf extends FieldDefinition
         ');
     }
 
+    public function testCheckTypesOnListOfListOfWithValidatedString() {
+        $type = UserErrorsType::create([
+            'type' => Type::listOf(Type::listOf(new StringType([
+                'validate' => static fn ($str) => null
+            ]))),
+        ], ['upsertSku']);
+
+        $this->_checkSchema($type, '
+            schema {
+              mutation: UpsertSkuError
+            }
+            
+            "User errors for UpsertSku"
+            type UpsertSkuError {
+              "Validation errors for each String in the list"
+              items: [UpsertSkuError_StringError]
+            }
+            
+            "User errors for String"
+            type UpsertSkuError_StringError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
+            }
+
+        ');
+    }
+
     public function testCheckTypesOnListOfWithValidatedBoolean() {
         $type = UserErrorsType::create([
             'type' => Type::listOf(new BooleanType(['validate' => static fn ($str) => null])),
