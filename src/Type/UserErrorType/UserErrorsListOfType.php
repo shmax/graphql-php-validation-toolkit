@@ -20,18 +20,12 @@ class UserErrorsListOfType extends UserErrorsType
         $type = $this->_resolveType($config['type'], true);
         try {
 
-            if($type instanceof ScalarType) {
-                $errorType = static::create([
-                    'type' => $type,
-                    'validate' => $type->config['validate'] ?? null
-                ], [$this->name, $type->name]);
-            }
-            else {
-                $errorType = static::create([
-                    'type' => $type,
-                ], array_merge($path, [$type->name]));
-            }
+            $errorType = static::create([
+                'type' => $type,
+                'validate' => $type->config['validate'] ?? null
+            ], [$this->name, $type->name]);
 
+            // You can nest ListOf as deeply as you like, so we provide the 'path' field so the user can map any errors back to the original input value
             $errorType->config['fields']['path'] = [
                 'type' => Type::listOf(Type::int()),
                 'description' => 'A path describing this item\'s location in the nested array',
