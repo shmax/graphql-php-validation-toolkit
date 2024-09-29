@@ -4,9 +4,9 @@ namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 class UserErrorsNonNullType extends UserErrorsType
 {
-    public function __construct(array $config, array $path, bool $isParentList = false)
+    public function __construct(array $config, array $path)
     {
         $fields = [];
-        parent::__construct($config, $path, $isParentList);
+        parent::__construct($config, $path);
     }
 }

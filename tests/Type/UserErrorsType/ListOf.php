@@ -44,6 +44,9 @@ final class ListOf extends FieldDefinition
             
               "An error message."
               msg: String
+            
+              "A path describing this item\'s location in the nested array"
+              path: [Int]
             }
 
         ');

@@ -113,7 +113,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      *
      * @return mixed[]
      */
-    protected function _validate(array $arg, $value, bool $isParentList = false): array
+    protected function _validate(array $arg, $value): array
     {
         $res = [];
 
@@ -133,7 +133,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 break;
 
             case $type instanceof InputObjectType:
-                $this->_validateInputObject($arg, $value, $res, $isParentList);
+                $this->_validateInputObject($arg, $value);
                 break;
 
             default:
@@ -190,7 +190,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @phpstan-param ValidatedFieldConfig $arg
      * @param array<mixed> $res
      */
-    protected function _validateInputObject(mixed $arg, mixed $value, array &$res, bool $isParentList): void
+    protected function _validateInputObject(mixed $arg, mixed $value, array &$res): void
     {
         /**
          * @phpstan-var InputObjectType
@@ -201,7 +201,7 @@ class ValidatedFieldDefinition extends FieldDefinition
             $res['error'] = $err;
         }
 
-        $this->_validateInputObjectFields($type, $arg, $value, $res, $isParentList);
+        $this->_validateInputObjectFields($type, $arg, $value, $res);
     }
 
     /**
@@ -209,9 +209,9 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @phpstan-param  ValidatedFieldConfig $objectConfig
      * @param array<mixed> $res
      */
-    protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res, bool $isParentList = false): void
+    protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res): void
     {
-        $createSubErrors = UserErrorsType::needSuberrors($objectConfig, $isParentList);
+        $createSubErrors = UserErrorsType::needSuberrors($objectConfig);
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {

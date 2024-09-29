@@ -10,9 +10,9 @@ class UserErrorsInputObjectType extends UserErrorsType
 {
     public const FIELDS_NAME = 'fieldErrors';
 
-    protected function __construct(array $config, array $path, bool $isParentList = false)
+    protected function __construct(array $config, array $path)
     {
-        parent::__construct($config, $path, $isParentList);
+        parent::__construct($config, $path);
 
         $errorFields = $this->getErrorFields($config['type'], $config, $path);
         if(!empty($errorFields)) {

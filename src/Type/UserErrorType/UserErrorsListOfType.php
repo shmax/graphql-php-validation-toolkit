@@ -8,9 +8,9 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 class UserErrorsListOfType extends UserErrorsType
 {
-    protected function __construct(array $config, array $path, bool $isParentList)
+    protected function __construct(array $config, array $path)
     {
-        parent::__construct($config, $path, $isParentList);
+        parent::__construct($config, $path);
         $fields = [];
         $this->_addItemsErrorField($fields, $config, $path);
     }
@@ -31,6 +31,14 @@ class UserErrorsListOfType extends UserErrorsType
                     'type' => $type,
                 ], array_merge($path, [$type->name]));
             }
+
+            $errorType->config['fields']['path'] = [
+                'type' => Type::listOf(Type::int()),
+                'description' => 'A path describing this item\'s location in the nested array',
+                'resolve' => static function ($value) {
+                    return $value['path'];
+                },
+            ];;
 
             $this->config['fields']['items'] = [
                 'name' => 'items',

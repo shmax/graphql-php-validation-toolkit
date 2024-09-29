@@ -34,15 +34,10 @@ abstract class UserErrorsType extends ObjectType
     protected const MESSAGE_NAME = 'msg';
     public const FIELDS_NAME = 'suberrors';
 
-    protected function __construct(array $config, array $path, bool $isParentList = false)
+    protected function __construct(array $config, array $path)
     {
         $fields = $config['fields'] ?? [];
         $this->_addCodeAndMessageFields($config, $fields, $path);
-
-        // Add the path field if this is part of a list type
-        if ($isParentList) {
-            $this->_addPathField($fields);
-        }
 
         $pathEnd = end($path);
         assert($pathEnd != false);
@@ -57,23 +52,23 @@ abstract class UserErrorsType extends ObjectType
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
-    protected static function _create(array $config, array $path, bool $isParentList = false, bool $validationRequired = true): ?self
+    protected static function _create(array $config, array $path): ?self
     {
         $resolvedType = self::_resolveType($config['type']);
 
         // Handle InputObjectType
         if ($resolvedType instanceof InputObjectType) {
-            $type = new UserErrorsInputObjectType($config, $path, $isParentList, $validationRequired);
+            $type = new UserErrorsInputObjectType($config, $path);
         }
         else if ($resolvedType instanceof ListOfType) {
-            $type = new UserErrorsListOfType($config, $path, $isParentList, $validationRequired);
+            $type = new UserErrorsListOfType($config, $path);
         }
 
         else if ($resolvedType instanceof NonNull) {
-            $type = new UserErrorsNonNullType($config, $path, $isParentList);
+            $type = new UserErrorsNonNullType($config, $path);
         }
         else if($resolvedType instanceof ScalarType) {
-            $type = new UserErrorsScalarType($config, $path, $isParentList);
+            $type = new UserErrorsScalarType($config, $path);
         }
         else  {
             throw new \Exception("Unknown type");
