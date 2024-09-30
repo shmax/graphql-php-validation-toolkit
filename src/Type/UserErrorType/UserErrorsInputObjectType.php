@@ -55,8 +55,6 @@ class UserErrorsInputObjectType extends UserErrorsType
      */
     protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res): void
     {
-//        $createSubErrors = UserErrorsType::needSuberrors($objectConfig, $isParentList);
-
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
             $error = null;
@@ -79,13 +77,7 @@ class UserErrorsInputObjectType extends UserErrorsType
                 $error = $config['validate']($value[$key] ?? null);
             }
 
-//            if (!empty($error)) {
-//                if ($createSubErrors) {
-//                    $res[UserErrorsType::SUBERRORS_NAME][$key] = $error;
-//                } else {
-                    $res[$key] = $error;
-//                }
-//            }
+            $res[static::FIELDS_NAME][$key] = $error;
         }
     }
 

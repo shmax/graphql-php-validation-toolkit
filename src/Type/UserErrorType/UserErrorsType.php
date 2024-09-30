@@ -103,23 +103,9 @@ abstract class UserErrorsType extends ObjectType
         }
     }
 
-    protected function _addPathField(array &$finalFields): void
-    {
-        if (! empty($finalFields['code']) || !empty($finalFields['suberrors'])) {
-            $finalFields['path'] = [
-                'type' => Type::listOf(Type::int()),
-                'description' => 'A path describing this item\'s location in the nested array',
-                'resolve' => static function ($value) {
-                    return $value['path'];
-                },
-            ];
-        }
-    }
-
     protected static function isScalarType(Type $type): bool
     {
-        $res = $type instanceof ScalarType;
-        return $res;
+        return $type instanceof ScalarType;
     }
 
     static protected function _resolveType(mixed $type, $resolveWrapped = false): Type
@@ -168,12 +154,28 @@ abstract class UserErrorsType extends ObjectType
                 $fields[static::CODE_NAME] = [
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
+                    'resolve' => static function ($error) {
+                        switch (\gettype($error)) {
+                            case 'integer':
+                                return $error;
+                        }
+
+                        return $error[0] ?? null;
+                    },
                 ];
             }
 
             $fields[static::MESSAGE_NAME] = [
                 'type' => Type::string(),
                 'description' => 'An error message.',
+                'resolve' => static function ($error) {
+                    switch (\gettype($error)) {
+                        case 'integer':
+                            return '';
+                    }
+
+                    return $error[1] ?? null;
+                },
             ];
         }
         else {
