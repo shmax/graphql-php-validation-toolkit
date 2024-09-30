@@ -3,11 +3,11 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 final class GeneratedCodeTypeTest extends TestCase
@@ -48,7 +48,7 @@ final class GeneratedCodeTypeTest extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         valid
-                        suberrors {
+                        fieldErrors {
                             bookId {
                                 code
                                 msg
@@ -64,7 +64,7 @@ final class GeneratedCodeTypeTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['suberrors']['bookId']['code'], 1);
+        static::assertEquals($res->data['updateBook']['fieldErrors']['bookId']['code'], 1);
     }
 
     public function testStringCodeType(): void

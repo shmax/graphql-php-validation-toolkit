@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
-class UserErrorsInputObjectType extends UserErrorsType
+class InputObjectErrorType extends ErrorType
 {
     public const FIELDS_NAME = 'fieldErrors';
 
@@ -20,7 +20,7 @@ class UserErrorsInputObjectType extends UserErrorsType
             if (!empty($errorFields)) {
                 $this->config['fields'] ??= [];
                 $this->config['fields'][self::FIELDS_NAME] = [
-                    'type' => UserErrorsType::_set(new ObjectType([
+                    'type' => ErrorType::_set(new ObjectType([
                         'name' => $this->_nameFromPath(array_merge($path, [self::FIELDS_NAME])),
                         'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
                         'fields' => $errorFields,
@@ -42,42 +42,50 @@ class UserErrorsInputObjectType extends UserErrorsType
     {
         parent::_validate($arg, $value, $res);
         /**
-         * @phpstan-var InputObjectType
+         * @phpstan-var InputObjectErrorType
          */
         $type = $arg['type'];
-        $this->_validateInputObjectFields($type, $arg, $value, $res);
+        $this->_validateInputObjectFields($type, $value, $res);
     }
 
     /**
-     * @phpstan-param InputObjectType $type
-     * @phpstan-param  ValidatedFieldConfig $objectConfig
+     * @phpstan-param InputObjectErrorType $type
      * @param array<mixed> $res
      */
-    protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res): void
+    protected function _validateInputObjectFields(InputObjectErrorType $type, mixed $value, array &$res): void
     {
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
-            $error = null;
             $config = $field->config;
-
-            $isKeyPresent = array_key_exists($key, $value);
             $isRequired = $config['required'] ?? false;
-            if(is_callable($isRequired)) {
+            $code = 0;
+            $msg = '';
+
+            if (is_callable($isRequired)) {
                 $isRequired = $isRequired();
             }
-            if($isRequired && !isset($value[$key])) {
-                if ($isRequired === true) {
-                    $error = ['error' => [1, "$key is required"]];
+
+            if ($isRequired && !array_key_exists($key, $value)) {
+                // Handle required field logic
+                if (is_array($isRequired)) {
+                    [$code, $msg] = $isRequired + [1, "$key is required"];
+                } else {
+                    $code = 1;
+                    $msg = "$key is required";
                 }
-                else if (is_array($isRequired)) {
-                    $error = ['error' => $isRequired];
+            } elseif (array_key_exists($key, $value)) {
+                // Handle validation logic for present keys
+                $validationResult = $config['validate']($value[$key]) ?? [0, ''];
+                if (is_array($validationResult)) {
+                    [$code, $msg] = $validationResult + [0, ''];
+                } else {
+                    $code = $validationResult;
                 }
-            }
-            else if ($isKeyPresent) {
-                $error = $config['validate']($value[$key] ?? null);
             }
 
-            $res[static::FIELDS_NAME][$key] = $error;
+            // Populate result array
+            $res[static::FIELDS_NAME][$key][static::CODE_NAME] = $code;
+            $res[static::FIELDS_NAME][$key][static::MESSAGE_NAME] = $msg;
         }
     }
 

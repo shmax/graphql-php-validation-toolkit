@@ -47,7 +47,7 @@ final class ListOfInputObjectValidation extends TestBase
                                                 'description' => 'Enter a book title, no more than 10 characters in length',
                                                 'validate' => static function (string $title) {
                                                     if (\strlen($title) > 10) {
-                                                        return [1, 'book title must be less than 10 chaacters'];
+                                                        return [1, 'book title must be less than 10 characters'];
                                                     }
 
                                                     return 0;

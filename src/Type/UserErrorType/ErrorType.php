@@ -26,13 +26,10 @@ use GraphQL\Type\Definition\WrappingType;
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
-abstract class UserErrorsType extends ObjectType
+abstract class ErrorType extends ObjectType
 {
-    static $simpleType;
-
     protected const CODE_NAME = 'code';
     protected const MESSAGE_NAME = 'msg';
-    public const FIELDS_NAME = 'suberrors';
 
     protected function __construct(array $config, array $path)
     {
@@ -57,19 +54,18 @@ abstract class UserErrorsType extends ObjectType
     {
         $resolvedType = self::_resolveType($config['type']);
 
-        // Handle InputObjectType
         if ($resolvedType instanceof InputObjectType) {
-            $type = new UserErrorsInputObjectType($config, $path);
+            $type = new InputObjectErrorType($config, $path);
         }
         else if ($resolvedType instanceof ListOfType) {
-            $type = new UserErrorsListOfType($config, $path);
+            $type = new ListOfErrorType($config, $path);
         }
 
         else if ($resolvedType instanceof NonNull) {
-            $type = new UserErrorsNonNullType($config, $path);
+            $type = new NonNullErrorType($config, $path);
         }
         else if($resolvedType instanceof ScalarType) {
-            $type = new UserErrorsScalarType($config, $path);
+            $type = new ScalarErrorType($config, $path);
         }
         else  {
             throw new \Exception("Unknown type");
@@ -99,13 +95,15 @@ abstract class UserErrorsType extends ObjectType
 
     protected function _validate(array $arg, mixed $value, array &$res): void {
         if (\is_callable($arg['validate'] ?? null)) {
-            $res['error'] = $arg['validate']($value) ?? [];
+            [$code, $msg] = ($arg['validate']($value) ?: [null, null]);
+            $res['code'] = $code;
+            $res['msg'] = $msg;
         }
     }
 
     protected static function isScalarType(Type $type): bool
     {
-        return $type instanceof ScalarType;
+        return $type instanceof ScalarErrorType;
     }
 
     static protected function _resolveType(mixed $type, $resolveWrapped = false): Type
@@ -155,12 +153,7 @@ abstract class UserErrorsType extends ObjectType
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
                     'resolve' => static function ($error) {
-                        switch (\gettype($error)) {
-                            case 'integer':
-                                return $error;
-                        }
-
-                        return $error[0] ?? null;
+                        return $error[static::CODE_NAME] ?? '';
                     },
                 ];
             }
@@ -169,12 +162,7 @@ abstract class UserErrorsType extends ObjectType
                 'type' => Type::string(),
                 'description' => 'An error message.',
                 'resolve' => static function ($error) {
-                    switch (\gettype($error)) {
-                        case 'integer':
-                            return '';
-                    }
-
-                    return $error[1] ?? null;
+                    return $error[static::MESSAGE_NAME] ?? '';
                 },
             ];
         }

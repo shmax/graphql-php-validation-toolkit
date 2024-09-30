@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 
 /**
  * @phpstan-import-type ArgumentType from InputObjectField
- * @phpstan-import-type InputObjectConfig from InputObjectType
+ * @phpstan-import-type InputObjectConfig from InputObjectErrorType
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-type ValidatedFieldConfig array{
@@ -30,7 +30,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     /** @var callable */
     protected $typeSetter;
 
-    protected UserErrorsType $userErrorsType;
+    protected ErrorType $userErrorsType;
 
     protected string $validFieldName;
 
@@ -77,9 +77,9 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @phpstan-param array<UnnamedArgumentConfig> $args
      * @phpstan-param ValidatedFieldConfig $config
      */
-    protected function _createUserErrorsType(string $name, array $args, array $config): UserErrorsType
+    protected function _createUserErrorsType(string $name, array $args, array $config): ErrorType
     {
-        $userErrorType = UserErrorsType::create([
+        $userErrorType = ErrorType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'isRoot' => true,
             'fields' => [
@@ -126,7 +126,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
         $type = $arg['type'];
         switch ($type) {
-            case $type instanceof ListOfType:
+            case $type instanceof ListOfErrorType:
                 $this->_validateListOfType($arg, $value, $res);
                 break;
 
@@ -160,7 +160,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         $wrappedType = $config['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
             $path[\count($path) - 1] = $idx;
-            if ($wrappedType instanceof ListOfType) {
+            if ($wrappedType instanceof ListOfErrorType) {
                 $newPath = $path;
                 $newPath[] = 0;
                 $this->_validateListOfType(["type"=>$wrappedType, "validate" => $validate], $subValue, $res, $newPath );
@@ -171,7 +171,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     $wrappedType = $config['type']->getInnermostType();
                     $err = $this->_validate([
                         'type' => $wrappedType,
-                    ], $subValue, $config['type'] instanceof ListOfType);
+                    ], $subValue, $config['type'] instanceof ListOfErrorType);
                 }
 
                 if ($err) {
@@ -196,7 +196,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected function _validateInputObject(mixed $arg, mixed $value, array &$res): void
     {
         /**
-         * @phpstan-var InputObjectType
+         * @phpstan-var InputObjectErrorType
          */
         $type = $arg['type'];
         if (isset($arg['validate'])) {
@@ -208,13 +208,13 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @phpstan-param InputObjectType $type
+     * @phpstan-param InputObjectErrorType $type
      * @phpstan-param  ValidatedFieldConfig $objectConfig
      * @param array<mixed> $res
      */
     protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res): void
     {
-        $createSubErrors = UserErrorsType::needSuberrors($objectConfig);
+        $createSubErrors = ErrorType::needSuberrors($objectConfig);
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
@@ -240,7 +240,7 @@ class ValidatedFieldDefinition extends FieldDefinition
 
             if (!empty($error)) {
                 if ($createSubErrors) {
-                    $res[UserErrorsType::FIELDS_NAME][$key] = $error;
+                    $res[ErrorType::FIELDS_NAME][$key] = $error;
                 } else {
                     $res[$key] = $error;
                 }

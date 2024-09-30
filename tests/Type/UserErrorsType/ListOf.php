@@ -8,20 +8,20 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
 final class ListOf extends TestBase
 {
     public function testScalarTypeWithNoValidation(): void
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(Type::id()),
         ], ['upsertSku']);
     }
 
     public function testCheckTypesOnListOfWithValidatedString() {
-        $type = UserErrorsType::create([
+        $type = ErrorType::create([
             'type' => Type::listOf(new StringType([
                 'validate' => static fn ($str) => null
             ])),
@@ -54,7 +54,7 @@ final class ListOf extends TestBase
     }
 
     public function testCheckTypesOnListOfInputObjectWithValidation() {
-        $type = UserErrorsType::create([
+        $type = ErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'validate' => static fn ($value) => null,
@@ -112,7 +112,7 @@ final class ListOf extends TestBase
     }
 
     public function testCheckTypesOnListOfListOfWithValidatedString() {
-        $type = UserErrorsType::create([
+        $type = ErrorType::create([
             'type' => Type::listOf(Type::listOf(new StringType([
                 'validate' => static fn ($str) => null
             ]))),
@@ -145,7 +145,7 @@ final class ListOf extends TestBase
     }
 
     public function testCheckTypesOnListOfWithValidatedBoolean() {
-        $type = UserErrorsType::create([
+        $type = ErrorType::create([
             'type' => Type::listOf(new BooleanType(['validate' => static fn ($str) => null])),
         ], ['upsertSku']);
 

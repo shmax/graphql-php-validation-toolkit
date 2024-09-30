@@ -5,13 +5,13 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
 final class ScalarTest extends TestBase
 {
     public function testId(): void
     {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'validate' => static fn () => null,
             'type' => Type::id(),
         ], ['palette']), '
@@ -33,7 +33,7 @@ final class ScalarTest extends TestBase
 
     public function testBoolean(): void
     {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'validate' => static fn () => null,
             'type' => Type::boolean(),
         ], ['palette']), '
@@ -55,7 +55,7 @@ final class ScalarTest extends TestBase
 
     public function testString(): void
     {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'validate' => static fn () => null,
             'type' => Type::string(),
         ], ['palette']), '

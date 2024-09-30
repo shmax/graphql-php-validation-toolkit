@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
 enum AuthorErrorTest {
     case AuthorNotFound;
@@ -17,7 +17,7 @@ final class InputObjectTest extends TestBase
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
-        UserErrorsType::create([
+        ErrorType::create([
             'errorCodes' => PersonErrorCode::class,
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -33,7 +33,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -95,7 +95,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -130,7 +130,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnSelfAndOnFields(): void
     {
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'validate' => static function () {},
                 'type' => new InputObjectType([
                     'name' => 'book',
@@ -197,7 +197,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnDeeplyNestedField(): void
     {
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [

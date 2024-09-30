@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
@@ -61,7 +61,7 @@ abstract class TestBase extends TestCase
     /**
      * @param array<string, string> $expectedMap
      */
-    protected function _checkTypes(UserErrorsType $field, array $expectedMap): void
+    protected function _checkTypes(ErrorType $field, array $expectedMap): void
     {
         $mutation = new ObjectType([
             'name' => 'Mutation',

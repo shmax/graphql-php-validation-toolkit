@@ -32,7 +32,7 @@ final class InputObjectValidation extends TestBase
                         'description' => 'Enter a book title, no more than 10 characters in length',
                         'validate' => static function (string $title) {
                             if (\strlen($title) > 10) {
-                                return [1, 'book title must be less than 10 chaacters'];
+                                return [1, 'book title must be less than 10 characters'];
                             }
 
                             return 0;
@@ -83,7 +83,7 @@ final class InputObjectValidation extends TestBase
                 'fieldErrors' => [
                     'title' => [
                         'code' => 1,
-                        'msg' => 'book title must be less than 10 chaacters',
+                        'msg' => 'book title must be less than 10 characters',
                     ],
                     'author' => [
                         'code' => 1,
@@ -95,129 +95,40 @@ final class InputObjectValidation extends TestBase
         );
     }
 
-    public function testInputObjectSuberrorsValidationOnSelf(): void
+    public function testInputObjectValidationOnSelfFail(): void
     {
         $this->_checkValidation(
             new ValidatedFieldDefinition([
                 'name' => 'updateBook',
                 'type' => Type::boolean(),
+                'validate' => static function ($info) {
+                    if(!empty($info['title']) && empty($info['author'])) {
+                        return [1, "If title is set, then author is required"];
+                    }
+                    return 0;
+                },
                 'args' => [
-                    'bookAttributes' => [
-                        'validate' => static function ($atts) {
+                    'title' => [
+                        'type' => Type::string(),
+                        'description' => 'Enter a book title, no more than 10 characters in length',
+                        'validate' => static function (string $title) {
+                            if (\strlen($title) > 10) {
+                                return [1, 'book title must be less than 10 characters'];
+                            }
+
                             return 0;
                         },
-                        'type' => new InputObjectType([
-                            'name' => 'BookAttributes',
-                            'fields' => [
-                                'title' => [
-                                    'type' => Type::string(),
-                                    'description' => 'Enter a book title, no more than 10 characters in length',
-                                    'validate' => static function (string $title) {
-                                        if (\strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 characters'];
-                                        }
-
-                                        return 0;
-                                    },
-                                ],
-                                'author' => [
-                                    'type' => Type::id(),
-                                    'description' => 'Provide a valid author id',
-                                    'validate' => function (string $authorId) {
-                                        if (! isset($this->data['people'][$authorId])) {
-                                            return [1, 'We have no record of that author'];
-                                        }
-
-                                        return 0;
-                                    },
-                                ],
-                            ],
-                        ]),
                     ],
-                ],
-                'resolve' => static function ($value): bool {
-                    return ! $value;
-                },
-            ]),
-            Utils::nowdoc('
-                mutation UpdateBook(
-                        $bookAttributes: BookAttributes
-                    ) {
-                    updateBook (
-                        bookAttributes: $bookAttributes
-                    ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                    author {
-                                        code
-                                        msg
-                                    }
-                                }
+                    'author' => [
+                        'type' => Type::id(),
+                        'description' => 'Provide a valid author id',
+                        'validate' => function (string $authorId) {
+                            if (! isset($this->data['people'][$authorId])) {
+                                return [1, 'We have no record of that author'];
                             }
-                        }
-                        result
-                    }
-                }
-            '),
-            [
-                'bookAttributes' => [
-                    'title' => 'The Catcher in the Rye',
-                    'author' => 4,
-                ],
-            ],
-            [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'suberrors' => [
-                            'title' => [
-                                'code' => 1,
-                                'msg' => 'book title must be less than 10 characters',
-                            ],
-                            'author' => [
-                                'code' => 1,
-                                'msg' => 'We have no record of that author',
-                            ],
-                        ],
-                    ],
-                ],
-                'result' => null,
-            ]
-        );
-    }
 
-    public function testListOfInputObjectSuberrorsValidationOnChildField(): void
-    {
-        $this->_checkValidation(
-            new ValidatedFieldDefinition([
-                'name' => 'updateBook',
-                'type' => Type::boolean(),
-                'args' => [
-                    'bookAttributes' => [
-                        'validate' => static function () {
+                            return 0;
                         },
-                        'type' => Type::listOf(new InputObjectType([
-                            'name' => 'BookAttributes',
-                            'fields' => [
-                                'title' => [
-                                    'type' => Type::string(),
-                                    'description' => 'Enter a book title, no more than 10 characters in length',
-                                    'validate' => static function (string $title) {
-                                        if (\strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 characters'];
-                                        }
-
-                                        return 0;
-                                    },
-                                ],
-                            ],
-                        ])),
                     ],
                 ],
                 'resolve' => static function ($value): bool {
@@ -225,21 +136,21 @@ final class InputObjectValidation extends TestBase
                 },
             ]),
             Utils::nowdoc('
-                mutation UpdateBook(
-                        $bookAttributes: [BookAttributes]
-                    ) {
+                mutation UpdateBook($title: String, $author: ID) {
                     updateBook (
-                        bookAttributes: $bookAttributes
+                        author: $author, title: $title
                     ) {
                         valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                }
+                        code
+                        msg
+                        fieldErrors {
+                            title {
+                                code
+                                msg
+                            }
+                            author {
+                                code
+                                msg
                             }
                         }
                         result
@@ -247,22 +158,21 @@ final class InputObjectValidation extends TestBase
                 }
             '),
             [
-                'bookAttributes' => [[
-                    'title' => 'The Catcher in the Rye',
-                ]],
+                'title' => 'The Catcher in the Rye',
+                'author' => '',
             ],
             [
                 'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        [
-                            'suberrors' => [
-                                'title' => [
-                                    'code' => 1,
-                                    'msg' => 'book title must be less than 10 characters',
-                                ],
-                            ],
-                        ],
+                'code' => 1,
+                'msg'   => "If title is set, then author is required",
+                'fieldErrors' => [
+                    'title' => [
+                        'code' => 1,
+                        'msg' => 'book title must be less than 10 characters',
+                    ],
+                    'author' => [
+                        'code' => 1,
+                        'msg' => 'We have no record of that author',
                     ],
                 ],
                 'result' => null,

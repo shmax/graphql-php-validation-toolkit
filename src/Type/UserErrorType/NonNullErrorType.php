@@ -2,11 +2,10 @@
 
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
-class UserErrorsNonNullType extends UserErrorsType
+class NonNullErrorType extends ErrorType
 {
     public function __construct(array $config, array $path)
     {
-        $fields = [];
         parent::__construct($config, $path);
     }
 }

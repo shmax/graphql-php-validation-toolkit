@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
-class UserErrorsListOfType extends UserErrorsType
+class ListOfErrorType extends ErrorType
 {
     protected function __construct(array $config, array $path)
     {

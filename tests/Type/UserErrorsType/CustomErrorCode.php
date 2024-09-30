@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
 enum ColorErrors {
     case invalidColor;
@@ -20,7 +20,7 @@ enum PersonErrorCode {
 
 final class CustomErrorCode extends TestBase {
     public function testCustomEnumOnSelf() {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'validate' => static fn () => null,
             'type' => Type::id(),
             'errorCodes' => ColorErrors::class
@@ -47,7 +47,7 @@ final class CustomErrorCode extends TestBase {
     }
 
     public function testCustomEnumOnListOfIdType() {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'type' => Type::listOf(new IDType([
                 'validate' => static fn () => null,
                 'errorCodes' => ColorErrors::class
@@ -84,7 +84,7 @@ final class CustomErrorCode extends TestBase {
     public function testFieldsWithErrorCodesAndNoTypeSetter(): void
     {
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'type' => new InputObjectType([
                     'name' => 'updateBook',
                     'fields' => [
@@ -159,7 +159,7 @@ final class CustomErrorCode extends TestBase {
         $types = [];
 
         $this->_checkSchema(
-            UserErrorsType::create([
+            ErrorType::create([
                 'typeSetter' => static function ($type) use (&$types): Type {
                     if(!isset($types[$type->name])) {
                         $types[$type->name] = $type;

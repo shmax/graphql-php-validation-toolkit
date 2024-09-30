@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
 final class ValidateCallbackException extends TestBase
 {
@@ -18,14 +18,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::id(),
         ], ['upsertSku']);
     }
 
     public function testIdWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::id(),
             'validate' => static fn () => null
         ], ['upsertSku']);
@@ -37,14 +37,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::string(),
         ], ['upsertSku']);
     }
 
     public function testStringWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::string(),
             'validate' => static fn () => null
         ], ['upsertSku']);
@@ -57,14 +57,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::int(),
         ], ['upsertSku']);
     }
 
     public function testIntWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::int(),
             'validate' => static fn () => null
         ], ['upsertSku']);
@@ -76,14 +76,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::boolean(),
         ], ['upsertSku']);
     }
 
     public function testBooleanWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::boolean(),
             'validate' => static fn () => null
         ], ['upsertSku']);
@@ -95,14 +95,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::float(),
         ], ['upsertSku']);
     }
 
     public function testFloatWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::float(),
             'validate' => static fn () => null
         ], ['upsertSku']);
@@ -113,7 +113,7 @@ final class ValidateCallbackException extends TestBase
     public function testInputObjectThrows(): void
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
@@ -130,7 +130,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testInputObjectWithValidationDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
@@ -150,7 +150,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testInputObjectWithValidationOnFieldDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
@@ -173,14 +173,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(Type::float()),
         ], ['upsertSku']);
     }
 
     public function testListOfValidatedFloatDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(new FloatType(['validate' => static fn () => null])),
         ], ['upsertSku']);
         $this->assertTrue(true);
@@ -190,14 +190,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(Type::string()),
         ], ['upsertSku']);
     }
 
     public function testListOfValidatedStringDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(new StringType(['validate' => static fn () => null])),
         ], ['upsertSku']);
         $this->assertTrue(true);
@@ -207,14 +207,14 @@ final class ValidateCallbackException extends TestBase
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
 
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::string(),
         ], ['upsertSku']);
     }
 
     public function testListOfValidatedIdDoesNotThrow(): void
     {
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(new IDType(['validate' => static fn () => null])),
         ], ['upsertSku']);
         $this->assertTrue(true);
@@ -225,7 +225,7 @@ final class ValidateCallbackException extends TestBase
     public function testListOfInputObjectThrows(): void
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
-        UserErrorsType::create([
+        ErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [

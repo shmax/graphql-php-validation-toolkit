@@ -5,14 +5,14 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
 final class NonNull extends TestBase
 {
     public function testStringWrappedType(): void
     {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'type' => Type::nonNull(Type::string()),
         ], ['upsertSku']), '
             schema {
@@ -27,7 +27,7 @@ final class NonNull extends TestBase
 
     public function testInputObjectWrappedType(): void
     {
-        $this->_checkSchema(UserErrorsType::create([
+        $this->_checkSchema(ErrorType::create([
             'type'=> Type::nonNull(new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
