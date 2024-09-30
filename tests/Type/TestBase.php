@@ -3,7 +3,6 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type;
 
 use GraphQL\GraphQL;
-use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -13,7 +12,7 @@ use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
-abstract class FieldDefinition extends TestCase
+abstract class TestBase extends TestCase
 {
 //    protected $outputPath = 'tmp/';
     protected function _checkSchema(Type $field, string $expected): void
@@ -26,6 +25,7 @@ abstract class FieldDefinition extends TestCase
         $actual = SchemaPrinter::printType($type);
         self::assertEquals(Utils::nowdoc($expected), $actual);
     }
+
 
     /**
      * @param array<string, mixed>|null $args

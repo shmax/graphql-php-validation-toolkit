@@ -7,10 +7,10 @@ use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 
-final class ListOf extends FieldDefinition
+final class ListOf extends TestBase
 {
     public function testScalarTypeWithNoValidation(): void
     {
@@ -40,14 +40,14 @@ final class ListOf extends FieldDefinition
             
             "User errors for String"
             type UpsertSkuError_StringError {
+              "A path describing this item\'s location in the nested array"
+              path: [Int]
+
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
               "An error message."
               msg: String
-            
-              "A path describing this item\'s location in the nested array"
-              path: [Int]
             }
 
         ');
@@ -71,15 +71,18 @@ final class ListOf extends FieldDefinition
             schema {
               mutation: UpsertSkuError
             }
-            
+
             "User errors for UpsertSku"
             type UpsertSkuError {
               "Validation errors for each updateBook in the list"
-              items: [UpsertSku_UpdateBookError]
+              items: [UpsertSkuError_UpdateBookError]
             }
-            
+
             "User errors for UpdateBook"
-            type UpsertSku_UpdateBookError {
+            type UpsertSkuError_UpdateBookError {
+              "A path describing this item\'s location in the nested array"
+              path: [Int]
+            
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
@@ -87,20 +90,17 @@ final class ListOf extends FieldDefinition
               msg: String
             
               "Validation errors for UpdateBook"
-              fieldErrors: UpsertSku_UpdateBook_FieldErrors
-            
-              "A path describing this item\'s location in the nested array"
-              path: [Int]
+              fieldErrors: UpsertSkuError_UpdateBook_FieldErrors
             }
             
             "Validation errors for UpdateBook"
-            type UpsertSku_UpdateBook_FieldErrors {
+            type UpsertSkuError_UpdateBook_FieldErrors {
               "Error for authorId"
-              authorId: UpsertSku_UpdateBook_AuthorIdError
+              authorId: UpsertSkuError_UpdateBook_AuthorIdError
             }
             
             "User errors for AuthorId"
-            type UpsertSku_UpdateBook_AuthorIdError {
+            type UpsertSkuError_UpdateBook_AuthorIdError {
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
@@ -131,6 +131,9 @@ final class ListOf extends FieldDefinition
             
             "User errors for String"
             type UpsertSkuError_StringError {
+              "A path describing this item\'s location in the nested array"
+              path: [Int]
+
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             
@@ -159,6 +162,9 @@ final class ListOf extends FieldDefinition
             
             "User errors for Boolean"
             type UpsertSkuError_BooleanError {
+              "A path describing this item\'s location in the nested array"
+              path: [Int]
+
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             

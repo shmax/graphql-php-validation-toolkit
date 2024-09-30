@@ -46,13 +46,14 @@ abstract class UserErrorsType extends ObjectType
             'name' => $this->_nameFromPath($path) . 'Error',
             'description' => 'User errors for ' . \ucfirst((string)$pathEnd),
             'fields' => $fields,
+            'typeSetter' => $config['typeSetter'] ?? null,
         ]);
     }
 
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
-    protected static function _create(array $config, array $path): ?self
+    public static function create(array $config, array $path): ?self
     {
         $resolvedType = self::_resolveType($config['type']);
 
@@ -79,13 +80,27 @@ abstract class UserErrorsType extends ObjectType
         return $type;
     }
 
-    static function listItemType(): UserErrorsListItemType {
-        return static::$simpleType ??= new UserErrorsListItemType();
+
+    /**
+     * @param mixed[] $arg
+     * @param mixed $value
+     *
+     * @return mixed[]
+     */
+    public function validate(array $arg, $value): array
+    {
+        $res = [];
+        if (\is_callable($arg['type'])) {
+            $arg['type'] = $arg['type']();
+        }
+        $this->_validate($arg, $value, $res);
+        return $res;
     }
 
-    public static function create(array $config, array $path): self
-    {
-        return self::_create($config, $path);
+    protected function _validate(array $arg, mixed $value, array &$res): void {
+        if (\is_callable($arg['validate'] ?? null)) {
+            $res['error'] = $arg['validate']($value) ?? [];
+        }
     }
 
     protected function _addPathField(array &$finalFields): void
@@ -141,11 +156,9 @@ abstract class UserErrorsType extends ObjectType
                 }
                 $type = new PhpEnumType($config['errorCodes']);
                 if(!isset($config['typeSetter'])) {
-                    $type->name = $this->_nameFromPath(\array_merge($path)) . 'ErrorCode';
+                    $type->name = $this->_nameFromPath(\array_merge($path, [$type->name]));
                 }
-                else {
-                    $type->name = $type->name . 'ErrorCode';
-                }
+
                 $fields[static::CODE_NAME] = [
                     'type' => static::_set($type, $config),
                     'description' => 'An enumerated error code.',

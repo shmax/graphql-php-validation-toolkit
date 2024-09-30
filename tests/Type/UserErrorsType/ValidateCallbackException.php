@@ -9,10 +9,10 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
-use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 
-final class ValidateCallbackException extends FieldDefinition
+final class ValidateCallbackException extends TestBase
 {
     public function testIdThrows(): void
     {

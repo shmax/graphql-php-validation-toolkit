@@ -10,8 +10,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 
-final class ListOfInputObjectValidation extends FieldDefinition
+final class ListOfInputObjectValidation extends TestBase
 {
     /** @var mixed[] */
     protected $data = [

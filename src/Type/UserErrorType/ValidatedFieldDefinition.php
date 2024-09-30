@@ -30,6 +30,8 @@ class ValidatedFieldDefinition extends FieldDefinition
     /** @var callable */
     protected $typeSetter;
 
+    protected UserErrorsType $userErrorsType;
+
     protected string $validFieldName;
 
     protected string $resultFieldName;
@@ -45,8 +47,9 @@ class ValidatedFieldDefinition extends FieldDefinition
         $this->validFieldName = $config['validName'] ?? 'valid';
         $this->resultFieldName = $config['resultName'] ?? 'result';
 
+
         parent::__construct([
-            'type' => fn () => static::_createUserErrorsType($name, $args, $config),
+            'type' => fn () => $this->userErrorsType = static::_createUserErrorsType($name, $args, $config),
             'args' => $args,
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
@@ -57,7 +60,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $config['isRoot'] = true;
 
-                $errors = $this->_validate($config, $args1);
+                $errors = $this->userErrorsType->validate($config, $args1);
                 $result = $errors;
                 $result[$this->validFieldName] = empty($errors);
 

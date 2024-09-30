@@ -4,11 +4,11 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-final class NonNull extends FieldDefinition
+final class NonNull extends TestBase
 {
     public function testStringWrappedType(): void
     {

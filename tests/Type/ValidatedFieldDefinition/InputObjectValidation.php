@@ -3,12 +3,13 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-final class InputObjectValidation extends FieldDefinition
+final class InputObjectValidation extends TestBase
 {
     /** @var mixed[] */
     protected $data = [
@@ -26,35 +27,26 @@ final class InputObjectValidation extends FieldDefinition
                 'name' => 'updateBook',
                 'type' => Type::boolean(),
                 'args' => [
-                    'bookAttributes' => [
-                        'type' => function () { // lazy load
-                            return new InputObjectType([
-                                'name' => 'BookAttributes',
-                                'fields' => [
-                                    'title' => [
-                                        'type' => Type::string(),
-                                        'description' => 'Enter a book title, no more than 10 characters in length',
-                                        'validate' => static function (string $title) {
-                                            if (\strlen($title) > 10) {
-                                                return [1, 'book title must be less than 10 chaacters'];
-                                            }
+                    'title' => [
+                        'type' => Type::string(),
+                        'description' => 'Enter a book title, no more than 10 characters in length',
+                        'validate' => static function (string $title) {
+                            if (\strlen($title) > 10) {
+                                return [1, 'book title must be less than 10 chaacters'];
+                            }
 
-                                            return 0;
-                                        },
-                                    ],
-                                    'author' => [
-                                        'type' => Type::id(),
-                                        'description' => 'Provide a valid author id',
-                                        'validate' => function (string $authorId) {
-                                            if (! isset($this->data['people'][$authorId])) {
-                                                return [1, 'We have no record of that author'];
-                                            }
+                            return 0;
+                        },
+                    ],
+                    'author' => [
+                        'type' => Type::id(),
+                        'description' => 'Provide a valid author id',
+                        'validate' => function (string $authorId) {
+                            if (! isset($this->data['people'][$authorId])) {
+                                return [1, 'We have no record of that author'];
+                            }
 
-                                            return 0;
-                                        },
-                                    ],
-                                ],
-                            ]);
+                            return 0;
                         },
                     ],
                 ],
@@ -63,23 +55,19 @@ final class InputObjectValidation extends FieldDefinition
                 },
             ]),
             Utils::nowdoc('
-                mutation UpdateBook(
-                        $bookAttributes: BookAttributes
-                    ) {
+                mutation UpdateBook($title: String, $author: ID) {
                     updateBook (
-                        bookAttributes: $bookAttributes
+                        author: $author, title: $title
                     ) {
                         valid
-                        suberrors {
-                            bookAttributes {
-                                title {
-                                    code
-                                    msg
-                                }
-                                author {
-                                    code
-                                    msg
-                                }
+                        fieldErrors {
+                            title {
+                                code
+                                msg
+                            }
+                            author {
+                                code
+                                msg
                             }
                         }
                         result
@@ -87,23 +75,19 @@ final class InputObjectValidation extends FieldDefinition
                 }
             '),
             [
-                'bookAttributes' => [
-                    'title' => 'The Catcher in the Rye',
-                    'author' => 4,
-                ],
+                'title' => 'The Catcher in the Rye',
+                'author' => 4,
             ],
             [
                 'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'title' => [
-                            'code' => 1,
-                            'msg' => 'book title must be less than 10 chaacters',
-                        ],
-                        'author' => [
-                            'code' => 1,
-                            'msg' => 'We have no record of that author',
-                        ],
+                'fieldErrors' => [
+                    'title' => [
+                        'code' => 1,
+                        'msg' => 'book title must be less than 10 chaacters',
+                    ],
+                    'author' => [
+                        'code' => 1,
+                        'msg' => 'We have no record of that author',
                     ],
                 ],
                 'result' => null,

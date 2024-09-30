@@ -2,47 +2,100 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
-use GraphQL\Type\Definition\IDType;
-use GraphQL\Type\Schema;
-use GraphQL\Utils\SchemaPrinter;
-use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQL\Type\Definition\StringType;
+use GraphQL\Type\Definition\Type;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
-use PHPUnit\Framework\TestCase;
 
-enum ColorErrors {
-    case invalidColor;
-}
-
-final class ScalarTest extends TestCase
+final class ScalarTest extends TestBase
 {
-    public function testWithValidation(): void
+    public function testId(): void
     {
-        $type = UserErrorsType::create([
-            'errorCodes' => ColorErrors::class,
-            'validate' => static function ($value) {
-                return $value ? 0 : ColorErrors::invalidColor;
-            },
-            'type' => new IDType(['name' => 'Color']),
-        ], ['palette']);
-
-        self::assertEquals(Utils::nowdoc('
+        $this->_checkSchema(UserErrorsType::create([
+            'validate' => static fn () => null,
+            'type' => Type::id(),
+        ], ['palette']), '
             schema {
-              query: PaletteError
+              mutation: PaletteError
             }
             
             "User errors for Palette"
             type PaletteError {
-              "An enumerated error code."
-              code: PaletteErrorCode
-            
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+
               "An error message."
               msg: String
             }
+
+        ');
+    }
+
+    public function testBoolean(): void
+    {
+        $this->_checkSchema(UserErrorsType::create([
+            'validate' => static fn () => null,
+            'type' => Type::boolean(),
+        ], ['palette']), '
+            schema {
+              mutation: PaletteError
+            }
             
-            enum PaletteErrorCode {
-              invalidColor
+            "User errors for Palette"
+            type PaletteError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+
+              "An error message."
+              msg: String
             }
 
-        '), SchemaPrinter::doPrint(new Schema(['query' => $type])));
+        ');
     }
+
+    public function testString(): void
+    {
+        $this->_checkSchema(UserErrorsType::create([
+            'validate' => static fn () => null,
+            'type' => Type::string(),
+        ], ['palette']), '
+            schema {
+              mutation: PaletteError
+            }
+            
+            "User errors for Palette"
+            type PaletteError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+
+              "An error message."
+              msg: String
+            }
+
+        ');
+    }
+
+//    public function testStringType(): void
+//    {
+//        $this->_checkSchema(UserErrorsType::create([
+//            'type' => new StringType([
+//                'name' => 'foo',
+//                'validate' => static fn () => null]
+//            ),
+//        ], ['palette']), '
+//            schema {
+//              mutation: PaletteError
+//            }
+//
+//            "User errors for Palette"
+//            type PaletteError {
+//              "A numeric error code. 0 on success, non-zero on failure."
+//              code: Int
+//
+//              "An error message."
+//              msg: String
+//            }
+//
+//        ');
+//    }
 }

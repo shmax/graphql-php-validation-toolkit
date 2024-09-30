@@ -4,21 +4,21 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\FieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\UserErrorsType;
 
 enum AuthorErrorTest {
     case AuthorNotFound;
 }
 
-final class InputObjectTest extends FieldDefinition
+final class InputObjectTest extends TestBase
 {
     public function testFieldsWithErrorCodesButNoValidate(): void
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
         UserErrorsType::create([
-            'errorCodes' => AuthorErrorTest::class,
+            'errorCodes' => PersonErrorCode::class,
             'type' => new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
