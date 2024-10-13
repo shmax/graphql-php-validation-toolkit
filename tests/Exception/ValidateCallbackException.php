@@ -223,7 +223,6 @@ final class ValidateCallbackException extends TestBase
         $this->assertTrue(true);
     }
 
-
     public function testListOfInputObjectThrows(): void
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");

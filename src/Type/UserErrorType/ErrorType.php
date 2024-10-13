@@ -48,9 +48,11 @@ abstract class ErrorType extends ObjectType
         ]);
     }
 
-    static function RegisterValidation(Type $type, callable $validate) {
+    static function RegisterValidation(Type $type, callable $validate)
+    {
 
     }
+
     public static function string(): ScalarType
     {
         return static::$standardTypes[self::STRING] ??= new StringType();
@@ -65,22 +67,17 @@ abstract class ErrorType extends ObjectType
 
         if ($resolvedType instanceof InputObjectType) {
             $type = new InputObjectErrorType($config, $path);
-        }
-        else if ($resolvedType instanceof ListOfType) {
+        } else if ($resolvedType instanceof ListOfType) {
             $type = new ListOfErrorType($config, $path);
-        }
-
-        else if ($resolvedType instanceof NonNull) {
+        } else if ($resolvedType instanceof NonNull) {
             $config['type'] = static::_resolveType($config['type'], true);
             $type = static::create($config, $path);
-        }
-        else if($resolvedType instanceof ScalarType) {
+        } else if ($resolvedType instanceof ScalarType) {
             $type = new ScalarErrorType($config, $path);
-        }
-        else  {
+        } else {
             throw new \Exception("Unknown type");
         }
-        if(isset($type)) {
+        if (isset($type)) {
             $type = static::_set($type, $config);
         }
         return $type;
@@ -99,11 +96,7 @@ abstract class ErrorType extends ObjectType
         if (\is_callable($arg['type'])) {
             $arg['type'] = $arg['type']();
         }
-        $this->_validate($arg, $value, $res);
-        return $res;
-    }
 
-    protected function _validate(array $arg, mixed $value, array &$res): void {
         if (\is_callable($arg['validate'] ?? null)) {
             $result = $arg['validate']($value);
 
@@ -115,13 +108,15 @@ abstract class ErrorType extends ObjectType
             } else {
                 throw new \Exception("Invalid response from the validate callback");
             }
-            if($code === 0) {
-                return;
+            if ($code !== 0) {
+                $res['code'] = $code;
+                $res['msg'] = $msg;
             }
 
-            $res['code'] = $code;
-            $res['msg'] = $msg;
         }
+
+        $this->_validate($arg, $value, $res);
+        return $res;
     }
 
     protected static function isScalarType(Type $type): bool
@@ -135,7 +130,7 @@ abstract class ErrorType extends ObjectType
             $type = $type();
         }
 
-        if ( $resolveWrapped && $type instanceof WrappingType) {
+        if ($resolveWrapped && $type instanceof WrappingType) {
             $type = $type->getWrappedType();
         }
 
@@ -162,7 +157,7 @@ abstract class ErrorType extends ObjectType
                     throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
                 }
                 $type = new PhpEnumType($config['errorCodes']);
-                if(!isset($config['typeSetter'])) {
+                if (!isset($config['typeSetter'])) {
                     $type->name = $this->_nameFromPath(\array_merge($path, [$type->name]));
                 }
 
@@ -170,8 +165,7 @@ abstract class ErrorType extends ObjectType
                     'type' => static::_set($type, $config),
                     'description' => 'An enumerated error code.',
                 ];
-            }
-            else {
+            } else {
                 $fields[static::CODE_NAME] = [
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
@@ -188,10 +182,9 @@ abstract class ErrorType extends ObjectType
                     return $error[static::MESSAGE_NAME] ?? '';
                 },
             ];
-        }
-        else {
-            if(isset($config['errorCodes'])) {
-                if (! isset($config['validate'])) {
+        } else {
+            if (isset($config['errorCodes'])) {
+                if (!isset($config['validate'])) {
                     throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
                 }
             }

@@ -40,23 +40,18 @@ class InputObjectErrorType extends ErrorType
 
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
-        parent::_validate($arg, $value, $res);
         /**
          * @phpstan-var InputObjectErrorType
          */
         $type = $arg['type'];
-        $this->_validateInputObjectFields($type, $value, $res);
-    }
 
-    /**
-     * @phpstan-param InputObjectErrorType $type
-     * @param array<mixed> $res
-     */
-    protected function _validateInputObjectFields(InputObjectType $type, mixed $value, array &$res): void
-    {
         $fields = $type->getFields();
+//        $fieldsB = $this->config['fields']['fieldErrors'];
         foreach ($fields as $key => $field) {
             $config = $field->config;
+
+            $configB = $this->config['type']->getFields();
+
             $isRequired = $config['required'] ?? false;
             $code = 0;
             $msg = '';
@@ -84,7 +79,7 @@ class InputObjectErrorType extends ErrorType
                 }
             }
 
-            if($code !== 0) {
+            if ($code !== 0) {
                 // Populate result array
                 $res[static::FIELDS_NAME][$key][static::CODE_NAME] = $code;
                 $res[static::FIELDS_NAME][$key][static::MESSAGE_NAME] = $msg;
@@ -117,7 +112,7 @@ class InputObjectErrorType extends ErrorType
             }
         }
 
-        if(empty($args) && !isset($this->config['validate'])) {
+        if (empty($args) && !isset($this->config['validate'])) {
             throw new NoValidatationFoundException();
         }
 
