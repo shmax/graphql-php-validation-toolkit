@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\BooleanType;
@@ -22,10 +22,13 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfWithValidatedString() {
         $type = ErrorType::create([
-            'type' => Type::listOf(new StringType([
+            'type' => Type::listOf(Type::string()),
+            'item' => [
                 'validate' => static fn ($str) => null
-            ])),
+            ]
         ], ['upsertSku']);
+
+
 
         $this->_checkSchema($type, '
             schema {
@@ -113,9 +116,10 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfListOfWithValidatedString() {
         $type = ErrorType::create([
-            'type' => Type::listOf(Type::listOf(new StringType([
+            'type' => Type::listOf(Type::listOf(Type::string())),
+            'item' => [
                 'validate' => static fn ($str) => null
-            ]))),
+            ]
         ], ['upsertSku']);
 
         $this->_checkSchema($type, '
@@ -146,7 +150,10 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfWithValidatedBoolean() {
         $type = ErrorType::create([
-            'type' => Type::listOf(new BooleanType(['validate' => static fn ($str) => null])),
+            'type' => Type::listOf(Type::boolean()),
+            'item' => [
+                'validate' => static fn ($str) => null
+            ]
         ], ['upsertSku']);
 
         $this->_checkSchema($type, '

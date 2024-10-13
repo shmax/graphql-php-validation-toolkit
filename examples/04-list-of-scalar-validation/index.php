@@ -4,9 +4,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ValidatedStringType;
 
 try {
     $mutationType = new ObjectType([
@@ -16,20 +18,30 @@ try {
                 'name' => 'savePhoneNumbers',
                 'type' => Type::boolean(),
                 'validate' => function (array $args) {
-                    if (count($args['phoneNumbers']) == 0) {
-                        return [1, 'You must enter at least one list of phone number'];
-                    }
+//                    if (count($args['phoneNumbers']) == 0) {
+//                        return [1, 'You must enter at least one list of phone number'];
+//                    }
 
                     return 0;
+
                 },
                 'args' => [
                     'phoneNumbers' => [
-                        'validate' => function ($phoneNumber) {
-                            $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-
-                            return ! $res ? [1, 'That does not seem to be a valid phone number'] : 0;
-                        },
+                        'type' => Type::listOf(new ValidatedStringType([
+                            'validate' => function ($phoneNumbers) {
+                                xdebug_break();
+                                return true;
+                            }
+                        ])),
+                        'item' => [
+                            'validate' => function (array $args) {
+                            }
+                        ]
+                    ],
+                    'otherNumbers' => [
                         'type' => Type::listOf(Type::string()),
+                        'validateItem' => function (array $args) {
+                        }
                     ],
                 ],
                 'resolve' => function ($value, $args) {

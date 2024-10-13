@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
+namespace Exception;
 
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\FloatType;
@@ -27,7 +27,7 @@ final class ValidateCallbackException extends TestBase
     {
         ErrorType::create([
             'type' => Type::id(),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -46,7 +46,7 @@ final class ValidateCallbackException extends TestBase
     {
         ErrorType::create([
             'type' => Type::string(),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -66,7 +66,7 @@ final class ValidateCallbackException extends TestBase
     {
         ErrorType::create([
             'type' => Type::int(),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -85,7 +85,7 @@ final class ValidateCallbackException extends TestBase
     {
         ErrorType::create([
             'type' => Type::boolean(),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -104,7 +104,7 @@ final class ValidateCallbackException extends TestBase
     {
         ErrorType::create([
             'type' => Type::float(),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -142,7 +142,7 @@ final class ValidateCallbackException extends TestBase
                     ]
                 ],
             ]),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -156,14 +156,14 @@ final class ValidateCallbackException extends TestBase
                 'fields' => [
                     'authorId' => [
                         'type' => Type::id(),
-                        'validate' => static fn () => null
+                        'validate' => static fn() => null
                     ],
                     'publisherId' => [
                         'type' => Type::string(),
                     ]
                 ],
             ]),
-            'validate' => static fn () => null
+            'validate' => static fn() => null
         ], ['upsertSku']);
 
         $this->assertTrue(true);
@@ -181,7 +181,8 @@ final class ValidateCallbackException extends TestBase
     public function testListOfValidatedFloatDoesNotThrow(): void
     {
         ErrorType::create([
-            'type' => Type::listOf(new FloatType(['validate' => static fn () => null])),
+            'type' => Type::listOf(Type::float()),
+            'item' => ['validate' => static fn() => null]
         ], ['upsertSku']);
         $this->assertTrue(true);
     }
@@ -198,7 +199,8 @@ final class ValidateCallbackException extends TestBase
     public function testListOfValidatedStringDoesNotThrow(): void
     {
         ErrorType::create([
-            'type' => Type::listOf(new StringType(['validate' => static fn () => null])),
+            'type' => Type::listOf(Type::string()),
+            'item' => ['validate' => static fn() => null]
         ], ['upsertSku']);
         $this->assertTrue(true);
     }
@@ -215,17 +217,36 @@ final class ValidateCallbackException extends TestBase
     public function testListOfValidatedIdDoesNotThrow(): void
     {
         ErrorType::create([
-            'type' => Type::listOf(new IDType(['validate' => static fn () => null])),
+            'type' => Type::listOf(Type::id()),
+            'item' => ['validate' => static fn() => null]
         ], ['upsertSku']);
         $this->assertTrue(true);
     }
-
 
 
     public function testListOfInputObjectThrows(): void
     {
         $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
         ErrorType::create([
+            'type' => Type::listOf(new InputObjectType([
+                'name' => 'updateBook',
+                'fields' => [
+                    'authorId' => [
+                        'type' => Type::id(),
+                    ],
+                    'publisherId' => [
+                        'type' => Type::string(),
+                    ]
+                ],
+            ])),
+        ], ['upsertSku']);
+    }
+
+    public function testItemValidationOnListOfInputObjectThrows(): void
+    {
+        $this->expectExceptionMessage("'item' is only supported for scalar types");
+        ErrorType::create([
+            'item' => ['validate' => static fn() => null],
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [

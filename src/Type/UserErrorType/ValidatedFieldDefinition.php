@@ -214,38 +214,38 @@ class ValidatedFieldDefinition extends FieldDefinition
      */
     protected function _validateInputObjectFields(InputObjectType $type, array $objectConfig, mixed $value, array &$res): void
     {
-        $createSubErrors = ErrorType::needSuberrors($objectConfig);
-
-        $fields = $type->getFields();
-        foreach ($fields as $key => $field) {
-            $error = null;
-            $config = $field->config;
-
-            $isKeyPresent = array_key_exists($key, $value);
-            $isRequired = $config['required'] ?? false;
-            if(is_callable($isRequired)) {
-                $isRequired = $isRequired();
-            }
-            if($isRequired && !isset($value[$key])) {
-                if ($isRequired === true) {
-                    $error = ['error' => [1, "$key is required"]];
-                }
-                else if (is_array($isRequired)) {
-                    $error = ['error' => $isRequired];
-                }
-            }
-            else if ($isKeyPresent) {
-                $error = $this->_validate($config, $value[$key] ?? null);
-            }
-
-            if (!empty($error)) {
-                if ($createSubErrors) {
-                    $res[ErrorType::FIELDS_NAME][$key] = $error;
-                } else {
-                    $res[$key] = $error;
-                }
-            }
-        }
+//        $createSubErrors = ErrorType::needSuberrors($objectConfig);
+//
+//        $fields = $type->getFields();
+//        foreach ($fields as $key => $field) {
+//            $error = null;
+//            $config = $field->config;
+//
+//            $isKeyPresent = array_key_exists($key, $value);
+//            $isRequired = $config['required'] ?? false;
+//            if(is_callable($isRequired)) {
+//                $isRequired = $isRequired();
+//            }
+//            if($isRequired && !isset($value[$key])) {
+//                if ($isRequired === true) {
+//                    $error = ['error' => [1, "$key is required"]];
+//                }
+//                else if (is_array($isRequired)) {
+//                    $error = ['error' => $isRequired];
+//                }
+//            }
+//            else if ($isKeyPresent) {
+//                $error = $this->_validate($config, $value[$key] ?? null);
+//            }
+//
+//            if (!empty($error)) {
+//                if ($createSubErrors) {
+//                    $res[ErrorType::FIELDS_NAME][$key] = $error;
+//                } else {
+//                    $res[$key] = $error;
+//                }
+//            }
+//        }
     }
 
     /**

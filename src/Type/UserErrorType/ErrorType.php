@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 
@@ -47,6 +48,14 @@ abstract class ErrorType extends ObjectType
         ]);
     }
 
+    static function RegisterValidation(Type $type, callable $validate) {
+
+    }
+    public static function string(): ScalarType
+    {
+        return static::$standardTypes[self::STRING] ??= new StringType();
+    }
+
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      */
@@ -62,7 +71,8 @@ abstract class ErrorType extends ObjectType
         }
 
         else if ($resolvedType instanceof NonNull) {
-            $type = new NonNullErrorType($config, $path);
+            $config['type'] = static::_resolveType($config['type'], true);
+            $type = static::create($config, $path);
         }
         else if($resolvedType instanceof ScalarType) {
             $type = new ScalarErrorType($config, $path);
@@ -95,7 +105,20 @@ abstract class ErrorType extends ObjectType
 
     protected function _validate(array $arg, mixed $value, array &$res): void {
         if (\is_callable($arg['validate'] ?? null)) {
-            [$code, $msg] = ($arg['validate']($value) ?: [null, null]);
+            $result = $arg['validate']($value);
+
+            if (is_array($result) && count($result) === 2) {
+                [$code, $msg] = $result;
+            } elseif (is_int($result)) {
+                $code = $result;
+                $msg = ''; // Set a default message or leave as null
+            } else {
+                throw new \Exception("Invalid response from the validate callback");
+            }
+            if($code === 0) {
+                return;
+            }
+
             $res['code'] = $code;
             $res['msg'] = $msg;
         }
@@ -103,7 +126,7 @@ abstract class ErrorType extends ObjectType
 
     protected static function isScalarType(Type $type): bool
     {
-        return $type instanceof ScalarErrorType;
+        return $type instanceof ScalarType;
     }
 
     static protected function _resolveType(mixed $type, $resolveWrapped = false): Type
@@ -113,7 +136,7 @@ abstract class ErrorType extends ObjectType
         }
 
         if ( $resolveWrapped && $type instanceof WrappingType) {
-            $type = $type->getInnermostType();
+            $type = $type->getWrappedType();
         }
 
         return $type;
@@ -153,7 +176,7 @@ abstract class ErrorType extends ObjectType
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
                     'resolve' => static function ($error) {
-                        return $error[static::CODE_NAME] ?? '';
+                        return $error[static::CODE_NAME] ?? 0;
                     },
                 ];
             }

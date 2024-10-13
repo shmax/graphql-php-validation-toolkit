@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
@@ -74,28 +74,4 @@ final class ScalarTest extends TestBase
 
         ');
     }
-
-//    public function testStringType(): void
-//    {
-//        $this->_checkSchema(UserErrorsType::create([
-//            'type' => new StringType([
-//                'name' => 'foo',
-//                'validate' => static fn () => null]
-//            ),
-//        ], ['palette']), '
-//            schema {
-//              mutation: PaletteError
-//            }
-//
-//            "User errors for Palette"
-//            type PaletteError {
-//              "A numeric error code. 0 on success, non-zero on failure."
-//              code: Int
-//
-//              "An error message."
-//              msg: String
-//            }
-//
-//        ');
-//    }
 }

@@ -52,7 +52,7 @@ class InputObjectErrorType extends ErrorType
      * @phpstan-param InputObjectErrorType $type
      * @param array<mixed> $res
      */
-    protected function _validateInputObjectFields(InputObjectErrorType $type, mixed $value, array &$res): void
+    protected function _validateInputObjectFields(InputObjectType $type, mixed $value, array &$res): void
     {
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
@@ -75,7 +75,8 @@ class InputObjectErrorType extends ErrorType
                 }
             } elseif (array_key_exists($key, $value)) {
                 // Handle validation logic for present keys
-                $validationResult = $config['validate']($value[$key]) ?? [0, ''];
+                $validate = $config['validate'] ?? null;
+                $validationResult = is_callable($validate) ? $validate($value[$key]) : [0, ''];
                 if (is_array($validationResult)) {
                     [$code, $msg] = $validationResult + [0, ''];
                 } else {
@@ -83,17 +84,17 @@ class InputObjectErrorType extends ErrorType
                 }
             }
 
-            // Populate result array
-            $res[static::FIELDS_NAME][$key][static::CODE_NAME] = $code;
-            $res[static::FIELDS_NAME][$key][static::MESSAGE_NAME] = $msg;
+            if($code !== 0) {
+                // Populate result array
+                $res[static::FIELDS_NAME][$key][static::CODE_NAME] = $code;
+                $res[static::FIELDS_NAME][$key][static::MESSAGE_NAME] = $msg;
+            }
         }
     }
 
-
-
     protected function getErrorFields(Type $type, array $path): array
     {
-        $fields = [];
+        $args = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
@@ -109,17 +110,17 @@ class InputObjectErrorType extends ErrorType
             }
 
             if ($newType) {
-                $fields[$key] = [
+                $args[$key] = [
                     'description' => 'Error for ' . $key,
                     'type' => $newType,
                 ];
             }
         }
 
-        if(empty($fields) && !isset($this->config['validate'])) {
+        if(empty($args) && !isset($this->config['validate'])) {
             throw new NoValidatationFoundException();
         }
 
-        return $fields;
+        return $args;
     }
 }

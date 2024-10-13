@@ -11,19 +11,24 @@ class ListOfErrorType extends ErrorType
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
-        $fields = [];
-        $this->_addItemsErrorField($fields, $config, $path);
-    }
-
-    protected function _addItemsErrorField(array &$fields, array $config, array $path): void
-    {
-        $type = $this->_resolveType($config['type'], true);
+        $type = $config['type']->getInnermostType();
         try {
+            if (static::isScalarType($type)) {
+                $validate = $config['item']['validate'] ?? null;
+                $errorCodes = $config['item']['errorCodes'] ?? null;
+            } else {
+                if (isset($config['item'])) {
+                    throw new \Exception("'item' is only supported for scalar types");
+                }
+
+                $validate = $type->config['validate'] ?? null;
+                $errorCodes = $type->config['errorCodes'] ?? null;
+            }
 
             $errorType = static::create([
                 'type' => $type,
-                'validate' => $type->config['validate'] ?? null,
-                'errorCodes' => $type->config['errorCodes'] ?? null,
+                'validate' => $validate,
+                'errorCodes' => $errorCodes,
                 'fields' => [
                     'path' => [
                         'type' => Type::listOf(Type::int()),
@@ -43,11 +48,12 @@ class ListOfErrorType extends ErrorType
                     return $value['items'] ?? [];
                 },
             ];
-        }
-        catch (NoValidatationFoundException $e) {
-            if(!isset($config['validate'])) {
+        } catch (NoValidatationFoundException $e) {
+            if (!isset($config['validate'])) {
                 throw $e;
             }
         }
     }
+
+
 }

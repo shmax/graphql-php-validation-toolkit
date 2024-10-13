@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
 final class NonNull extends TestBase
 {
@@ -14,13 +13,20 @@ final class NonNull extends TestBase
     {
         $this->_checkSchema(ErrorType::create([
             'type' => Type::nonNull(Type::string()),
+            'validate' => static fn() => null
         ], ['upsertSku']), '
             schema {
               mutation: UpsertSkuError
             }
             
             "User errors for UpsertSku"
-            type UpsertSkuError
+            type UpsertSkuError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
+            }
 
         ');
     }
@@ -56,38 +62,36 @@ final class NonNull extends TestBase
                 ],
             ])),
         ], ['upsertSku']), '
-            type Mutation {
-              updateAuthor(author: bookInput!): UpdateAuthorResult
+            schema {
+              mutation: UpsertSkuError
             }
             
-            input bookInput {
-              "A first name"
-              firstName: String
-            
-              "A last name"
-              lastName: String
+            "User errors for UpsertSku"
+            type UpsertSkuError {
+              "Validation errors for UpsertSku"
+              fieldErrors: UpsertSku_FieldErrors
             }
             
-            "User errors for UpdateAuthor"
-            type UpdateAuthorResult {
-              "The payload, if any"
-              result: Boolean
+            "Validation errors for UpsertSku"
+            type UpsertSku_FieldErrors {
+              "Error for firstName"
+              firstName: UpsertSku_FirstNameError
             
-              "Whether all validation passed. True for yes, false for no."
-              valid: Boolean!
-            
-              "Validation errors for UpdateAuthor"
-              fieldErrors: UpdateAuthor_FieldErrors
+              "Error for lastName"
+              lastName: UpsertSku_LastNameError
             }
             
-            "Validation errors for UpdateAuthor"
-            type UpdateAuthor_FieldErrors {
-              "Error for author"
-              author: UpdateAuthor_AuthorError
+            "User errors for FirstName"
+            type UpsertSku_FirstNameError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              code: Int
+            
+              "An error message."
+              msg: String
             }
             
-            "User errors for Author"
-            type UpdateAuthor_AuthorError {
+            "User errors for LastName"
+            type UpsertSku_LastNameError {
               "A numeric error code. 0 on success, non-zero on failure."
               code: Int
             

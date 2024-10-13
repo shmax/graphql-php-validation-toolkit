@@ -1,14 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\UserErrorsType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
-enum ColorErrors {
+enum ColorError {
     case invalidColor;
     case badHue;
 }
@@ -23,7 +24,7 @@ final class CustomErrorCode extends TestBase {
         $this->_checkSchema(ErrorType::create([
             'validate' => static fn () => null,
             'type' => Type::id(),
-            'errorCodes' => ColorErrors::class
+            'errorCodes' => ColorError::class
         ], ['palette']), '
             schema {
               mutation: PaletteError
@@ -32,13 +33,13 @@ final class CustomErrorCode extends TestBase {
             "User errors for Palette"
             type PaletteError {
               "An enumerated error code."
-              code: PaletteErrorCode
+              code: Palette_ColorError
             
               "An error message."
               msg: String
             }
             
-            enum PaletteErrorCode {
+            enum Palette_ColorError {
               invalidColor
               badHue
             }
@@ -50,7 +51,7 @@ final class CustomErrorCode extends TestBase {
         $this->_checkSchema(ErrorType::create([
             'type' => Type::listOf(new IDType([
                 'validate' => static fn () => null,
-                'errorCodes' => ColorErrors::class
+                'errorCodes' => ColorError::class
             ])),
         ], ['palette']), '
             schema {
@@ -227,4 +228,24 @@ final class CustomErrorCode extends TestBase {
 
         ');
     }
+
+//    public function testStringTypeWithErrorCodesAndTypeSetter(): void
+//    {
+//        $types = [];
+//
+//        $this->_checkSchema(
+//            ErrorType::create([
+//                'typeSetter' => static function ($type) use (&$types): Type {
+//                    if (!isset($types[$type->name])) {
+//                        $types[$type->name] = $type;
+//                    }
+//                    return $types[$type->name];
+//                },
+//
+//                'type' => new StringType([
+//                    'validate' => static fn () => null,
+//                ]),
+//            ], ['upsertSku']), ''
+//        );
+//    }
 }
