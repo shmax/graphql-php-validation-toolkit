@@ -93,7 +93,7 @@ abstract class ErrorType extends ObjectType
         if (\is_callable($arg['validate'] ?? null)) {
             $result = static::_formatValidationResult($arg['validate']($value));
 
-            if ($result[static::CODE_NAME] !== 0) {
+            if ($result && $result[static::CODE_NAME] !== 0) {
                 $res = $result;
             }
         }
