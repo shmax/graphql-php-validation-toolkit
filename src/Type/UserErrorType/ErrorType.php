@@ -4,6 +4,7 @@ namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
@@ -94,7 +95,7 @@ abstract class ErrorType extends ObjectType
 
             if (is_array($result) && count($result) === 2) {
                 [$code, $msg] = $result;
-            } elseif (is_int($result)) {
+            } elseif (is_int($result) || $result instanceof \UnitEnum) {
                 $code = $result;
                 $msg = ''; // Set a default message or leave as null
             } else {

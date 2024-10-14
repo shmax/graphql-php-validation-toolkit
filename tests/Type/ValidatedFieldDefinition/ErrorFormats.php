@@ -10,7 +10,8 @@ use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
-enum BookError {
+enum BookError
+{
     case required;
     case invalidIsbn;
 }
@@ -37,7 +38,7 @@ final class ErrorFormats extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                                return (bool)$value;
                             },
                         ]),
                     ];
@@ -52,14 +53,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        fieldErrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        __valid
+                        bookId {
+                            __code
+                            __msg
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -69,7 +68,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['fieldErrors']['bookId']['code'], 1);
+        static::assertEquals($res->data['updateBook']['bookId']['__code'], 1);
     }
 
     public function testEnumCodeType(): void
@@ -93,7 +92,7 @@ final class ErrorFormats extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                                return (bool)$value;
                             },
                         ]),
                     ];
@@ -108,14 +107,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        fieldErrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        bookId {
+                            __code
+                            __msg
                         }
-                        result
+                        __valid
+                        __result
                     }
                 }
             '),
@@ -125,7 +122,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['fieldErrors']['bookId']['code'], 'required');
+        static::assertEquals($res->data['updateBook']['bookId']['__code'], 'required');
     }
 
     public function testIntCodeTypeAndMessage(): void
@@ -148,7 +145,7 @@ final class ErrorFormats extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                                return (bool)$value;
                             },
                         ]),
                     ];
@@ -205,7 +202,7 @@ final class ErrorFormats extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                                return (bool)$value;
                             },
                         ]),
                     ];
