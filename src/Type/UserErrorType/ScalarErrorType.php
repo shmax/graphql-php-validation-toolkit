@@ -8,9 +8,14 @@ class ScalarErrorType extends ErrorType
 {
     protected function __construct(array $config, array $path)
     {
-        if(!isset($config['validate'])) {
+        if (!isset($config['validate'])) {
             throw new NoValidatationFoundException();
         }
         parent::__construct($config, $path);
+    }
+
+    protected function _validate(array $arg, mixed $value, array &$res): void
+    {
+
     }
 }

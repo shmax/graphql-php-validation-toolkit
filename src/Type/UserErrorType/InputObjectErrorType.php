@@ -31,12 +31,9 @@ class InputObjectErrorType extends ErrorType
         $type = $arg['type'];
 
         $fields = $type->getFields();
-//        $fieldsB = $this->config['fields']['fieldErrors'];
         foreach ($fields as $key => $field) {
             $config = $field->config;
-
-//            $configB = $this->config['type']->getFields();
-
+            $fieldErrorType = $this->config['fields'][$key]['type'];
             $isRequired = $config['required'] ?? false;
             $code = 0;
             $msg = '';
@@ -55,19 +52,14 @@ class InputObjectErrorType extends ErrorType
                 }
             } elseif (array_key_exists($key, $value)) {
                 // Handle validation logic for present keys
-                $validate = $config['validate'] ?? null;
-                $validationResult = is_callable($validate) ? $validate($value[$key]) : [0, ''];
-                if (is_array($validationResult)) {
-                    [$code, $msg] = $validationResult + [0, ''];
-                } else {
-                    $code = $validationResult;
-                }
+                $validationResult = $fieldErrorType->validate($config, $value[$key]);
+                [$code, $msg] = $validationResult;
             }
 
             if ($code !== 0) {
                 // Populate result array
-                $res[$key][static::CODE_NAME] = $code;
-                $res[$key][static::MESSAGE_NAME] = $msg;
+                $res[$key][0] = $code;
+                $res[$key][1] = $msg;
             }
         }
     }
@@ -78,14 +70,6 @@ class InputObjectErrorType extends ErrorType
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
-//                $newType = self::create(array_merge([
-//                    'type' => $field->getType(),
-//                    'errorCodes' => $fieldConfig['errorCodes'] ?? null,
-//                    'validate' => $fieldConfig['validate'] ?? null,
-//                    'typeSetter' => $this->config['typeSetter'] ?? null,
-//                ], array_merge($path, [$key]));
-
-
                 $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType()]), array_merge($path, [$key]));
             } catch (NoValidatationFoundException $e) {
                 // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.

@@ -56,5 +56,8 @@ class ListOfErrorType extends ErrorType
         }
     }
 
+    protected function _validate(array $arg, mixed $value, array &$res): void
+    {
 
+    }
 }

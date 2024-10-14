@@ -8,4 +8,9 @@ class NonNullErrorType extends ErrorType
     {
         parent::__construct($config, $path);
     }
+
+    protected function _validate(array $arg, mixed $value, array &$res): void
+    {
+
+    }
 }

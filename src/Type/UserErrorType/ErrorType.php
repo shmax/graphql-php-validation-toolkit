@@ -32,6 +32,8 @@ abstract class ErrorType extends ObjectType
     protected const CODE_NAME = '__code';
     protected const MESSAGE_NAME = '__msg';
 
+    abstract protected function _validate(array $arg, mixed $value, array &$res): void;
+
     protected function __construct(array $config, array $path)
     {
         $fields = $config['fields'] ?? [];
@@ -46,16 +48,6 @@ abstract class ErrorType extends ObjectType
             'fields' => $fields,
             'typeSetter' => $config['typeSetter'] ?? null,
         ]);
-    }
-
-    static function RegisterValidation(Type $type, callable $validate)
-    {
-
-    }
-
-    public static function string(): ScalarType
-    {
-        return static::$standardTypes[self::STRING] ??= new StringType();
     }
 
     /**
@@ -109,8 +101,8 @@ abstract class ErrorType extends ObjectType
                 throw new \Exception("Invalid response from the validate callback");
             }
             if ($code !== 0) {
-                $res[static::CODE_NAME] = $code;
-                $res[static::MESSAGE_NAME] = $msg;
+                $res[0] = $code;
+                $res[1] = $msg;
             }
         }
 
@@ -169,7 +161,7 @@ abstract class ErrorType extends ObjectType
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
                     'resolve' => static function ($error) {
-                        return $error[static::CODE_NAME] ?? 0;
+                        return $error[0] ?? 0;
                     },
                 ];
             }
@@ -178,7 +170,7 @@ abstract class ErrorType extends ObjectType
                 'type' => Type::string(),
                 'description' => 'An error message.',
                 'resolve' => static function ($error) {
-                    return $error[static::MESSAGE_NAME] ?? '';
+                    return $error[1] ?? '';
                 },
             ];
         } else {
