@@ -60,8 +60,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $config['isRoot'] = true;
 
-                $errors = $this->userErrorsType->validate($config, $args1);
-                $result = $errors;
+                $result = $errors = $this->userErrorsType->validate($config, $args1);
                 $result[$this->validFieldName] = empty($errors);
 
                 if (!empty($result['valid'])) {

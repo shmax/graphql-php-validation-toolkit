@@ -218,22 +218,18 @@ final class RequiredFieldsValidation extends TestBase
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                    author {
-                                        code
-                                        msg
-                                    }
-                                }
+                        __valid
+                        bookAttributes {
+                            title {
+                                __code
+                                __msg
+                            }
+                            author {
+                                __code
+                                __msg
                             }
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -244,22 +240,18 @@ final class RequiredFieldsValidation extends TestBase
                 ],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'suberrors' => [
-                            'title' => [
-                                'code' => 1,
-                                'msg' => 'book title must be less than 10 characters',
-                            ],
-                            'author' => [
-                                'code' => 1,
-                                'msg' => 'We have no record of that author',
-                            ],
-                        ],
+                '__valid' => false,
+                'bookAttributes' => [
+                    'title' => [
+                        '__code' => 1,
+                        '__msg' => 'book title must be less than 10 characters',
+                    ],
+                    'author' => [
+                        '__code' => 1,
+                        '__msg' => 'We have no record of that author',
                     ],
                 ],
-                'result' => null,
+                '__result' => null,
             ]
         );
     }
@@ -272,8 +264,6 @@ final class RequiredFieldsValidation extends TestBase
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'validate' => static function () {
-                        },
                         'type' => Type::listOf(new InputObjectType([
                             'name' => 'BookAttributes',
                             'fields' => [
@@ -303,18 +293,16 @@ final class RequiredFieldsValidation extends TestBase
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
+                        __valid
+                        __result
+                        bookAttributes {
+                            items {
+                                title {
+                                    __code
+                                    __msg
                                 }
                             }
                         }
-                        result
                     }
                 }
             '),
@@ -324,20 +312,18 @@ final class RequiredFieldsValidation extends TestBase
                 ]],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
+                '__valid' => false,
+                'bookAttributes' => [
+                    'items' => [
                         [
-                            'suberrors' => [
-                                'title' => [
-                                    'code' => 1,
-                                    'msg' => 'book title must be less than 10 characters',
-                                ],
-                            ],
-                        ],
-                    ],
+                            'title' => [
+                                '__code' => 1,
+                                '__msg' => 'book title must be less than 10 characters',
+                            ]
+                        ]
+                    ]
                 ],
-                'result' => null,
+                '__result' => null,
             ]
         );
     }

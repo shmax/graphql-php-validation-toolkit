@@ -45,7 +45,7 @@ class InputObjectErrorType extends ErrorType
             if ($isRequired && !array_key_exists($key, $value)) {
                 // Handle required field logic
                 if (is_array($isRequired)) {
-                    $validationResult = $isRequired + [
+                    $validationResult = static::_formatValidationResult($isRequired) + [
                             static::CODE_NAME => 1,
                             static::MESSAGE_NAME => "$key is required"
                         ];
@@ -59,6 +59,7 @@ class InputObjectErrorType extends ErrorType
 
             if ($validationResult[static::CODE_NAME] !== 0) {
                 // Populate result array
+                $res[static::CODE_NAME] = 1; // not exposed for query, just needed so it doesn't get filtered higher-up in the tree
                 $res[$key] = $validationResult;
             }
         }

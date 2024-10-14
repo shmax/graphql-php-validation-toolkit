@@ -21,7 +21,8 @@ abstract class TestBase extends TestCase
         self::assertEquals(Utils::nowdoc($expected), $actual);
     }
 
-    protected function _checkType(Type $type, string $expected): void {
+    protected function _checkType(Type $type, string $expected): void
+    {
         $actual = SchemaPrinter::printType($type);
         self::assertEquals(Utils::nowdoc($expected), $actual);
     }
@@ -77,7 +78,7 @@ abstract class TestBase extends TestCase
         $types = $schema->getTypeMap();
 
         $types = array_filter($types, function ($type) {
-            return ! $type->isBuiltInType();
+            return !$type->isBuiltInType();
         });
 
         $typeMap = array_map(function ($type) {
@@ -86,7 +87,7 @@ abstract class TestBase extends TestCase
             return Utils::toNowDoc(SchemaPrinter::printType($type), 8);
         }, $types);
 
-        if (! empty($this->outputPath)) {
+        if (!empty($this->outputPath)) {
             $lines = preg_split('/\\n/', Utils::varExport($typeMap, true));
             assert($lines !== false);
             $numLines = \count($lines);

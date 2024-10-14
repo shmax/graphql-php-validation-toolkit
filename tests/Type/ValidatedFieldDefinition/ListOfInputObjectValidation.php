@@ -2,10 +2,8 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
-use GraphQL\GraphQL;
 use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
@@ -41,8 +39,8 @@ final class ListOfInputObjectValidation extends TestBase
                                     'type' => Type::string(),
                                     'description' => 'Enter a book title, no more than 10 characters in length',
                                     'validate' => static function (string $title) {
-                                        if (\strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 characters'];
+                                        if (\strlen($title) > 5) {
+                                            return [1, 'book title must be less than 5 characters'];
                                         }
 
                                         return 0;
@@ -77,11 +75,13 @@ final class ListOfInputObjectValidation extends TestBase
                         __valid
                         __result
                         bookAttributes {
-                            title {
-                                __code
-                                __msg
+                            items {
+                                title {
+                                    __code
+                                    __msg
+                                }
+                                __path
                             }
-                            __path
                         }
                     }
                 }
@@ -93,15 +93,29 @@ final class ListOfInputObjectValidation extends TestBase
                         'author' => 3,
                     ],
                     [
-                        'title' => '',
-                        'author' => '',
+                        'title' => 'Ubik',
+                        'author' => '-2',
                     ],
                 ],
             ],
             [
-                '__valid' => true,
+                '__valid' => false,
                 '__result' => null,
-                'phoneNumbers' => null
+                'bookAttributes' => [
+                    'items' => [
+                        [
+                            'title' => [
+                                '__code' => 1,
+                                '__msg' => 'book title must be less than 5 characters',
+                            ],
+                            '__path' => [0]
+                        ],
+                        [
+                            'title' => null,
+                            '__path' => [1]
+                        ],
+                    ]
+                ]
             ]
         );
     }
