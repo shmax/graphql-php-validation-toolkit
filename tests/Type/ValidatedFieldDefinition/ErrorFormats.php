@@ -160,14 +160,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        fieldErrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        __valid
+                        bookId {
+                            __code
+                            __msg
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -177,8 +175,8 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals(1, $res->data['updateBook']['fieldErrors']['bookId']['code']);
-        static::assertEquals('Invalid Book Id', $res->data['updateBook']['fieldErrors']['bookId']['msg']);
+        static::assertEquals(1, $res->data['updateBook']['bookId']['__code']);
+        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['__msg']);
     }
 
     public function testEnumCodeTypeAndMessage(): void
@@ -217,14 +215,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        fieldErrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        __valid
+                        bookId {
+                            __code
+                            __msg
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -234,7 +230,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals('required', $res->data['updateBook']['fieldErrors']['bookId']['code']);
-        static::assertEquals('Invalid Book Id', $res->data['updateBook']['fieldErrors']['bookId']['msg']);
+        static::assertEquals('required', $res->data['updateBook']['bookId']['__code']);
+        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['__msg']);
     }
 }

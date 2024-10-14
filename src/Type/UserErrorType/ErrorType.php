@@ -161,11 +161,12 @@ abstract class ErrorType extends ObjectType
                 $fields[static::CODE_NAME] = [
                     'type' => Type::int(),
                     'description' => 'A numeric error code. 0 on success, non-zero on failure.',
-                    'resolve' => static function ($error) {
-                        return $error[0] ?? 0;
-                    },
                 ];
             }
+
+            $fields[static::CODE_NAME]['resolve'] = static function ($error) {
+                return $error[0] ?? 0;
+            };
 
             $fields[static::MESSAGE_NAME] = [
                 'type' => Type::string(),
