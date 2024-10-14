@@ -91,24 +91,33 @@ abstract class ErrorType extends ObjectType
         }
 
         if (\is_callable($arg['validate'] ?? null)) {
-            $result = $arg['validate']($value);
+            $result = static::_formatValidationResult($arg['validate']($value));
 
-            if (is_array($result) && count($result) === 2) {
-                [$code, $msg] = $result;
-            } elseif (is_int($result) || $result instanceof \UnitEnum) {
-                $code = $result;
-                $msg = ''; // Set a default message or leave as null
-            } else {
-                throw new \Exception("Invalid response from the validate callback");
-            }
-            if ($code !== 0) {
-                $res[0] = $code;
-                $res[1] = $msg;
+            if ($result[static::CODE_NAME] !== 0) {
+                $res = $result;
             }
         }
 
         $this->_validate($arg, $value, $res);
         return $res;
+    }
+
+    protected static function _formatValidationResult(mixed $result): ?array
+    {
+        if (is_array($result) && count($result) === 2) {
+            [$code, $msg] = $result;
+        } elseif (is_int($result) || $result instanceof \UnitEnum) {
+            $code = $result;
+            $msg = ''; // Set a default message or leave as null
+        } else {
+            throw new \Exception("Invalid response from the validate callback");
+        }
+
+        if ($code === 0) {
+            return null;
+        }
+
+        return [static::CODE_NAME => $code, static::MESSAGE_NAME => $msg];
     }
 
     protected static function isScalarType(Type $type): bool
@@ -165,14 +174,14 @@ abstract class ErrorType extends ObjectType
             }
 
             $fields[static::CODE_NAME]['resolve'] = static function ($error) {
-                return $error[0] ?? 0;
+                return $error[static::CODE_NAME] ?? 0;
             };
 
             $fields[static::MESSAGE_NAME] = [
                 'type' => Type::string(),
                 'description' => 'An error message.',
                 'resolve' => static function ($error) {
-                    return $error[1] ?? '';
+                    return $error[static::MESSAGE_NAME] ?? '';
                 },
             ];
         } else {

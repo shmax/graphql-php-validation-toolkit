@@ -4,13 +4,13 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
 use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
 final class ListOfInputObjectValidation extends TestBase
 {
@@ -26,62 +26,47 @@ final class ListOfInputObjectValidation extends TestBase
     /** @var Schema */
     protected $schema;
 
-    protected function setUp(): void
-    {
-        $this->schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
-            'mutation' => new ObjectType([
-                'name' => 'Mutation',
-                'fields' => function () {
-                    return [
-                        'updateBooks' => new ValidatedFieldDefinition([
-                            'name' => 'updateBooks',
-                            'type' => Type::boolean(),
-                            'args' => [
-                                'bookAttributes' => [
-                                    'type' => Type::listOf(new InputObjectType([
-                                        'name' => 'BookAttributes',
-                                        'fields' => [
-                                            'title' => [
-                                                'type' => Type::string(),
-                                                'description' => 'Enter a book title, no more than 10 characters in length',
-                                                'validate' => static function (string $title) {
-                                                    if (\strlen($title) > 10) {
-                                                        return [1, 'book title must be less than 10 characters'];
-                                                    }
-
-                                                    return 0;
-                                                },
-                                            ],
-                                            'author' => [
-                                                'type' => Type::id(),
-                                                'description' => 'Provide a valid author id',
-                                                'validate' => function (string $authorId) {
-                                                    if (! isset($this->data['people'][$authorId])) {
-                                                        return [1, 'We have no record of that author'];
-                                                    }
-
-                                                    return 0;
-                                                },
-                                            ],
-                                        ],
-                                    ])),
-                                ],
-                            ],
-                            'resolve' => static function ($value): bool {
-                                return (bool) $value;
-                            },
-                        ]),
-                    ];
-                },
-            ]),
-        ]);
-    }
-
     public function testValidationFail(): void
     {
-        $res = GraphQL::executeQuery(
-            $this->schema,
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBooks',
+                'type' => Type::boolean(),
+                'args' => [
+                    'bookAttributes' => [
+                        'type' => Type::listOf(new InputObjectType([
+                            'name' => 'BookAttributes',
+                            'fields' => [
+                                'title' => [
+                                    'type' => Type::string(),
+                                    'description' => 'Enter a book title, no more than 10 characters in length',
+                                    'validate' => static function (string $title) {
+                                        if (\strlen($title) > 10) {
+                                            return [1, 'book title must be less than 10 characters'];
+                                        }
+
+                                        return 0;
+                                    },
+                                ],
+                                'author' => [
+                                    'type' => Type::id(),
+                                    'description' => 'Provide a valid author id',
+                                    'validate' => function (string $authorId) {
+                                        if (!isset($this->data['people'][$authorId])) {
+                                            return [1, 'We have no record of that author'];
+                                        }
+
+                                        return 0;
+                                    },
+                                ],
+                            ],
+                        ])),
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return (bool)$value;
+                },
+            ]),
             Utils::nowdoc('
                 mutation UpdateBooks(
                         $bookAttributes: [BookAttributes]
@@ -89,24 +74,18 @@ final class ListOfInputObjectValidation extends TestBase
                     updateBooks (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        result
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                }
-                                path
+                        __valid
+                        __result
+                        bookAttributes {
+                            title {
+                                __code
+                                __msg
                             }
+                            path
                         }
                     }
                 }
             '),
-            [],
-            null,
             [
                 'bookAttributes' => [
                     [
@@ -118,29 +97,12 @@ final class ListOfInputObjectValidation extends TestBase
                         'author' => '',
                     ],
                 ],
+            ],
+            [
+                '__valid' => true,
+                '__result' => null,
+                'phoneNumbers' => null
             ]
         );
-
-        static::assertEmpty($res->errors);
-
-        static::assertEquals(
-            [
-                'valid' => false,
-                'result' => null,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        [
-                            'suberrors' => [
-                                'title' => null,
-                            ],
-                            'path' => [1],
-                        ],
-                    ],
-                ],
-            ],
-            $res->data['updateBooks']
-        );
-
-        static::assertFalse($res->data['updateBooks']['valid']);
     }
 }

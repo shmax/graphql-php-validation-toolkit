@@ -35,8 +35,7 @@ class InputObjectErrorType extends ErrorType
             $config = $field->config;
             $fieldErrorType = $this->config['fields'][$key]['type'];
             $isRequired = $config['required'] ?? false;
-            $code = 0;
-            $msg = '';
+            $validationResult = [static::CODE_NAME => 0, static::MESSAGE_NAME => ''];
 
             if (is_callable($isRequired)) {
                 $isRequired = $isRequired();
@@ -45,21 +44,21 @@ class InputObjectErrorType extends ErrorType
             if ($isRequired && !array_key_exists($key, $value)) {
                 // Handle required field logic
                 if (is_array($isRequired)) {
-                    [$code, $msg] = $isRequired + [1, "$key is required"];
+                    $validationResult = $isRequired + [
+                            static::CODE_NAME => 1,
+                            static::MESSAGE_NAME => "$key is required"
+                        ];
                 } else {
-                    $code = 1;
-                    $msg = "$key is required";
+                    $validationResult = [static::CODE_NAME => 1, static::MESSAGE_NAME => "$key is required"];
                 }
             } elseif (array_key_exists($key, $value)) {
                 // Handle validation logic for present keys
-                $validationResult = $fieldErrorType->validate($config, $value[$key]);
-                [$code, $msg] = $validationResult + [0, ""];
+                $validationResult = $fieldErrorType->validate($config, $value[$key]) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
             }
 
-            if ($code !== 0) {
+            if ($validationResult[static::CODE_NAME] !== 0) {
                 // Populate result array
-                $res[$key][0] = $code;
-                $res[$key][1] = $msg;
+                $res[$key] = $validationResult;
             }
         }
     }

@@ -10,6 +10,8 @@ class ListOfErrorType extends ErrorType
 {
     public const ITEMS_NAME = 'items';
 
+    protected const PATH_NAME = '__path';
+
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
@@ -32,11 +34,11 @@ class ListOfErrorType extends ErrorType
                 'validate' => $validate,
                 'errorCodes' => $errorCodes,
                 'fields' => [
-                    'path' => [
+                    static::PATH_NAME => [
                         'type' => Type::listOf(Type::int()),
                         'description' => 'A path describing this item\'s location in the nested array',
                         'resolve' => static function ($value) {
-                            return $value['path'];
+                            return $value[static::PATH_NAME];
                         },
                     ]
                 ],
@@ -78,24 +80,9 @@ class ListOfErrorType extends ErrorType
                 $newPath[] = 0;
                 $this->_validateListOfType(["type" => $wrappedType, "validate" => $validate], $subValue, $res, $newPath);
             } else {
-                $err = $validate ? $validate($subValue) : 0;
-
-//                if (empty($err)) {
-//                    $wrappedType = $config['type']->getInnermostType();
-//                    $err = $this->_validate([
-//                        'type' => $wrappedType,
-//                    ], $subValue, $config['type'] instanceof ListOfErrorType);
-//                }
-
+                $err = static::_formatValidationResult($validate ? $validate($subValue) : 0);
                 if ($err) {
-                    if (isset($err['suberrors'])) {
-                        $err = $err;
-                    } else {
-                        $err = [
-                            'error' => $err,
-                        ];
-                    }
-                    $err['path'] = $path;
+                    $err[static::PATH_NAME] = $path;
                     $res[] = $err;
                 }
             }

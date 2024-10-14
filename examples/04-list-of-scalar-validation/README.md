@@ -28,7 +28,7 @@ mutation {
       items {
         __code
         __msg
-        path
+        __path
       }
     }
   }
@@ -47,7 +47,7 @@ mutation {
       items {
         __code
         __msg
-        path
+        __path
       }
     }
   }

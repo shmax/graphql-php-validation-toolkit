@@ -44,7 +44,7 @@ final class ListOfScalarValidationTest extends TestBase
                             items {
                                 __code
                                 __msg
-                                path
+                                __path
                             }
                         }
                         __result
@@ -60,16 +60,9 @@ final class ListOfScalarValidationTest extends TestBase
             ],
             [
                 '__valid' => true,
-                '__code' => 0,
-                'items' => [
-                    'phoneNumbers' => [
-                        '__code' => 1,
-                        '__msg' => 'book title must be less than 10 characters',
-                    ],
-                ],
                 '__result' => null,
+                'phoneNumbers' => null
             ]
         );
     }
-
 }

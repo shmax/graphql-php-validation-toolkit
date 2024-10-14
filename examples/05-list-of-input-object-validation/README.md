@@ -74,7 +74,7 @@ mutation {
     __valid
     authors {
       items {
-        path
+        __path
         id {
           __code
           __msg
