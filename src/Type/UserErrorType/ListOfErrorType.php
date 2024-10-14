@@ -58,6 +58,47 @@ class ListOfErrorType extends ErrorType
 
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
+        $this->_validateListOfType($arg, $value, $res);
+    }
 
+    /**
+     * @param array<string, mixed> $config
+     * @param mixed[] $value
+     * @param array<mixed> $res
+     * @param Array<string|int> $path
+     */
+    protected function _validateListOfType(array $config, array $value, array &$res, array $path = [0]): void
+    {
+        $validate = $config['items']['validate'] ?? null;
+        $wrappedType = $config['type']->getWrappedType();
+        foreach ($value as $idx => $subValue) {
+            $path[\count($path) - 1] = $idx;
+            if ($wrappedType instanceof ListOfErrorType) {
+                $newPath = $path;
+                $newPath[] = 0;
+                $this->_validateListOfType(["type" => $wrappedType, "validate" => $validate], $subValue, $res, $newPath);
+            } else {
+                $err = $validate ? $validate($subValue) : 0;
+
+//                if (empty($err)) {
+//                    $wrappedType = $config['type']->getInnermostType();
+//                    $err = $this->_validate([
+//                        'type' => $wrappedType,
+//                    ], $subValue, $config['type'] instanceof ListOfErrorType);
+//                }
+
+                if ($err) {
+                    if (isset($err['suberrors'])) {
+                        $err = $err;
+                    } else {
+                        $err = [
+                            'error' => $err,
+                        ];
+                    }
+                    $err['path'] = $path;
+                    $res[] = $err;
+                }
+            }
+        }
     }
 }

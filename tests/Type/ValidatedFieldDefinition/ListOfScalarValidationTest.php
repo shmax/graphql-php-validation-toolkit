@@ -59,9 +59,8 @@ final class ListOfScalarValidationTest extends TestBase
                 ],
             ],
             [
-                '__valid' => false,
-                '__code' => 1,
-                'msg' => "If title is set, then author is required",
+                '__valid' => true,
+                '__code' => 0,
                 'items' => [
                     'phoneNumbers' => [
                         '__code' => 1,

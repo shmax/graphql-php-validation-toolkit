@@ -53,7 +53,7 @@ class InputObjectErrorType extends ErrorType
             } elseif (array_key_exists($key, $value)) {
                 // Handle validation logic for present keys
                 $validationResult = $fieldErrorType->validate($config, $value[$key]);
-                [$code, $msg] = $validationResult;
+                [$code, $msg] = $validationResult + [0, ""];
             }
 
             if ($code !== 0) {

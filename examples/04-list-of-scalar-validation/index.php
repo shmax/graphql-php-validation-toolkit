@@ -26,21 +26,14 @@ try {
                 },
                 'args' => [
                     'phoneNumbers' => [
-                        'type' => Type::listOf(new ValidatedStringType([
-                            'validate' => function ($phoneNumbers) {
-                                return true;
-                            }
-                        ])),
-                        'items' => [
-                            'validate' => function (array $number) {
-                            }
-                        ]
-                    ],
-                    'otherNumbers' => [
                         'type' => Type::listOf(Type::string()),
-                        'validateItem' => function (array $args) {
-                        }
-                    ],
+                        'items' => [
+                            'validate' => function ($phoneNumber) {
+                                $isValid = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
+                                return $isValid === 1 ? 0 : 1;
+                            }
+                        ],
+                    ]
                 ],
                 'resolve' => function ($value, $args) {
                     // PhoneNumberProvider::setPhoneNumbers($args['phoneNumbers']);

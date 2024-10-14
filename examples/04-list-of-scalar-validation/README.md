@@ -21,7 +21,7 @@ php -S localhost:8000 ./index.php
 ```
 mutation {
   savePhoneNumbers(phoneNumbers: ["123-3456", "867-5309"]) {
-    valid
+    __valid
     __code
     __msg
     phoneNumbers {
