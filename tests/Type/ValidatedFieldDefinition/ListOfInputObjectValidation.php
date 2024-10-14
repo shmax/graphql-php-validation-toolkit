@@ -81,7 +81,7 @@ final class ListOfInputObjectValidation extends TestBase
                                 __code
                                 __msg
                             }
-                            path
+                            __path
                         }
                     }
                 }

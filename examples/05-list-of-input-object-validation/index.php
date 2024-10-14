@@ -63,6 +63,8 @@ try {
                     'authors' => [
                         'type' => Type::listOf(new InputObjectType([
                             'name' => 'AuthorInput',
+                            'validate' => function ($args) {
+                            },
                             'fields' => [
                                 'id' => [
                                     'type' => Type::nonNull(Type::id()),

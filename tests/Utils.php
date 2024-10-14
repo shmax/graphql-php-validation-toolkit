@@ -62,4 +62,14 @@ class Utils
 
         return \implode("\n", $lines);
     }
+
+    public static function isSequentialArray($var)
+    {
+        if (!is_array($var)) {
+            return false;
+        }
+
+        // Check if the array keys are sequential and numeric
+        return array_keys($var) === range(0, count($var) - 1);
+    }
 }

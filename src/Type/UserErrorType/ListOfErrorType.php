@@ -21,7 +21,7 @@ class ListOfErrorType extends ErrorType
                 $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
                 $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
             } else {
-                if (isset($config['item'])) {
+                if (isset($config[static::ITEMS_NAME])) {
                     throw new \Exception("'item' is only supported for scalar types");
                 }
 
@@ -60,7 +60,7 @@ class ListOfErrorType extends ErrorType
 
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
-        $this->_validateListOfType($arg, $value, $res);
+        $this->_validateListOfType($arg, $value, $res, [0]);
     }
 
     /**
@@ -69,10 +69,11 @@ class ListOfErrorType extends ErrorType
      * @param array<mixed> $res
      * @param Array<string|int> $path
      */
-    protected function _validateListOfType(array $config, array $value, array &$res, array $path = [0]): void
+    protected function _validateListOfType(array $config, array $value, array &$res, array $path): void
     {
         $validate = $config['items']['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
+        $wrappedErrorType = $this->config['fields'][static::ITEMS_NAME]['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
             $path[\count($path) - 1] = $idx;
             if ($wrappedType instanceof ListOfErrorType) {
@@ -80,10 +81,15 @@ class ListOfErrorType extends ErrorType
                 $newPath[] = 0;
                 $this->_validateListOfType(["type" => $wrappedType, "validate" => $validate], $subValue, $res, $newPath);
             } else {
-                $err = static::_formatValidationResult($validate ? $validate($subValue) : 0);
+                $err = $wrappedErrorType->validate([
+                    'type' => $wrappedType
+                ], $subValue);
+//                $err = static::_formatValidationResult($validate ? $validate($subValue) : 0);
                 if ($err) {
                     $err[static::PATH_NAME] = $path;
-                    $res[] = $err;
+                    $res[static::ITEMS_NAME] ??= [];
+                    $res[static::ITEMS_NAME][] = $err;
+                    $res[static::CODE_NAME] = 1; // this doesn't get exposed to queries anywhere, but we need it to flag that an error happened so it doesn't get filtered out
                 }
             }
         }
