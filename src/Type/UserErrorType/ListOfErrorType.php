@@ -22,7 +22,7 @@ class ListOfErrorType extends ErrorType
                 $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
             } else {
                 if (isset($config[static::ITEMS_NAME])) {
-                    throw new \Exception("'item' is only supported for scalar types");
+                    throw new \Exception("'items' is only supported for scalar types");
                 }
 
                 $validate = $type->config['validate'] ?? null;
@@ -52,7 +52,7 @@ class ListOfErrorType extends ErrorType
                 },
             ];
         } catch (NoValidatationFoundException $e) {
-            if (!isset($config['validate'])) {
+            if (!isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
                 throw $e;
             }
         }

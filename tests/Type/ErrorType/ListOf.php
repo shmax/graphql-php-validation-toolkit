@@ -20,7 +20,7 @@ final class ListOf extends TestBase
         ], ['upsertSku']);
     }
 
-    public function testCheckTypesOnListOfWithValidatedString()
+    public function testCheckTypesOnListOfWithValidatedString(): void
     {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::string()),
@@ -56,7 +56,7 @@ final class ListOf extends TestBase
         ');
     }
 
-    public function testCheckTypesOnListOfInputObjectWithValidation()
+    public function testCheckTypesOnListOfInputObjectWithValidation(): void
     {
         $type = ErrorType::create([
             'type' => Type::listOf(new InputObjectType([
@@ -109,7 +109,7 @@ final class ListOf extends TestBase
         ');
     }
 
-    public function testCheckTypesOnListOfListOfWithValidatedString()
+    public function testCheckTypesOnListOfListOfWithValidatedString(): void
     {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::listOf(Type::string())),
@@ -144,7 +144,7 @@ final class ListOf extends TestBase
         ');
     }
 
-    public function testCheckTypesOnListOfWithValidatedBoolean()
+    public function testCheckTypesOnListOfWithValidatedBoolean(): void
     {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::boolean()),

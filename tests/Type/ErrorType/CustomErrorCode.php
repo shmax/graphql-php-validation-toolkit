@@ -9,20 +9,24 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
-enum ColorError {
+enum ColorError
+{
     case invalidColor;
     case badHue;
 }
 
-enum PersonErrorCode {
+enum PersonErrorCode
+{
     case PersonNotFound;
     case Retired;
 }
 
-final class CustomErrorCode extends TestBase {
-    public function testCustomEnumOnSelf() {
+final class CustomErrorCode extends TestBase
+{
+    public function testCustomEnumOnSelf(): void
+    {
         $this->_checkSchema(ErrorType::create([
-            'validate' => static fn () => null,
+            'validate' => static fn() => null,
             'type' => Type::id(),
             'errorCodes' => ColorError::class
         ], ['palette']), '
@@ -33,10 +37,10 @@ final class CustomErrorCode extends TestBase {
             "User errors for Palette"
             type PaletteError {
               "An enumerated error code."
-              code: Palette_ColorError
+              __code: Palette_ColorError
             
               "An error message."
-              msg: String
+              __msg: String
             }
             
             enum Palette_ColorError {
@@ -47,12 +51,14 @@ final class CustomErrorCode extends TestBase {
         ');
     }
 
-    public function testCustomEnumOnListOfIdType() {
+    public function testCustomEnumOnListOfIdType(): void
+    {
         $this->_checkSchema(ErrorType::create([
-            'type' => Type::listOf(new IDType([
-                'validate' => static fn () => null,
+            'type' => Type::listOf(Type::id()),
+            'items' => [
+                'validate' => static fn() => null,
                 'errorCodes' => ColorError::class
-            ])),
+            ],
         ], ['palette']), '
             schema {
               mutation: PaletteError
@@ -67,15 +73,20 @@ final class CustomErrorCode extends TestBase {
             "User errors for ID"
             type PaletteError_IDError {
               "A path describing this item\'s location in the nested array"
-              path: [Int]
+              __path: [Int]
             
-              "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              "An enumerated error code."
+              __code: PaletteError_ID_ColorError
             
               "An error message."
-              msg: String
+              __msg: String
             }
-
+            
+            enum PaletteError_ID_ColorError {
+              invalidColor
+              badHue
+            }
+            
         ');
     }
 
@@ -92,28 +103,22 @@ final class CustomErrorCode extends TestBase {
                         'authorId' => [
                             'errorCodes' => PersonErrorCode::class,
                             'type' => Type::id(),
-                            'validate' => static fn () => null,
+                            'validate' => static fn() => null,
                         ],
                         'editorId' => [
                             'errorCodes' => PersonErrorCode::class,
                             'type' => Type::id(),
-                            'validate' => static fn () => null,
+                            'validate' => static fn() => null,
                         ],
                     ],
                 ]),
-        ], ['updateBook']), '
+            ], ['updateBook']), '
             schema {
               mutation: UpdateBookError
             }
             
             "User errors for UpdateBook"
             type UpdateBookError {
-              "Validation errors for UpdateBook"
-              fieldErrors: UpdateBook_FieldErrors
-            }
-            
-            "Validation errors for UpdateBook"
-            type UpdateBook_FieldErrors {
               "Error for authorId"
               authorId: UpdateBook_AuthorIdError
             
@@ -124,10 +129,10 @@ final class CustomErrorCode extends TestBase {
             "User errors for AuthorId"
             type UpdateBook_AuthorIdError {
               "An enumerated error code."
-              code: UpdateBook_AuthorId_PersonErrorCode
+              __code: UpdateBook_AuthorId_PersonErrorCode
             
               "An error message."
-              msg: String
+              __msg: String
             }
             
             enum UpdateBook_AuthorId_PersonErrorCode {
@@ -138,10 +143,10 @@ final class CustomErrorCode extends TestBase {
             "User errors for EditorId"
             type UpdateBook_EditorIdError {
               "An enumerated error code."
-              code: UpdateBook_EditorId_PersonErrorCode
+              __code: UpdateBook_EditorId_PersonErrorCode
             
               "An error message."
-              msg: String
+              __msg: String
             }
             
             enum UpdateBook_EditorId_PersonErrorCode {
@@ -162,9 +167,7 @@ final class CustomErrorCode extends TestBase {
         $this->_checkSchema(
             ErrorType::create([
                 'typeSetter' => static function ($type) use (&$types): Type {
-                    if(!isset($types[$type->name])) {
-                        $types[$type->name] = $type;
-                    }
+                    $types[$type->name] ??= $type;
                     return $types[$type->name];
                 },
 
@@ -174,12 +177,12 @@ final class CustomErrorCode extends TestBase {
                         'authorId' => [
                             'errorCodes' => PersonErrorCode::class,
                             'type' => Type::id(),
-                            'validate' => static fn () => null,
+                            'validate' => static fn() => null,
                         ],
                         'editorId' => [
                             'errorCodes' => PersonErrorCode::class,
                             'type' => Type::id(),
-                            'validate' => static fn () => null,
+                            'validate' => static fn() => null,
                         ],
                     ],
                 ]),
@@ -190,12 +193,6 @@ final class CustomErrorCode extends TestBase {
                 
                 "User errors for UpdateBook"
                 type UpdateBookError {
-                  "Validation errors for UpdateBook"
-                  fieldErrors: UpdateBook_FieldErrors
-                }
-                
-                "Validation errors for UpdateBook"
-                type UpdateBook_FieldErrors {
                   "Error for authorId"
                   authorId: UpdateBook_AuthorIdError
                 
@@ -206,10 +203,10 @@ final class CustomErrorCode extends TestBase {
                 "User errors for AuthorId"
                 type UpdateBook_AuthorIdError {
                   "An enumerated error code."
-                  code: PersonErrorCode
+                  __code: PersonErrorCode
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
                 
                 enum PersonErrorCode {
@@ -220,10 +217,10 @@ final class CustomErrorCode extends TestBase {
                 "User errors for EditorId"
                 type UpdateBook_EditorIdError {
                   "An enumerated error code."
-                  code: PersonErrorCode
+                  __code: PersonErrorCode
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
 
         ');

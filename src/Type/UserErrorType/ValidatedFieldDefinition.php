@@ -3,7 +3,9 @@
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Executor\Executor;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 

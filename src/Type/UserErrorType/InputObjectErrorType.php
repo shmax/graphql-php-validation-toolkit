@@ -15,7 +15,7 @@ class InputObjectErrorType extends ErrorType
         parent::__construct($config, $path);
 
         try {
-            $errorFields = $this->getErrorFields($config['type'], $path);
+            $errorFields = $this->getErrorFields($config, $path);
             $this->config['fields'] = array_merge($this->config['fields'], $errorFields ?? []);
         } catch (NoValidatationFoundException $e) {
             if (empty($config['validate'])) {
@@ -65,13 +65,14 @@ class InputObjectErrorType extends ErrorType
         }
     }
 
-    protected function getErrorFields(Type $type, array $path): array
+    protected function getErrorFields($config, array $path): array
     {
+        $type = $config['type'];
         $args = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
-                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType()]), array_merge($path, [$key]));
+                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType(), 'typeSetter' => $config['typeSetter'] ?? null]), array_merge($path, [$key]));
             } catch (NoValidatationFoundException $e) {
                 // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.
                 continue;

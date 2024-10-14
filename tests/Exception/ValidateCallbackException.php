@@ -3,10 +3,7 @@
 namespace Exception;
 
 use GraphQL\Tests\Utils;
-use GraphQL\Type\Definition\FloatType;
-use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
@@ -25,12 +22,13 @@ final class ValidateCallbackException extends TestBase
 
     public function testIdWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
+
         ErrorType::create([
             'type' => Type::id(),
             'validate' => static fn() => null
         ], ['upsertSku']);
 
-        $this->assertTrue(true);
     }
 
     public function testStringThrows(): void
@@ -44,13 +42,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testStringWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::string(),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
-
     }
 
     public function testIntThrows(): void
@@ -64,12 +60,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testIntWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::int(),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
     }
 
     public function testBooleanThrows(): void
@@ -83,12 +78,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testBooleanWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::boolean(),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
     }
 
     public function testFloatThrows(): void
@@ -102,12 +96,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testFloatWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::float(),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
     }
 
     public function testInputObjectThrows(): void
@@ -130,6 +123,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testInputObjectWithValidationDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -144,12 +138,11 @@ final class ValidateCallbackException extends TestBase
             ]),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
     }
 
     public function testInputObjectWithValidationOnFieldDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -165,8 +158,6 @@ final class ValidateCallbackException extends TestBase
             ]),
             'validate' => static fn() => null
         ], ['upsertSku']);
-
-        $this->assertTrue(true);
     }
 
     public function testListOfFloatThrows(): void
@@ -180,11 +171,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfValidatedFloatDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::listOf(Type::float()),
-            'item' => ['validate' => static fn() => null]
+            'items' => ['validate' => static fn() => null]
         ], ['upsertSku']);
-        $this->assertTrue(true);
     }
 
     public function testListOfStringThrows(): void
@@ -198,11 +189,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfValidatedStringDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::listOf(Type::string()),
-            'item' => ['validate' => static fn() => null]
+            'items' => ['validate' => static fn() => null]
         ], ['upsertSku']);
-        $this->assertTrue(true);
     }
 
     public function testListOfIdThrows(): void
@@ -216,11 +207,11 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfValidatedIdDoesNotThrow(): void
     {
+        $this->expectNotToPerformAssertions();
         ErrorType::create([
             'type' => Type::listOf(Type::id()),
-            'item' => ['validate' => static fn() => null]
+            'items' => ['validate' => static fn() => null]
         ], ['upsertSku']);
-        $this->assertTrue(true);
     }
 
     public function testListOfInputObjectThrows(): void
@@ -243,9 +234,9 @@ final class ValidateCallbackException extends TestBase
 
     public function testItemValidationOnListOfInputObjectThrows(): void
     {
-        $this->expectExceptionMessage("'item' is only supported for scalar types");
+        $this->expectExceptionMessage("'items' is only supported for scalar types");
         ErrorType::create([
-            'item' => ['validate' => static fn() => null],
+            'items' => ['validate' => static fn() => null],
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [
