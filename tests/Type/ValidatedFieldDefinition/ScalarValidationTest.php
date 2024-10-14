@@ -90,7 +90,7 @@ final class ScalarValidationTest extends TestCase
                                 ],
                             ],
                             'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                                return (bool)$value;
                             },
                         ]),
                     ];
@@ -108,14 +108,12 @@ final class ScalarValidationTest extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        suberrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        __valid
+                        bookId {
+                            __code
+                            __msg
                         }
-                        result {
+                        __result {
                             title
                         }
                     }
@@ -127,6 +125,6 @@ final class ScalarValidationTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertFalse($res->data['updateBook']['valid']);
+        static::assertFalse($res->data['updateBook']['__valid']);
     }
 }

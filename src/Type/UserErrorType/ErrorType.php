@@ -29,8 +29,8 @@ use GraphQL\Type\Definition\WrappingType;
  */
 abstract class ErrorType extends ObjectType
 {
-    protected const CODE_NAME = 'code';
-    protected const MESSAGE_NAME = 'msg';
+    protected const CODE_NAME = '__code';
+    protected const MESSAGE_NAME = '__msg';
 
     protected function __construct(array $config, array $path)
     {
@@ -109,10 +109,9 @@ abstract class ErrorType extends ObjectType
                 throw new \Exception("Invalid response from the validate callback");
             }
             if ($code !== 0) {
-                $res['code'] = $code;
-                $res['msg'] = $msg;
+                $res[static::CODE_NAME] = $code;
+                $res[static::MESSAGE_NAME] = $msg;
             }
-
         }
 
         $this->_validate($arg, $value, $res);

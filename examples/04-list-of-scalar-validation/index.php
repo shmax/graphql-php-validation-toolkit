@@ -17,9 +17,9 @@ try {
                 'name' => 'savePhoneNumbers',
                 'type' => Type::boolean(),
                 'validate' => function (array $args) {
-//                    if (count($args['phoneNumbers']) == 0) {
-//                        return [1, 'You must enter at least one list of phone number'];
-//                    }
+                    if (count($args['phoneNumbers']) == 0) {
+                        return [1, 'You must enter at least one list of phone number'];
+                    }
 
                     return 0;
 
@@ -28,12 +28,11 @@ try {
                     'phoneNumbers' => [
                         'type' => Type::listOf(new ValidatedStringType([
                             'validate' => function ($phoneNumbers) {
-                                xdebug_break();
                                 return true;
                             }
                         ])),
-                        'item' => [
-                            'validate' => function (array $args) {
+                        'items' => [
+                            'validate' => function (array $number) {
                             }
                         ]
                     ],

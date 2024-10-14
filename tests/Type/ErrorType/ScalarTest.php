@@ -12,7 +12,7 @@ final class ScalarTest extends TestBase
     public function testId(): void
     {
         $this->_checkSchema(ErrorType::create([
-            'validate' => static fn () => null,
+            'validate' => static fn() => null,
             'type' => Type::id(),
         ], ['palette']), '
             schema {
@@ -22,10 +22,10 @@ final class ScalarTest extends TestBase
             "User errors for Palette"
             type PaletteError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
 
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');
@@ -34,7 +34,7 @@ final class ScalarTest extends TestBase
     public function testBoolean(): void
     {
         $this->_checkSchema(ErrorType::create([
-            'validate' => static fn () => null,
+            'validate' => static fn() => null,
             'type' => Type::boolean(),
         ], ['palette']), '
             schema {
@@ -44,10 +44,10 @@ final class ScalarTest extends TestBase
             "User errors for Palette"
             type PaletteError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
 
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');
@@ -56,7 +56,7 @@ final class ScalarTest extends TestBase
     public function testString(): void
     {
         $this->_checkSchema(ErrorType::create([
-            'validate' => static fn () => null,
+            'validate' => static fn() => null,
             'type' => Type::string(),
         ], ['palette']), '
             schema {
@@ -66,10 +66,10 @@ final class ScalarTest extends TestBase
             "User errors for Palette"
             type PaletteError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
 
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');

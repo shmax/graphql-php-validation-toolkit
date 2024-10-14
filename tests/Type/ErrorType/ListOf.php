@@ -20,14 +20,14 @@ final class ListOf extends TestBase
         ], ['upsertSku']);
     }
 
-    public function testCheckTypesOnListOfWithValidatedString() {
+    public function testCheckTypesOnListOfWithValidatedString()
+    {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::string()),
-            'item' => [
-                'validate' => static fn ($str) => null
+            'items' => [
+                'validate' => static fn($str) => null
             ]
         ], ['upsertSku']);
-
 
 
         $this->_checkSchema($type, '
@@ -47,24 +47,25 @@ final class ListOf extends TestBase
               path: [Int]
 
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');
     }
 
-    public function testCheckTypesOnListOfInputObjectWithValidation() {
+    public function testCheckTypesOnListOfInputObjectWithValidation()
+    {
         $type = ErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
-                'validate' => static fn ($value) => null,
+                'validate' => static fn($value) => null,
                 'fields' => [
                     'authorId' => [
                         'type' => Type::id(),
-                        'validate' => static fn ($value) => null
+                        'validate' => static fn($value) => null
                     ],
                 ],
             ])),
@@ -87,17 +88,11 @@ final class ListOf extends TestBase
               path: [Int]
             
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             
-              "Validation errors for UpdateBook"
-              fieldErrors: UpsertSkuError_UpdateBook_FieldErrors
-            }
-            
-            "Validation errors for UpdateBook"
-            type UpsertSkuError_UpdateBook_FieldErrors {
               "Error for authorId"
               authorId: UpsertSkuError_UpdateBook_AuthorIdError
             }
@@ -105,20 +100,21 @@ final class ListOf extends TestBase
             "User errors for AuthorId"
             type UpsertSkuError_UpdateBook_AuthorIdError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');
     }
 
-    public function testCheckTypesOnListOfListOfWithValidatedString() {
+    public function testCheckTypesOnListOfListOfWithValidatedString()
+    {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::listOf(Type::string())),
-            'item' => [
-                'validate' => static fn ($str) => null
+            'items' => [
+                'validate' => static fn($str) => null
             ]
         ], ['upsertSku']);
 
@@ -148,11 +144,12 @@ final class ListOf extends TestBase
         ');
     }
 
-    public function testCheckTypesOnListOfWithValidatedBoolean() {
+    public function testCheckTypesOnListOfWithValidatedBoolean()
+    {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::boolean()),
-            'item' => [
-                'validate' => static fn ($str) => null
+            'items' => [
+                'validate' => static fn($str) => null
             ]
         ], ['upsertSku']);
 

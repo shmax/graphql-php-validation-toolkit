@@ -7,7 +7,8 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
-enum AuthorErrorTest {
+enum AuthorErrorTest
+{
     case AuthorNotFound;
 }
 
@@ -39,7 +40,9 @@ final class InputObjectTest extends TestBase
                     'fields' => [
                         'title' => [
                             'type' => Type::string(),
-                            'validate' => static function () { return 0; },
+                            'validate' => static function () {
+                                return 0;
+                            },
                         ],
                         'authorId' => [
                             'validate' => static function (int $authorId): int {
@@ -57,12 +60,6 @@ final class InputObjectTest extends TestBase
                 
                 "User errors for UpdateBook"
                 type UpdateBookError {
-                  "Validation errors for UpdateBook"
-                  fieldErrors: UpdateBook_FieldErrors
-                }
-                
-                "Validation errors for UpdateBook"
-                type UpdateBook_FieldErrors {
                   "Error for title"
                   title: UpdateBook_TitleError
                 
@@ -73,19 +70,19 @@ final class InputObjectTest extends TestBase
                 "User errors for Title"
                 type UpdateBook_TitleError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  code: Int
+                  __code: Int
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
                 
                 "User errors for AuthorId"
                 type UpdateBook_AuthorIdError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  code: Int
+                  __code: Int
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
 
             '
@@ -96,7 +93,8 @@ final class InputObjectTest extends TestBase
     {
         $this->_checkSchema(
             ErrorType::create([
-                'validate' => static function () {},
+                'validate' => static function () {
+                },
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -117,10 +115,10 @@ final class InputObjectTest extends TestBase
                 "User errors for UpdateBook"
                 type UpdateBookError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  code: Int
+                  __code: Int
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
 
             '
@@ -131,16 +129,19 @@ final class InputObjectTest extends TestBase
     {
         $this->_checkSchema(
             ErrorType::create([
-                'validate' => static function () {},
+                'validate' => static function () {
+                },
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
                         'title' => [
-                            'validate' => static function () {},
+                            'validate' => static function () {
+                            },
                             'type' => Type::string(),
                         ],
                         'authorId' => [
-                            'validate' => static function () {},
+                            'validate' => static function () {
+                            },
                             'type' => Type::id(),
                         ],
                     ],
@@ -154,17 +155,11 @@ final class InputObjectTest extends TestBase
             "User errors for UpdateBook"
             type UpdateBookError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
-            
-              "Validation errors for UpdateBook"
-              fieldErrors: UpdateBook_FieldErrors
-            }
-            
-            "Validation errors for UpdateBook"
-            type UpdateBook_FieldErrors {
+              __msg: String
+
               "Error for title"
               title: UpdateBook_TitleError
             
@@ -175,19 +170,19 @@ final class InputObjectTest extends TestBase
             "User errors for Title"
             type UpdateBook_TitleError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
             
             "User errors for AuthorId"
             type UpdateBook_AuthorIdError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
 
             '
@@ -206,7 +201,8 @@ final class InputObjectTest extends TestBase
                                 'name' => 'address',
                                 'fields' => [
                                     'zip' => [
-                                        'validate' => static function () {},
+                                        'validate' => static function () {
+                                        },
                                         'type' => Type::string(),
                                     ],
                                 ],
@@ -222,24 +218,12 @@ final class InputObjectTest extends TestBase
                 
                 "User errors for UpdateBook"
                 type UpdateBookError {
-                  "Validation errors for UpdateBook"
-                  fieldErrors: UpdateBook_FieldErrors
-                }
-                
-                "Validation errors for UpdateBook"
-                type UpdateBook_FieldErrors {
                   "Error for author"
                   author: UpdateBook_AuthorError
                 }
                 
                 "User errors for Author"
                 type UpdateBook_AuthorError {
-                  "Validation errors for Author"
-                  fieldErrors: UpdateBook_Author_FieldErrors
-                }
-                
-                "Validation errors for Author"
-                type UpdateBook_Author_FieldErrors {
                   "Error for zip"
                   zip: UpdateBook_Author_ZipError
                 }
@@ -247,10 +231,10 @@ final class InputObjectTest extends TestBase
                 "User errors for Zip"
                 type UpdateBook_Author_ZipError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  code: Int
+                  __code: Int
                 
                   "An error message."
-                  msg: String
+                  __msg: String
                 }
 
             '

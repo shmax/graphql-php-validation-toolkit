@@ -25,7 +25,7 @@ final class ListOfScalarValidationTest extends TestBase
                     'phoneNumbers' => [
                         'type' => Type::listOf(Type::string()),
                         'description' => "Enter a list of names. We'll validate each one",
-                        'item' => ['validate' => static function ($value) {
+                        'items' => ['validate' => static function ($value) {
                             return strlen($value) <= 7 ? 0 : 1;
                         }]
                     ],
@@ -39,17 +39,15 @@ final class ListOfScalarValidationTest extends TestBase
                     savePhoneNumbers (
                         phoneNumbers: $phoneNumbers
                     ) {
-                        valid
-                        fieldErrors {
-                            phoneNumbers {
-                                items {
-                                    code
-                                    msg
-                                    path
-                                }
+                        __valid
+                        phoneNumbers {
+                            items {
+                                __code
+                                __msg
+                                path
                             }
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -61,16 +59,16 @@ final class ListOfScalarValidationTest extends TestBase
                 ],
             ],
             [
-                'valid' => false,
-                'code' => 1,
+                '__valid' => false,
+                '__code' => 1,
                 'msg' => "If title is set, then author is required",
                 'items' => [
                     'phoneNumbers' => [
-                        'code' => 1,
-                        'msg' => 'book title must be less than 10 characters',
+                        '__code' => 1,
+                        '__msg' => 'book title must be less than 10 characters',
                     ],
                 ],
-                'result' => null,
+                '__result' => null,
             ]
         );
     }

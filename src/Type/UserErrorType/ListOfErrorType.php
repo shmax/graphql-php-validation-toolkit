@@ -8,14 +8,16 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 class ListOfErrorType extends ErrorType
 {
+    public const ITEMS_NAME = 'items';
+
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
         $type = $config['type']->getInnermostType();
         try {
             if (static::isScalarType($type)) {
-                $validate = $config['item']['validate'] ?? null;
-                $errorCodes = $config['item']['errorCodes'] ?? null;
+                $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
+                $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
             } else {
                 if (isset($config['item'])) {
                     throw new \Exception("'item' is only supported for scalar types");
@@ -40,12 +42,11 @@ class ListOfErrorType extends ErrorType
                 ],
             ], [$this->name, $type->name]);
 
-            $this->config['fields']['items'] = [
-                'name' => 'items',
+            $this->config['fields'][static::ITEMS_NAME] = [
                 'type' => Type::listOf($errorType),
                 'description' => 'Validation errors for each ' . $type->name() . ' in the list',
                 'resolve' => static function ($value) {
-                    return $value['items'] ?? [];
+                    return $value[static::ITEMS_NAME] ?? [];
                 },
             ];
         } catch (NoValidatationFoundException $e) {

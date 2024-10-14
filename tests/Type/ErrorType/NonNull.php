@@ -22,10 +22,10 @@ final class NonNull extends TestBase
             "User errors for UpsertSku"
             type UpsertSkuError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');
@@ -34,7 +34,7 @@ final class NonNull extends TestBase
     public function testInputObjectWrappedType(): void
     {
         $this->_checkSchema(ErrorType::create([
-            'type'=> Type::nonNull(new InputObjectType([
+            'type' => Type::nonNull(new InputObjectType([
                 'name' => 'bookInput',
                 'fields' => [
                     'firstName' => [
@@ -68,12 +68,6 @@ final class NonNull extends TestBase
             
             "User errors for UpsertSku"
             type UpsertSkuError {
-              "Validation errors for UpsertSku"
-              fieldErrors: UpsertSku_FieldErrors
-            }
-            
-            "Validation errors for UpsertSku"
-            type UpsertSku_FieldErrors {
               "Error for firstName"
               firstName: UpsertSku_FirstNameError
             
@@ -84,19 +78,19 @@ final class NonNull extends TestBase
             "User errors for FirstName"
             type UpsertSku_FirstNameError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
             
             "User errors for LastName"
             type UpsertSku_LastNameError {
               "A numeric error code. 0 on success, non-zero on failure."
-              code: Int
+              __code: Int
             
               "An error message."
-              msg: String
+              __msg: String
             }
 
         ');

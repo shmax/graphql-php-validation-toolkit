@@ -42,7 +42,7 @@ final class InputObjectValidation extends TestBase
                         'type' => Type::id(),
                         'description' => 'Provide a valid author id',
                         'validate' => function (string $authorId) {
-                            if (! isset($this->data['people'][$authorId])) {
+                            if (!isset($this->data['people'][$authorId])) {
                                 return [1, 'We have no record of that author'];
                             }
 
@@ -51,7 +51,7 @@ final class InputObjectValidation extends TestBase
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -59,18 +59,16 @@ final class InputObjectValidation extends TestBase
                     updateBook (
                         author: $author, title: $title
                     ) {
-                        valid
-                        fieldErrors {
-                            title {
-                                code
-                                msg
-                            }
-                            author {
-                                code
-                                msg
-                            }
+                        __valid
+                        title {
+                            __code
+                            __msg
                         }
-                        result
+                        author {
+                            __code
+                            __msg
+                        }
+                        __result
                     }
                 }
             '),
@@ -79,18 +77,16 @@ final class InputObjectValidation extends TestBase
                 'author' => 4,
             ],
             [
-                'valid' => false,
-                'fieldErrors' => [
-                    'title' => [
-                        'code' => 1,
-                        'msg' => 'book title must be less than 10 characters',
-                    ],
-                    'author' => [
-                        'code' => 1,
-                        'msg' => 'We have no record of that author',
-                    ],
+                '__valid' => false,
+                'title' => [
+                    '__code' => 1,
+                    '__msg' => 'book title must be less than 10 characters',
                 ],
-                'result' => null,
+                'author' => [
+                    '__code' => 1,
+                    '__msg' => 'We have no record of that author',
+                ],
+                '__result' => null,
             ]
         );
     }
@@ -102,7 +98,7 @@ final class InputObjectValidation extends TestBase
                 'name' => 'updateBook',
                 'type' => Type::boolean(),
                 'validate' => static function ($info) {
-                    if(!empty($info['title']) && empty($info['author'])) {
+                    if (!empty($info['title']) && empty($info['author'])) {
                         return [1, "If title is set, then author is required"];
                     }
                     return 0;
@@ -123,7 +119,7 @@ final class InputObjectValidation extends TestBase
                         'type' => Type::id(),
                         'description' => 'Provide a valid author id',
                         'validate' => function (string $authorId) {
-                            if (! isset($this->data['people'][$authorId])) {
+                            if (!isset($this->data['people'][$authorId])) {
                                 return [1, 'We have no record of that author'];
                             }
 
@@ -132,7 +128,7 @@ final class InputObjectValidation extends TestBase
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -140,20 +136,18 @@ final class InputObjectValidation extends TestBase
                     updateBook (
                         author: $author, title: $title
                     ) {
-                        valid
-                        code
-                        msg
-                        fieldErrors {
-                            title {
-                                code
-                                msg
-                            }
-                            author {
-                                code
-                                msg
-                            }
+                        __valid
+                        __code
+                        __msg
+                        title {
+                            __code
+                            __msg
                         }
-                        result
+                        author {
+                            __code
+                            __msg
+                        }
+                        __result
                     }
                 }
             '),
@@ -162,20 +156,18 @@ final class InputObjectValidation extends TestBase
                 'author' => '',
             ],
             [
-                'valid' => false,
-                'code' => 1,
-                'msg'   => "If title is set, then author is required",
-                'fieldErrors' => [
-                    'title' => [
-                        'code' => 1,
-                        'msg' => 'book title must be less than 10 characters',
-                    ],
-                    'author' => [
-                        'code' => 1,
-                        'msg' => 'We have no record of that author',
-                    ],
+                '__valid' => false,
+                '__code' => 1,
+                '__msg' => "If title is set, then author is required",
+                'title' => [
+                    '__code' => 1,
+                    '__msg' => 'book title must be less than 10 characters',
                 ],
-                'result' => null,
+                'author' => [
+                    '__code' => 1,
+                    '__msg' => 'We have no record of that author',
+                ],
+                '__result' => null,
             ]
         );
     }

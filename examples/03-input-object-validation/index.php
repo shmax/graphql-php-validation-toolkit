@@ -6,19 +6,22 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-enum NameErrors {
+enum NameErrors
+{
     case NameTooLong;
     case NameNotUnique;
 }
 
-enum AgeErrors {
+enum AgeErrors
+{
     case Negative;
 }
 
-enum AuthorErrors {
+enum AuthorErrors
+{
     case UnknownAuthor;
     case DeceasedAuthor;
 }
@@ -115,7 +118,7 @@ try {
                         'type' => Type::id(),
                         'errorCodes' => AuthorErrors::class,
                         'validate' => function (string $authorId) use ($authors) {
-                            if (! isset($authors[$authorId])) {
+                            if (!isset($authors[$authorId])) {
                                 return [AuthorValidation::UnknownAuthor, 'We have no record of that author'];
                             }
 

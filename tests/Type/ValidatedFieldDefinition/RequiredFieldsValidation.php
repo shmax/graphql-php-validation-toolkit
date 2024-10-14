@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-final class RequiredFieldsValidation extends FieldDefinition
+final class RequiredFieldsValidation extends TestBase
 {
     /** @var mixed[] */
     protected $data = [
@@ -69,7 +69,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                                     'naz' => [
                                         'type' => Type::string(),
                                         'description' => 'Provide a naz',
-                                        'required' => static fn () => true,
+                                        'required' => static fn() => true,
                                         'validate' => function (string $naz) {
                                             if (strlen($naz) < 10) {
                                                 return [1, 'naz must be more than 10 characters!'];
@@ -82,7 +82,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                                         'type' => Type::id(),
                                         'description' => 'Provide a valid author id',
                                         'validate' => function (string $authorId) {
-                                            if (! isset($this->data['people'][$authorId])) {
+                                            if (!isset($this->data['people'][$authorId])) {
                                                 return [1, 'We have no record of that author'];
                                             }
 
@@ -95,7 +95,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -105,32 +105,30 @@ final class RequiredFieldsValidation extends FieldDefinition
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                title {
-                                    code
-                                    msg
-                                }
-                                author {
-                                    code
-                                    msg
-                                }
-                                foo {
-                                    code
-                                    msg
-                                }
-                                bar {
-                                    code
-                                    msg
-                                }
-                                naz {
-                                    code
-                                    msg
-                                }
+                        __valid
+                        bookAttributes {
+                            title {
+                                __code
+                                __msg
+                            }
+                            author {
+                                __code
+                                __msg
+                            }
+                            foo {
+                                __code
+                                __msg
+                            }
+                            bar {
+                                __code
+                                __msg
+                            }
+                            naz {
+                                __code
+                                __msg
                             }
                         }
-                        result
+                        __result
                     }
                 }
             '),
@@ -141,32 +139,30 @@ final class RequiredFieldsValidation extends FieldDefinition
                 ],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'title' => [
-                            'code' => 1,
-                            'msg' => 'book title must be less than 10 characters',
-                        ],
-                        'foo' => [
-                            'code' => 1,
-                            'msg' => 'foo is required',
-                        ],
-                        'bar' => [
-                            'code' => 1,
-                            'msg' => 'Oh, we absolutely must have a bar',
-                        ],
-                        'author' => [
-                            'code' => 1,
-                            'msg' => 'We have no record of that author',
-                        ],
-                        'naz' => [
-                            'code' => 1,
-                            'msg' => 'naz is required',
-                        ],
+                '__valid' => false,
+                'bookAttributes' => [
+                    'title' => [
+                        '__code' => 1,
+                        '__msg' => 'book title must be less than 10 characters',
+                    ],
+                    'foo' => [
+                        '__code' => 1,
+                        '__msg' => 'foo is required',
+                    ],
+                    'bar' => [
+                        '__code' => 1,
+                        '__msg' => 'Oh, we absolutely must have a bar',
+                    ],
+                    'author' => [
+                        '__code' => 1,
+                        '__msg' => 'We have no record of that author',
+                    ],
+                    'naz' => [
+                        '__code' => 1,
+                        '__msg' => 'naz is required',
                     ],
                 ],
-                'result' => null,
+                '__result' => null,
             ]
         );
     }
@@ -200,7 +196,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                                     'type' => Type::id(),
                                     'description' => 'Provide a valid author id',
                                     'validate' => function (string $authorId) {
-                                        if (! isset($this->data['people'][$authorId])) {
+                                        if (!isset($this->data['people'][$authorId])) {
                                             return [1, 'We have no record of that author'];
                                         }
 
@@ -212,7 +208,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -297,7 +293,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('

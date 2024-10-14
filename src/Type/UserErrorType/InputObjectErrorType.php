@@ -9,28 +9,13 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 class InputObjectErrorType extends ErrorType
 {
-    public const FIELDS_NAME = 'fieldErrors';
-
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
 
         try {
             $errorFields = $this->getErrorFields($config['type'], $path);
-            if (!empty($errorFields)) {
-                $this->config['fields'] ??= [];
-                $this->config['fields'][self::FIELDS_NAME] = [
-                    'type' => ErrorType::_set(new ObjectType([
-                        'name' => $this->_nameFromPath(array_merge($path, [self::FIELDS_NAME])),
-                        'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
-                        'fields' => $errorFields,
-                    ]), $config),
-                    'description' => 'Validation errors for ' . \ucfirst((string)$path[\count($path) - 1]),
-                    'resolve' => static function ($value) {
-                        return $value[self::FIELDS_NAME] ?? null;
-                    },
-                ];
-            }
+            $this->config['fields'] = array_merge($this->config['fields'], $errorFields ?? []);
         } catch (NoValidatationFoundException $e) {
             if (empty($config['validate'])) {
                 throw new NoValidatationFoundException($e);
@@ -50,7 +35,7 @@ class InputObjectErrorType extends ErrorType
         foreach ($fields as $key => $field) {
             $config = $field->config;
 
-            $configB = $this->config['type']->getFields();
+//            $configB = $this->config['type']->getFields();
 
             $isRequired = $config['required'] ?? false;
             $code = 0;
@@ -81,8 +66,8 @@ class InputObjectErrorType extends ErrorType
 
             if ($code !== 0) {
                 // Populate result array
-                $res[static::FIELDS_NAME][$key][static::CODE_NAME] = $code;
-                $res[static::FIELDS_NAME][$key][static::MESSAGE_NAME] = $msg;
+                $res[$key][static::CODE_NAME] = $code;
+                $res[$key][static::MESSAGE_NAME] = $msg;
             }
         }
     }
@@ -93,12 +78,15 @@ class InputObjectErrorType extends ErrorType
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
-                $newType = self::create([
-                    'type' => $field->getType(),
-                    'errorCodes' => $fieldConfig['errorCodes'] ?? null,
-                    'validate' => $fieldConfig['validate'] ?? null,
-                    'typeSetter' => $this->config['typeSetter'] ?? null,
-                ], array_merge($path, [$key]));
+//                $newType = self::create(array_merge([
+//                    'type' => $field->getType(),
+//                    'errorCodes' => $fieldConfig['errorCodes'] ?? null,
+//                    'validate' => $fieldConfig['validate'] ?? null,
+//                    'typeSetter' => $this->config['typeSetter'] ?? null,
+//                ], array_merge($path, [$key]));
+
+
+                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType()]), array_merge($path, [$key]));
             } catch (NoValidatationFoundException $e) {
                 // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.
                 continue;
