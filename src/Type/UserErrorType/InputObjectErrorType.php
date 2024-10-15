@@ -2,21 +2,30 @@
 
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
-use GraphQlPhpValidationToolkit\Tests\Utils;
 
+/**
+ * @phpstan-import-type UserErrorsConfig from ErrorType
+ * @phpstan-import-type Path from ErrorType
+ * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 class InputObjectErrorType extends ErrorType
 {
+    /**
+     * @param UserErrorsConfig $config
+     * @param Path $path
+     * @throws NoValidatationFoundException
+     */
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
 
         try {
             $errorFields = $this->getErrorFields($config, $path);
-            $this->config['fields'] = array_merge($this->config['fields'], $errorFields ?? []);
+            $this->config['fields'] = array_merge($this->config['fields'], $errorFields);
         } catch (NoValidatationFoundException $e) {
             if (empty($config['validate'])) {
                 throw new NoValidatationFoundException($e);
@@ -65,10 +74,17 @@ class InputObjectErrorType extends ErrorType
         }
     }
 
+    /**
+     * @param UserErrorsConfig $config
+     * @param Path $path
+     * @return array<string, UnnamedFieldDefinitionConfig>
+     * @throws NoValidatationFoundException
+     */
     protected function getErrorFields($config, array $path): array
     {
         $type = $config['type'];
-        $args = [];
+        assert($type instanceof InputObjectType);
+        $fields = [];
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
@@ -78,18 +94,16 @@ class InputObjectErrorType extends ErrorType
                 continue;
             }
 
-            if ($newType) {
-                $args[$key] = [
-                    'description' => 'Error for ' . $key,
-                    'type' => $newType,
-                ];
-            }
+            $fields[$key] = [
+                'description' => 'Error for ' . $key,
+                'type' => $newType,
+            ];
         }
 
-        if (empty($args) && !isset($this->config['validate'])) {
+        if (empty($fields) && !isset($this->config['validate'])) {
             throw new NoValidatationFoundException();
         }
 
-        return $args;
+        return $fields;
     }
 }

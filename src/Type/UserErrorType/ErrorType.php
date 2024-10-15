@@ -27,14 +27,26 @@ use GraphQL\Type\Definition\WrappingType;
  * @phpstan-import-type ObjectConfig from ObjectType
  * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  */
 abstract class ErrorType extends ObjectType
 {
     protected const CODE_NAME = '__code';
     protected const MESSAGE_NAME = '__msg';
 
+    /**
+     * @param ValidatedFieldConfig $arg
+     * @param mixed $value
+     * @param array<mixed> $res ;
+     */
+
     abstract protected function _validate(array $arg, mixed $value, array &$res): void;
 
+
+    /**
+     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param Path $path
+     */
     protected function __construct(array $config, array $path)
     {
         $fields = $config['fields'] ?? [];
@@ -53,8 +65,11 @@ abstract class ErrorType extends ObjectType
 
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
+     *
+     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param Path $path
      */
-    public static function create(array $config, array $path): ?self
+    public static function create(array $config, array $path): self
     {
         $resolvedType = self::_resolveType($config['type']);
 
@@ -70,15 +85,12 @@ abstract class ErrorType extends ObjectType
         } else {
             throw new \Exception("Unknown type");
         }
-        if (isset($type)) {
-            $type = static::_set($type, $config);
-        }
-        return $type;
+        return static::_set($type, $config);
     }
 
 
     /**
-     * @param mixed[] $arg
+     * @param ValidatedFieldConfig $arg
      * @param mixed $value
      *
      * @return mixed[]
@@ -93,7 +105,7 @@ abstract class ErrorType extends ObjectType
         if (\is_callable($arg['validate'] ?? null)) {
             $result = static::_formatValidationResult($arg['validate']($value));
 
-            if ($result && $result[static::CODE_NAME] !== 0) {
+            if (isset($result) && $result[static::CODE_NAME] !== 0) {
                 $res = $result;
             }
         }
@@ -102,6 +114,11 @@ abstract class ErrorType extends ObjectType
         return $res;
     }
 
+    /**
+     * @param int|array{0: int|\UnitEnum, 1: string} $result
+     * @return array{0: int|\UnitEnum, 1: string}
+     * @throws \Exception
+     */
     protected static function _formatValidationResult(mixed $result): ?array
     {
         if (is_array($result) && count($result) === 2) {
@@ -125,7 +142,7 @@ abstract class ErrorType extends ObjectType
         return $type instanceof ScalarType;
     }
 
-    static protected function _resolveType(mixed $type, $resolveWrapped = false): Type
+    static protected function _resolveType(Type|callable $type, bool $resolveWrapped = false): Type
     {
         if (\is_callable($type)) {
             $type = $type();
@@ -138,7 +155,13 @@ abstract class ErrorType extends ObjectType
         return $type;
     }
 
-    static protected function _set(Type $type, array $config)
+    /**
+     * @template T of Type
+     * @param T $type
+     * @param UserErrorsConfig $config
+     * @return T
+     */
+    static protected function _set(Type $type, array $config): Type
     {
         if (\is_callable($config['typeSetter'] ?? null)) {
             return $config['typeSetter']($type);
@@ -147,6 +170,12 @@ abstract class ErrorType extends ObjectType
         return $type;
     }
 
+    /**
+     * @param UserErrorsConfig $config
+     * @param array<FieldDefinitionConfig> $fields
+     * @param Path $path
+     * @throws \Exception
+     */
     protected function _addCodeAndMessageFields(array $config, array &$fields, array $path): void
     {
         if (isset($config['validate'])) {
@@ -194,6 +223,9 @@ abstract class ErrorType extends ObjectType
         }
     }
 
+    /**
+     * @param Path $path
+     */
     protected function _nameFromPath(array $path): string
     {
         return implode('_', array_map('ucfirst', $path));

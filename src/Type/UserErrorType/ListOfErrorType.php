@@ -2,6 +2,7 @@
 
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
@@ -15,6 +16,7 @@ class ListOfErrorType extends ErrorType
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
+        assert($config['type'] instanceof ListOfType);
         $type = $config['type']->getInnermostType();
         try {
             if (static::isScalarType($type)) {

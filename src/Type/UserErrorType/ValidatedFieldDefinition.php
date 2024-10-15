@@ -11,7 +11,6 @@ use GraphQL\Type\Definition\Type;
 
 /**
  * @phpstan-import-type ArgumentType from InputObjectField
- * @phpstan-import-type InputObjectConfig from InputObjectErrorType
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-type ValidatedFieldConfig array{
@@ -105,7 +104,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 'name' => '',
             ]),
             'typeSetter' => $config['typeSetter'] ?? null,
-        ], [$name], false, \ucfirst($name) . 'Result');
+        ], [$name]);
 
         $userErrorType->name = \ucfirst($name) . 'Result';
         return $userErrorType;
