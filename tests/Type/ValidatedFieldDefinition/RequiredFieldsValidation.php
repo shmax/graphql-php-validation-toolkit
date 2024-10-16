@@ -158,10 +158,17 @@ final class RequiredFieldsValidation extends TestBase
                             return new InputObjectType([
                                 'name' => 'BookAttributes',
                                 'fields' => [
-                                    // basic required functionality
+                                    // empty string
                                     'foo' => [
                                         'type' => Type::string(),
                                         'description' => 'Provide a foo',
+                                        'required' => true,
+                                    ],
+
+                                    // empty id
+                                    'doodad' => [
+                                        'type' => Type::id(),
+                                        'description' => 'Provide a doodad',
                                         'required' => true,
                                     ],
 
@@ -214,6 +221,10 @@ final class RequiredFieldsValidation extends TestBase
                                 __code
                                 __msg
                             }
+                            doodad {
+                                __code
+                                __msg
+                            }
                             bar {
                                 __code
                                 __msg
@@ -238,6 +249,7 @@ final class RequiredFieldsValidation extends TestBase
             [
                 'bookAttributes' => [
                     'foo' => '',
+                    'doodad' => '',
                     'bar' => null,
                     'naz' => '',
                     'dingus' => '',
@@ -250,6 +262,10 @@ final class RequiredFieldsValidation extends TestBase
                     'foo' => [
                         '__code' => 1,
                         '__msg' => 'foo is required',
+                    ],
+                    'doodad' => [
+                        '__code' => 1,
+                        '__msg' => 'doodad is required',
                     ],
                     'bar' => [
                         '__code' => 1,
