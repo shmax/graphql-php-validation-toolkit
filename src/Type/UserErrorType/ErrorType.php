@@ -80,6 +80,8 @@ abstract class ErrorType extends ObjectType
         } else if ($resolvedType instanceof NonNull) {
             $config['type'] = static::_resolveType($config['type'], true);
             $type = static::create($config, $path);
+        } else if ($resolvedType instanceof StringType) {
+            $type = new StringErrorType($config, $path);
         } else if ($resolvedType instanceof ScalarType) {
             $type = new ScalarErrorType($config, $path);
         } else {
@@ -88,30 +90,66 @@ abstract class ErrorType extends ObjectType
         return static::_set($type, $config);
     }
 
+    static protected function empty(mixed $value): bool
+    {
+        return !isset($value);
+    }
+
 
     /**
-     * @param ValidatedFieldConfig $arg
+     * @param ValidatedFieldConfig $config
      * @param mixed $value
      *
      * @return mixed[]
      */
-    public function validate(array $arg, $value): array
+    public function validate(array $config, $value): array
     {
         $res = [];
-        if (\is_callable($arg['type'])) {
-            $arg['type'] = $arg['type']();
+
+
+        if (static::empty($value) && static::isRequired($config['required'] ?? false)) {
+            if (is_array($config['required'])) {
+                $validationResult = static::_formatValidationResult($config['required']) + [
+                        static::CODE_NAME => 1,
+                        static::MESSAGE_NAME => $config['name'] . " is required"
+                    ];
+            } else {
+                $validationResult = [static::CODE_NAME => 1, static::MESSAGE_NAME => $config['name'] . " is required"];
+            }
+            return $validationResult;
         }
 
-        if (\is_callable($arg['validate'] ?? null)) {
-            $result = static::_formatValidationResult($arg['validate']($value));
+        if (\is_callable($config['validate'] ?? null)) {
+            $result = static::_formatValidationResult($config['validate']($value));
 
             if (isset($result) && $result[static::CODE_NAME] !== 0) {
                 $res = $result;
             }
         }
 
-        $this->_validate($arg, $value, $res);
+        if (\is_callable($config['type'])) {
+            $config['type'] = $config['type']();
+        }
+
+        $this->_validate($config, $value, $res);
         return $res;
+    }
+
+    /**
+     * @param bool|array{int|\UnitEnum, string} $requiredValue
+     * @return bool
+     */
+    static function isRequired($requiredValue): bool
+    {
+        if (is_callable($requiredValue)) {
+            $requiredValue = $requiredValue();
+        }
+
+        if (is_bool($requiredValue)) {
+            return $requiredValue;
+        }
+
+        return $requiredValue[0] !== 0;
     }
 
     /**
@@ -178,13 +216,13 @@ abstract class ErrorType extends ObjectType
      */
     protected function _addCodeAndMessageFields(array $config, array &$fields, array $path): void
     {
-        if (isset($config['validate'])) {
+        if (isset($config['validate']) || !empty($config['required'])) {
             if (isset($config['errorCodes'])) {
                 // error code. By default, this is an int, but if the user supplies the optional `errorCodes`
                 // enum property, then it takes that type
 
-                if (!isset($config['validate'])) {
-                    throw new \Exception('If you specify errorCodes, you must also provide a validate callback');
+                if (!isset($config['validate']) && empty($config['required'])) {
+                    throw new \Exception('If you specify errorCodes, you must also provide a \'validate\' callback, or mark the field as \'required\'');
                 }
                 $type = new PhpEnumType($config['errorCodes']);
                 if (!isset($config['typeSetter'])) {

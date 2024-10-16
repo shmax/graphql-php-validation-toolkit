@@ -13,7 +13,7 @@ final class ValidateCallbackException extends TestBase
 {
     public function testIdThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::id(),
@@ -33,7 +33,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testStringThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::string(),
@@ -51,7 +51,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testIntThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::int(),
@@ -69,7 +69,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testBooleanThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::boolean(),
@@ -87,7 +87,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testFloatThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::float(),
@@ -105,7 +105,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testInputObjectThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
         ErrorType::create([
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -162,7 +162,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfFloatThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::listOf(Type::float()),
@@ -180,7 +180,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfStringThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::listOf(Type::string()),
@@ -198,7 +198,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfIdThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
 
         ErrorType::create([
             'type' => Type::string(),
@@ -216,7 +216,7 @@ final class ValidateCallbackException extends TestBase
 
     public function testListOfInputObjectThrows(): void
     {
-        $this->expectExceptionMessage("You must specify at least one 'validate' callback somewhere in the tree.");
+        $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
         ErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',

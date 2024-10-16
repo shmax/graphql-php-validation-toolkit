@@ -54,10 +54,15 @@ class ListOfErrorType extends ErrorType
                 },
             ];
         } catch (NoValidatationFoundException $e) {
-            if (!isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
+            if (empty($config['required']) && !isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
                 throw $e;
             }
         }
+    }
+
+    static protected function empty(mixed $value): bool
+    {
+        return parent::empty($value) || count($value) === 0;
     }
 
     protected function _validate(array $arg, mixed $value, array &$res): void
