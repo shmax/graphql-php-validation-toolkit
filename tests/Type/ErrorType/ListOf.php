@@ -24,6 +24,7 @@ final class ListOf extends TestBase
     {
         $type = ErrorType::create([
             'type' => Type::listOf(Type::string()),
+            'validate' => static fn() => null,
             'items' => [
                 'validate' => static fn($str) => null
             ]
@@ -37,6 +38,12 @@ final class ListOf extends TestBase
             
             "User errors for UpsertSku"
             type UpsertSkuError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              __code: Int
+
+              "An error message."
+              __msg: String
+
               "Validation errors for each String in the list"
               items: [UpsertSkuError_StringError]
             }
@@ -44,7 +51,7 @@ final class ListOf extends TestBase
             "User errors for String"
             type UpsertSkuError_StringError {
               "A path describing this item\'s location in the nested array"
-              path: [Int]
+              __path: [Int]
 
               "A numeric error code. 0 on success, non-zero on failure."
               __code: Int
@@ -69,6 +76,7 @@ final class ListOf extends TestBase
                     ],
                 ],
             ])),
+            'validate' => static fn($value) => null
         ], ['upsertSku']);
 
         $this->_checkSchema($type, '
@@ -78,6 +86,12 @@ final class ListOf extends TestBase
 
             "User errors for UpsertSku"
             type UpsertSkuError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              __code: Int
+
+              "An error message."
+              __msg: String
+
               "Validation errors for each updateBook in the list"
               items: [UpsertSkuError_UpdateBookError]
             }
@@ -85,7 +99,7 @@ final class ListOf extends TestBase
             "User errors for UpdateBook"
             type UpsertSkuError_UpdateBookError {
               "A path describing this item\'s location in the nested array"
-              path: [Int]
+              __path: [Int]
             
               "A numeric error code. 0 on success, non-zero on failure."
               __code: Int
