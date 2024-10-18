@@ -215,6 +215,7 @@ final class ValidateCallbackException extends TestBase
     }
 
     public function testListOfInputObjectThrows(): void
+    
     {
         $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
         ErrorType::create([

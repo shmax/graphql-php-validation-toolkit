@@ -78,21 +78,25 @@ class ListOfErrorType extends ErrorType
      */
     protected function _validateListOfType(array $config, array $value, array &$res, array $path): void
     {
-        $validate = $config['items']['validate'] ?? null;
+        $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
         $wrappedErrorType = $this->config['fields'][static::ITEMS_NAME]['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
             $path[\count($path) - 1] = $idx;
-            if ($wrappedType instanceof ListOfErrorType) {
+            if ($wrappedType instanceof ListOfType) {
                 $newPath = $path;
                 $newPath[] = 0;
                 $this->_validateListOfType(["type" => $wrappedType, "validate" => $validate], $subValue, $res, $newPath);
             } else {
-                $err = $wrappedErrorType->validate([
-                    'type' => $wrappedType
-                ], $subValue);
+                if ($wrappedType instanceof ScalarType) {
+                    $err = static::_formatValidationResult($validate($subValue));
+                } else {
+                    $err = $wrappedErrorType->validate([
+                        'type' => $wrappedType
+                    ], $subValue);
+                }
 //                $err = static::_formatValidationResult($validate ? $validate($subValue) : 0);
-                if ($err) {
+                if ($err && $err[static::CODE_NAME] !== 0) {
                     $err[static::PATH_NAME] = $path;
                     $res[static::ITEMS_NAME] ??= [];
                     $res[static::ITEMS_NAME][] = $err;

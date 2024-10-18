@@ -55,12 +55,12 @@ abstract class ErrorType extends ObjectType
         $pathEnd = end($path);
         assert($pathEnd != false);
 
-        parent::__construct([
+        parent::__construct(array_merge($config, [
             'name' => $this->_nameFromPath($path) . 'Error',
             'description' => 'User errors for ' . \ucfirst((string)$pathEnd),
             'fields' => $fields,
             'typeSetter' => $config['typeSetter'] ?? null,
-        ]);
+        ]));
     }
 
     /**
