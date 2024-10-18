@@ -20,11 +20,11 @@ php -S localhost:8000 ./index.php
 ```
 mutation {
   deleteAuthor(id: 1) {
-    __valid
-    __result
+    _valid
+    _result
     id {
-      __code
-      __msg
+      _code
+      _msg
     }
   }
 }
@@ -35,11 +35,11 @@ mutation {
 ```
 mutation {
   deleteAuthor(id: 3) {
-    __valid
-    __result
+    _valid
+    _result
     id {
-      __code
-      __msg
+      _code
+      _msg
     }
   }
 }

@@ -80,18 +80,18 @@ checking their `args` and wrapped types for more `validate` callbacks. Every fie
 one--that has
 a `validate` callback will be represented by a custom, generated type with the following queryable fields:
 
-| Field    | Type                                 | Description                                                                                                                               |
-|----------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `__code` | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type. |
-| `__msg`  | `string`                             | A plain, natural language description of the error.                                                                                       |
-| `items`  | `[<path>_<field-name>Error]`         | An `items` field will be added when the arg type is `ListOfType`                                                                          
+| Field   | Type                                 | Description                                                                                                                               |
+|---------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `_code` | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type. |
+| `_msg`  | `string`                             | A plain, natural language description of the error.                                                                                       |
+| `items` | `[<path>_<field-name>Error]`         | An `items` field will be added when the arg type is `ListOfType`                                                                          
 
 The top-level `<field-name>Error` will have a few additional fields:
 
-| Field      | Type    | Description                                                                                                                                               |
-|------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `__valid`  | `bool`  | Resolves to `true` if all `args` and nested `fields` pass validation, `false` if not.                                                                     |
-| `__result` | `mixed` | This is the original `type` you provided when declaring your field. Eg, If you specified `type` to be a `Book`, then the type of `result` will be `Book`. |
+| Field     | Type    | Description                                                                                                                                               |
+|-----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `_valid`  | `bool`  | Resolves to `true` if all `args` and nested `fields` pass validation, `false` if not.                                                                     |
+| `_result` | `mixed` | This is the original `type` you provided when declaring your field. Eg, If you specified `type` to be a `Book`, then the type of `result` will be `Book`. |
 
 You can then simply query for these fields along with `result`:
 
@@ -100,13 +100,13 @@ mutation {
     updateAuthor(
         authorId: 1
     ) {
-        __valid
+        _valid
         result {
             id
             name
         }
-        __code
-        __msg
+        _code
+        _msg
         authorId {
             code
             msg

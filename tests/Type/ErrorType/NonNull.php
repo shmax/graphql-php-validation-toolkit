@@ -22,10 +22,10 @@ final class NonNull extends TestBase
             "User errors for UpsertSku"
             type UpsertSkuError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
 
         ');
@@ -78,19 +78,19 @@ final class NonNull extends TestBase
             "User errors for FirstName"
             type UpsertSku_FirstNameError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             "User errors for LastName"
             type UpsertSku_LastNameError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
 
         ');

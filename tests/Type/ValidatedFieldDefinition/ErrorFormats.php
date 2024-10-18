@@ -53,12 +53,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        __valid
+                        _valid
                         bookId {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -68,7 +68,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['bookId']['__code'], 1);
+        static::assertEquals($res->data['updateBook']['bookId']['_code'], 1);
     }
 
     public function testEnumCodeType(): void
@@ -108,11 +108,11 @@ final class ErrorFormats extends TestCase
                 ) {
                     updateBook (bookId: $bookId) {
                         bookId {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __valid
-                        __result
+                        _valid
+                        _result
                     }
                 }
             '),
@@ -122,7 +122,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['bookId']['__code'], 'required');
+        static::assertEquals($res->data['updateBook']['bookId']['_code'], 'required');
     }
 
     public function testIntCodeTypeAndMessage(): void
@@ -160,12 +160,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        __valid
+                        _valid
                         bookId {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -175,8 +175,8 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals(1, $res->data['updateBook']['bookId']['__code']);
-        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['__msg']);
+        static::assertEquals(1, $res->data['updateBook']['bookId']['_code']);
+        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['_msg']);
     }
 
     public function testEnumCodeTypeAndMessage(): void
@@ -215,12 +215,12 @@ final class ErrorFormats extends TestCase
                     $bookId:ID
                 ) {
                     updateBook (bookId: $bookId) {
-                        __valid
+                        _valid
                         bookId {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -230,7 +230,7 @@ final class ErrorFormats extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertEquals('required', $res->data['updateBook']['bookId']['__code']);
-        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['__msg']);
+        static::assertEquals('required', $res->data['updateBook']['bookId']['_code']);
+        static::assertEquals('Invalid Book Id', $res->data['updateBook']['bookId']['_msg']);
     }
 }

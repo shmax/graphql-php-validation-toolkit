@@ -72,15 +72,15 @@ final class ListOfInputObjectValidation extends TestBase
                     updateBooks (
                         bookAttributes: $bookAttributes
                     ) {
-                        __valid
-                        __result
+                        _valid
+                        _result
                         bookAttributes {
                             items {
                                 title {
-                                    __code
-                                    __msg
+                                    _code
+                                    _msg
                                 }
-                                __path
+                                _path
                             }
                         }
                     }
@@ -99,20 +99,20 @@ final class ListOfInputObjectValidation extends TestBase
                 ],
             ],
             [
-                '__valid' => false,
-                '__result' => null,
+                '_valid' => false,
+                '_result' => null,
                 'bookAttributes' => [
                     'items' => [
                         [
                             'title' => [
-                                '__code' => 1,
-                                '__msg' => 'book title must be less than 5 characters',
+                                '_code' => 1,
+                                '_msg' => 'book title must be less than 5 characters',
                             ],
-                            '__path' => [0]
+                            '_path' => [0]
                         ],
                         [
                             'title' => null,
-                            '__path' => [1]
+                            '_path' => [1]
                         ],
                     ]
                 ]

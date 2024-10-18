@@ -32,8 +32,8 @@ use GraphQL\Type\Definition\WrappingType;
  */
 abstract class ErrorType extends ObjectType
 {
-    protected const CODE_NAME = '__code';
-    protected const MESSAGE_NAME = '__msg';
+    protected const CODE_NAME = '_code';
+    protected const MESSAGE_NAME = '_msg';
 
     /**
      * @param ValidatedFieldConfig $arg

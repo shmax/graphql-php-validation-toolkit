@@ -29,10 +29,10 @@ final class Enum extends TestBase
             "User errors for Palette"
             type PaletteError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
 
               "An error message."
-              __msg: String
+              _msg: String
             }
 
         ');

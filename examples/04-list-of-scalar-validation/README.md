@@ -21,14 +21,14 @@ php -S localhost:8000 ./index.php
 ```
 mutation {
   savePhoneNumbers(phoneNumbers: ["123-3456", "867-5309"]) {
-    __valid
-    __code
-    __msg
+    _valid
+    _code
+    _msg
     phoneNumbers {
       items {
-        __code
-        __msg
-        __path
+        _code
+        _msg
+        _path
       }
     }
   }
@@ -40,14 +40,14 @@ mutation {
 ```
 mutation {
   savePhoneNumbers(phoneNumbers: ["123-3456", "xxx-5309"]) {
-    __valid
-    __code
-    __msg
+    _valid
+    _code
+    _msg
     phoneNumbers {
       items {
-        __code
-        __msg
-        __path
+        _code
+        _msg
+        _path
       }
     }
   }

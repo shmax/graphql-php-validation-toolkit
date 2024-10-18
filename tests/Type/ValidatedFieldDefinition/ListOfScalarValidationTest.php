@@ -39,15 +39,15 @@ final class ListOfScalarValidationTest extends TestBase
                     savePhoneNumbers (
                         phoneNumbers: $phoneNumbers
                     ) {
-                        __valid
+                        _valid
                         phoneNumbers {
                             items {
-                                __code
-                                __msg
-                                __path
+                                _code
+                                _msg
+                                _path
                             }
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -59,8 +59,8 @@ final class ListOfScalarValidationTest extends TestBase
                 ],
             ],
             [
-                '__valid' => true,
-                '__result' => null,
+                '_valid' => true,
+                '_result' => null,
                 'phoneNumbers' => null
             ]
         );
@@ -90,15 +90,15 @@ final class ListOfScalarValidationTest extends TestBase
                     savePhoneNumbers (
                         phoneNumbers: $phoneNumbers
                     ) {
-                        __valid
+                        _valid
                         phoneNumbers {
                             items {
-                                __code
-                                __msg
-                                __path
+                                _code
+                                _msg
+                                _path
                             }
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -110,8 +110,8 @@ final class ListOfScalarValidationTest extends TestBase
                 ]],
             ],
             [
-                '__valid' => true,
-                '__result' => null,
+                '_valid' => true,
+                '_result' => null,
                 'phoneNumbers' => null
             ]
         );
@@ -141,15 +141,15 @@ final class ListOfScalarValidationTest extends TestBase
                     savePhoneNumbers (
                         phoneNumbers: $phoneNumbers
                     ) {
-                        __valid
+                        _valid
                         phoneNumbers {
                             items {
-                                __code
-                                __msg
-                                __path
+                                _code
+                                _msg
+                                _path
                             }
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -169,19 +169,19 @@ final class ListOfScalarValidationTest extends TestBase
                 ],
             ],
             [
-                '__valid' => false,
-                '__result' => null,
+                '_valid' => false,
+                '_result' => null,
                 'phoneNumbers' => [
                     'items' => [
                         [
-                            '__code' => 1,
-                            '__msg' => "only hyphens and digits are allowed",
-                            '__path' => [0, 0]
+                            '_code' => 1,
+                            '_msg' => "only hyphens and digits are allowed",
+                            '_path' => [0, 0]
                         ],
                         [
-                            '__code' => 1,
-                            '__msg' => "only hyphens and digits are allowed",
-                            '__path' => [1, 3]
+                            '_code' => 1,
+                            '_msg' => "only hyphens and digits are allowed",
+                            '_path' => [1, 3]
                         ]
                     ]
                 ]

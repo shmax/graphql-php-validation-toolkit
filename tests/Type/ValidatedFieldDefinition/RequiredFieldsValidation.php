@@ -86,30 +86,30 @@ final class RequiredFieldsValidation extends TestBase
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        __valid
+                        _valid
                         bookAttributes {
                             foo {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             bar {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             naz {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             dingus {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             gadgets {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -118,30 +118,30 @@ final class RequiredFieldsValidation extends TestBase
                 ],
             ],
             [
-                '__valid' => false,
+                '_valid' => false,
                 'bookAttributes' => [
                     'foo' => [
-                        '__code' => 1,
-                        '__msg' => 'foo is required',
+                        '_code' => 1,
+                        '_msg' => 'foo is required',
                     ],
                     'bar' => [
-                        '__code' => 1,
-                        '__msg' => 'Oh, we absolutely must have a bar',
+                        '_code' => 1,
+                        '_msg' => 'Oh, we absolutely must have a bar',
                     ],
                     'naz' => [
-                        '__code' => 1,
-                        '__msg' => 'naz is required',
+                        '_code' => 1,
+                        '_msg' => 'naz is required',
                     ],
                     'dingus' => [
-                        '__code' => 'dingusRequired',
-                        '__msg' => 'Make with the dingus',
+                        '_code' => 'dingusRequired',
+                        '_msg' => 'Make with the dingus',
                     ],
                     'gadgets' => [
-                        '__code' => 1,
-                        '__msg' => 'gadgets is required',
+                        '_code' => 1,
+                        '_msg' => 'gadgets is required',
                     ],
                 ],
-                '__result' => null,
+                '_result' => null,
             ]
         );
     }
@@ -215,34 +215,34 @@ final class RequiredFieldsValidation extends TestBase
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        __valid
+                        _valid
                         bookAttributes {
                             foo {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             doodad {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             bar {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             naz {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             dingus {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                             gadgets {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -257,34 +257,34 @@ final class RequiredFieldsValidation extends TestBase
                 ],
             ],
             [
-                '__valid' => false,
+                '_valid' => false,
                 'bookAttributes' => [
                     'foo' => [
-                        '__code' => 1,
-                        '__msg' => 'foo is required',
+                        '_code' => 1,
+                        '_msg' => 'foo is required',
                     ],
                     'doodad' => [
-                        '__code' => 1,
-                        '__msg' => 'doodad is required',
+                        '_code' => 1,
+                        '_msg' => 'doodad is required',
                     ],
                     'bar' => [
-                        '__code' => 1,
-                        '__msg' => 'Oh, we absolutely must have a bar',
+                        '_code' => 1,
+                        '_msg' => 'Oh, we absolutely must have a bar',
                     ],
                     'naz' => [
-                        '__code' => 1,
-                        '__msg' => 'naz is required',
+                        '_code' => 1,
+                        '_msg' => 'naz is required',
                     ],
                     'dingus' => [
-                        '__code' => 'dingusRequired',
-                        '__msg' => 'Make with the dingus',
+                        '_code' => 'dingusRequired',
+                        '_msg' => 'Make with the dingus',
                     ],
                     'gadgets' => [
-                        '__code' => 1,
-                        '__msg' => 'gadgets is required',
+                        '_code' => 1,
+                        '_msg' => 'gadgets is required',
                     ],
                 ],
-                '__result' => null,
+                '_result' => null,
             ]
         );
     }

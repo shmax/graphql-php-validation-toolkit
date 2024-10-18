@@ -31,24 +31,24 @@ mutation {
       lastName: "Clarke"
     }]
   ) {
-    __valid
+    _valid
     authors {
       items {
         id {
-          __code
-          __msg
+          _code
+          _msg
         }
         firstName {
-          __code
-          __msg
+          _code
+          _msg
         }
         lastName {
-          __code
-          __msg
+          _code
+          _msg
         }
       }
     }
-    __result {
+    _result {
       firstName
       lastName
     }
@@ -71,25 +71,25 @@ mutation {
       lastName: "Jones"
     }]
   ) {
-    __valid
+    _valid
     authors {
       items {
-        __path
+        _path
         id {
-          __code
-          __msg
+          _code
+          _msg
         }
         firstName {
-          __code
-          __msg
+          _code
+          _msg
         }
         lastName {
-          __code
-          __msg
+          _code
+          _msg
         }
       }
     }
-    __result {
+    _result {
       firstName
       lastName
     }

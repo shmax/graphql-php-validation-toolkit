@@ -37,10 +37,10 @@ final class CustomErrorCode extends TestBase
             "User errors for Palette"
             type PaletteError {
               "An enumerated error code."
-              __code: Palette_ColorError
+              _code: Palette_ColorError
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             enum Palette_ColorError {
@@ -73,13 +73,13 @@ final class CustomErrorCode extends TestBase
             "User errors for ID"
             type PaletteError_IDError {
               "A path describing this item\'s location in the nested array"
-              __path: [Int]
+              _path: [Int]
             
               "An enumerated error code."
-              __code: PaletteError_ID_ColorError
+              _code: PaletteError_ID_ColorError
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             enum PaletteError_ID_ColorError {
@@ -129,10 +129,10 @@ final class CustomErrorCode extends TestBase
             "User errors for AuthorId"
             type UpdateBook_AuthorIdError {
               "An enumerated error code."
-              __code: UpdateBook_AuthorId_PersonErrorCode
+              _code: UpdateBook_AuthorId_PersonErrorCode
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             enum UpdateBook_AuthorId_PersonErrorCode {
@@ -143,10 +143,10 @@ final class CustomErrorCode extends TestBase
             "User errors for EditorId"
             type UpdateBook_EditorIdError {
               "An enumerated error code."
-              __code: UpdateBook_EditorId_PersonErrorCode
+              _code: UpdateBook_EditorId_PersonErrorCode
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             enum UpdateBook_EditorId_PersonErrorCode {
@@ -203,10 +203,10 @@ final class CustomErrorCode extends TestBase
                 "User errors for AuthorId"
                 type UpdateBook_AuthorIdError {
                   "An enumerated error code."
-                  __code: PersonErrorCode
+                  _code: PersonErrorCode
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
                 
                 enum PersonErrorCode {
@@ -217,10 +217,10 @@ final class CustomErrorCode extends TestBase
                 "User errors for EditorId"
                 type UpdateBook_EditorIdError {
                   "An enumerated error code."
-                  __code: PersonErrorCode
+                  _code: PersonErrorCode
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
 
         ');

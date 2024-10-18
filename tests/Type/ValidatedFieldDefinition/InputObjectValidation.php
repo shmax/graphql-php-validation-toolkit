@@ -59,16 +59,16 @@ final class InputObjectValidation extends TestBase
                     updateBook (
                         author: $author, title: $title
                     ) {
-                        __valid
+                        _valid
                         title {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
                         author {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -77,16 +77,16 @@ final class InputObjectValidation extends TestBase
                 'author' => 4,
             ],
             [
-                '__valid' => false,
+                '_valid' => false,
                 'title' => [
-                    '__code' => 1,
-                    '__msg' => 'book title must be less than 10 characters',
+                    '_code' => 1,
+                    '_msg' => 'book title must be less than 10 characters',
                 ],
                 'author' => [
-                    '__code' => 1,
-                    '__msg' => 'We have no record of that author',
+                    '_code' => 1,
+                    '_msg' => 'We have no record of that author',
                 ],
-                '__result' => null,
+                '_result' => null,
             ]
         );
     }
@@ -136,18 +136,18 @@ final class InputObjectValidation extends TestBase
                     updateBook (
                         author: $author, title: $title
                     ) {
-                        __valid
-                        __code
-                        __msg
+                        _valid
+                        _code
+                        _msg
                         title {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
                         author {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result
+                        _result
                     }
                 }
             '),
@@ -156,18 +156,18 @@ final class InputObjectValidation extends TestBase
                 'author' => '',
             ],
             [
-                '__valid' => false,
-                '__code' => 1,
-                '__msg' => "If title is set, then author is required",
+                '_valid' => false,
+                '_code' => 1,
+                '_msg' => "If title is set, then author is required",
                 'title' => [
-                    '__code' => 1,
-                    '__msg' => 'book title must be less than 10 characters',
+                    '_code' => 1,
+                    '_msg' => 'book title must be less than 10 characters',
                 ],
                 'author' => [
-                    '__code' => 1,
-                    '__msg' => 'We have no record of that author',
+                    '_code' => 1,
+                    '_msg' => 'We have no record of that author',
                 ],
-                '__result' => null,
+                '_result' => null,
             ]
         );
     }

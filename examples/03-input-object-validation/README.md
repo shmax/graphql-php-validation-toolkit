@@ -27,20 +27,20 @@ mutation {
       age: 47
     }
   ) {
-	__result {
+	_result {
       id
       name
     }
     attributes {
-      __code
-      __msg
+      _code
+      _msg
         age {
-          __code
-          __msg
+          _code
+          _msg
         }
         name {
-          __code
-          __msg
+          _code
+          _msg
         }
     }
   }
@@ -58,20 +58,20 @@ mutation {
       age: -3
     }
   ) {
-    __result {
+    _result {
       id
       name
     }
     attributes {
-      __code
-      __msg
+      _code
+      _msg
       age {
-        __code
-        __msg
+        _code
+        _msg
       }
       name {
-        __code
-        __msg
+        _code
+        _msg
       }
     }
   }

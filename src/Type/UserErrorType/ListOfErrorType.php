@@ -11,7 +11,7 @@ class ListOfErrorType extends ErrorType
 {
     public const ITEMS_NAME = 'items';
 
-    protected const PATH_NAME = '__path';
+    protected const PATH_NAME = '_path';
 
     protected function __construct(array $config, array $path)
     {

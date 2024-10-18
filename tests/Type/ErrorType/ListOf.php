@@ -39,10 +39,10 @@ final class ListOf extends TestBase
             "User errors for UpsertSku"
             type UpsertSkuError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
 
               "An error message."
-              __msg: String
+              _msg: String
 
               "Validation errors for each String in the list"
               items: [UpsertSkuError_StringError]
@@ -51,13 +51,13 @@ final class ListOf extends TestBase
             "User errors for String"
             type UpsertSkuError_StringError {
               "A path describing this item\'s location in the nested array"
-              __path: [Int]
+              _path: [Int]
 
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
 
         ');
@@ -87,10 +87,10 @@ final class ListOf extends TestBase
             "User errors for UpsertSku"
             type UpsertSkuError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
 
               "An error message."
-              __msg: String
+              _msg: String
 
               "Validation errors for each updateBook in the list"
               items: [UpsertSkuError_UpdateBookError]
@@ -99,13 +99,13 @@ final class ListOf extends TestBase
             "User errors for UpdateBook"
             type UpsertSkuError_UpdateBookError {
               "A path describing this item\'s location in the nested array"
-              __path: [Int]
+              _path: [Int]
             
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             
               "Error for authorId"
               authorId: UpsertSkuError_UpdateBook_AuthorIdError
@@ -114,10 +114,10 @@ final class ListOf extends TestBase
             "User errors for AuthorId"
             type UpsertSkuError_UpdateBook_AuthorIdError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
 
         ');

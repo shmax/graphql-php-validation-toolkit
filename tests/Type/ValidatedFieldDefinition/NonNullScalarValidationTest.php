@@ -103,12 +103,12 @@ final class NonNullScalarValidationTest extends TestCase
                     $bookId:ID!
                 ) {
                     updateBook (bookId: $bookId) {
-                        __valid
+                        _valid
                         bookId {
-                            __code
-                            __msg
+                            _code
+                            _msg
                         }
-                        __result {
+                        _result {
                             title
                         }
                     }
@@ -119,7 +119,7 @@ final class NonNullScalarValidationTest extends TestCase
             ['bookId' => 1]
         );
 
-        static::assertTrue($res->data['updateBook']['__valid']);
+        static::assertTrue($res->data['updateBook']['_valid']);
     }
 
     public function testNonNullScalarValidationFail(): void
@@ -131,12 +131,12 @@ final class NonNullScalarValidationTest extends TestCase
                         $bookId:ID!
                     ) {
                         updateBook (bookId: $bookId) {
-                            __valid
+                            _valid
                             bookId {
-                                __code
-                                __msg
+                                _code
+                                _msg
                             }
-                            __result {
+                            _result {
                                 title
                             }
                         }
@@ -148,6 +148,6 @@ final class NonNullScalarValidationTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertFalse($res->data['updateBook']['__valid']);
+        static::assertFalse($res->data['updateBook']['_valid']);
     }
 }

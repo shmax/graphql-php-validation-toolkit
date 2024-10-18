@@ -70,19 +70,19 @@ final class InputObjectTest extends TestBase
                 "User errors for Title"
                 type UpdateBook_TitleError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  __code: Int
+                  _code: Int
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
                 
                 "User errors for AuthorId"
                 type UpdateBook_AuthorIdError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  __code: Int
+                  _code: Int
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
 
             '
@@ -115,10 +115,10 @@ final class InputObjectTest extends TestBase
                 "User errors for UpdateBook"
                 type UpdateBookError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  __code: Int
+                  _code: Int
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
 
             '
@@ -155,10 +155,10 @@ final class InputObjectTest extends TestBase
             "User errors for UpdateBook"
             type UpdateBookError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
 
               "Error for title"
               title: UpdateBook_TitleError
@@ -170,19 +170,19 @@ final class InputObjectTest extends TestBase
             "User errors for Title"
             type UpdateBook_TitleError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
             
             "User errors for AuthorId"
             type UpdateBook_AuthorIdError {
               "A numeric error code. 0 on success, non-zero on failure."
-              __code: Int
+              _code: Int
             
               "An error message."
-              __msg: String
+              _msg: String
             }
 
             '
@@ -231,10 +231,10 @@ final class InputObjectTest extends TestBase
                 "User errors for Zip"
                 type UpdateBook_Author_ZipError {
                   "A numeric error code. 0 on success, non-zero on failure."
-                  __code: Int
+                  _code: Int
                 
                   "An error message."
-                  __msg: String
+                  _msg: String
                 }
 
             '

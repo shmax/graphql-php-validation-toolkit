@@ -45,8 +45,8 @@ class ValidatedFieldDefinition extends FieldDefinition
         $args = $config['args'];
         $name = $config['name'] ?? \lcfirst($this->tryInferName());
 
-        $this->validFieldName = $config['validName'] ?? '__valid';
-        $this->resultFieldName = $config['resultName'] ?? '__result';
+        $this->validFieldName = $config['validName'] ?? '_valid';
+        $this->resultFieldName = $config['resultName'] ?? '_result';
 
 
         parent::__construct([
