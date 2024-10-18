@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 /**
  * @phpstan-type UserErrorsConfig array{

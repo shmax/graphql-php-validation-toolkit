@@ -3,8 +3,6 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Type\Definition\PhpEnumType;
-use GraphQL\Type\Definition\StringType;
-use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
 
@@ -16,7 +14,7 @@ enum Animal
 
 final class Enum extends TestBase
 {
-    public function testId(): void
+    public function validatedEnum(): void
     {
         $this->_checkSchema(ErrorType::create([
             'validate' => static fn() => null,
