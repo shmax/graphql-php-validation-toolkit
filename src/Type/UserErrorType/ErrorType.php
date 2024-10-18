@@ -2,6 +2,7 @@
 
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -86,6 +87,8 @@ abstract class ErrorType extends ObjectType
             $type = new IDErrorType($config, $path);
         } else if ($resolvedType instanceof ScalarType) {
             $type = new ScalarErrorType($config, $path);
+        } else if ($resolvedType instanceof EnumType) {
+            $type = new EnumErrorType($config, $path);
         } else {
             throw new \Exception("Unknown type");
         }
