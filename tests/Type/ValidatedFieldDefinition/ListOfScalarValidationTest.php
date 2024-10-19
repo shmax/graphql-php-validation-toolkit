@@ -41,7 +41,7 @@ final class ListOfScalarValidationTest extends TestBase
                     ) {
                         _valid
                         phoneNumbers {
-                            items {
+                            _items {
                                 _code
                                 _msg
                                 _path
@@ -92,7 +92,7 @@ final class ListOfScalarValidationTest extends TestBase
                     ) {
                         _valid
                         phoneNumbers {
-                            items {
+                            _items {
                                 _code
                                 _msg
                                 _path
@@ -143,7 +143,7 @@ final class ListOfScalarValidationTest extends TestBase
                     ) {
                         _valid
                         phoneNumbers {
-                            items {
+                            _items {
                                 _code
                                 _msg
                                 _path
@@ -172,7 +172,7 @@ final class ListOfScalarValidationTest extends TestBase
                 '_valid' => false,
                 '_result' => null,
                 'phoneNumbers' => [
-                    'items' => [
+                    '_items' => [
                         [
                             '_code' => 1,
                             '_msg' => "only hyphens and digits are allowed",

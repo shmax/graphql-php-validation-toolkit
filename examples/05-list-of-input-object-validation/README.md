@@ -33,7 +33,7 @@ mutation {
   ) {
     _valid
     authors {
-      items {
+      _items {
         id {
           _code
           _msg
@@ -73,7 +73,7 @@ mutation {
   ) {
     _valid
     authors {
-      items {
+      _items {
         _path
         id {
           _code

@@ -46,7 +46,7 @@ class ListOfErrorType extends ErrorType
                 ],
             ], [$this->name, $type->name]);
 
-            $this->config['fields'][static::ITEMS_NAME] = [
+            $this->config['fields']['_' . static::ITEMS_NAME] = [
                 'type' => Type::listOf($errorType),
                 'description' => 'Validation errors for each ' . $type->name() . ' in the list',
                 'resolve' => static function ($value) {
@@ -80,7 +80,7 @@ class ListOfErrorType extends ErrorType
     {
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
-        $wrappedErrorType = $this->config['fields'][static::ITEMS_NAME]['type']->getWrappedType();
+        $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type']->getWrappedType();
         foreach ($value as $idx => $subValue) {
             $path[\count($path) - 1] = $idx;
             if ($wrappedType instanceof ListOfType) {

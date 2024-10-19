@@ -25,7 +25,7 @@ mutation {
     _code
     _msg
     phoneNumbers {
-      items {
+      _items {
         _code
         _msg
         _path
@@ -44,7 +44,7 @@ mutation {
     _code
     _msg
     phoneNumbers {
-      items {
+      _items {
         _code
         _msg
         _path
