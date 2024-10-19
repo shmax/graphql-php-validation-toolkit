@@ -23,14 +23,8 @@ class InputObjectErrorType extends ErrorType
     {
         parent::__construct($config, $path);
 
-        try {
-            $errorFields = $this->getErrorFields($config, $path);
-            $this->config['fields'] = array_merge($this->config['fields'], $errorFields);
-        } catch (NoValidatationFoundException $e) {
-            if (empty($config['validate'])) {
-                throw new NoValidatationFoundException($e);
-            }
-        }
+        $errorFields = $this->getErrorFields($config, $path);
+        $this->config['fields'] = array_merge($this->config['fields'], $errorFields);
     }
 
     protected function _validate(array $arg, mixed $value, array &$res): void
