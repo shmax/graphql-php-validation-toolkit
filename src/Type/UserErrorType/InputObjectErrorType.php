@@ -39,13 +39,15 @@ class InputObjectErrorType extends ErrorType
             $config = $field->config;
             $fieldErrorType = $this->config['fields'][$key]['type'] ?? null;
 
-            // Handle validation logic for present keys
-            $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
+            if ($fieldErrorType) {
+                // Handle validation logic for present keys
+                $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
 
-            if ($validationResult[static::CODE_NAME] !== 0) {
-                // Populate result array
-                $res[static::CODE_NAME] = 1; // not exposed for query, just needed so it doesn't get filtered higher-up in the tree
-                $res[$key] = $validationResult;
+                if ($validationResult[static::CODE_NAME] !== 0) {
+                    // Populate result array
+                    $res[static::CODE_NAME] = 1; // not exposed for query, just needed so it doesn't get filtered higher-up in the tree
+                    $res[$key] = $validationResult;
+                }
             }
         }
     }
