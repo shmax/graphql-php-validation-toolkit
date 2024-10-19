@@ -33,6 +33,7 @@ class ListOfErrorType extends ErrorType
 
             $errorType = static::create([
                 'type' => $type,
+                'typeSetter' => $config['typeSetter'] ?? null,
                 'validate' => $validate,
                 'errorCodes' => $errorCodes,
                 'fields' => [
