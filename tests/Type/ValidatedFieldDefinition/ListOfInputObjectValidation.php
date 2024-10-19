@@ -75,7 +75,7 @@ final class ListOfInputObjectValidation extends TestBase
                         _valid
                         _result
                         bookAttributes {
-                            items {
+                            _items {
                                 title {
                                     _code
                                     _msg
@@ -102,7 +102,7 @@ final class ListOfInputObjectValidation extends TestBase
                 '_valid' => false,
                 '_result' => null,
                 'bookAttributes' => [
-                    'items' => [
+                    '_items' => [
                         [
                             'title' => [
                                 '_code' => 1,

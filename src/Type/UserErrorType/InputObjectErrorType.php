@@ -4,6 +4,8 @@ namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 /**
@@ -29,10 +31,8 @@ class InputObjectErrorType extends ErrorType
 
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
-        /**
-         * @phpstan-var InputObjectErrorType
-         */
-        $type = $arg['type'];
+        $type = Type::getNamedType($arg['type']);
+        assert($type instanceof InputObjectType);
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
