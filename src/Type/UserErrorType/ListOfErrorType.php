@@ -101,7 +101,6 @@ class ListOfErrorType extends ErrorType
                     $err[static::PATH_NAME] = $path;
                     $res[static::ITEMS_NAME] ??= [];
                     $res[static::ITEMS_NAME][] = $err;
-                    $res[static::CODE_NAME] = 1; // this doesn't get exposed to queries anywhere, but we need it to flag that an error happened, so it doesn't get filtered out
                 }
             }
         }

@@ -42,10 +42,9 @@ class InputObjectErrorType extends ErrorType
             if ($fieldErrorType) {
                 // Handle validation logic for present keys
                 $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
+                $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
 
-                if ($validationResult[static::CODE_NAME] !== 0) {
-                    // Populate result array
-                    $res[static::CODE_NAME] = 1; // not exposed for query, just needed so it doesn't get filtered higher-up in the tree
+                if ($validationResult[static::CODE_NAME] !== 0 || !empty($diff)) {
                     $res[$key] = $validationResult;
                 }
             }
