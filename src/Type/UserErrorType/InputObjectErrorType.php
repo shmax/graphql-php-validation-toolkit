@@ -53,11 +53,11 @@ class InputObjectErrorType extends ErrorType
                         $validationResult = ['error' => $isRequired];
                     }
                 } else if ($isKeyPresent) {
-                    $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
-                    $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+                    $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
+                    $diff = array_diff_key($validationResult ?? [], array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                 }
 
-                if (isset($validationResult) && ($validationResult[static::CODE_NAME] !== 0 || !empty($diff))) {
+                if (!empty($validationResult) && (($validationResult[static::CODE_NAME] ?? null) !== 0 || !empty($diff))) {
                     $res[$key] = $validationResult;
                 }
             }
