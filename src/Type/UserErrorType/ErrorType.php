@@ -111,21 +111,7 @@ abstract class ErrorType extends ObjectType
     public function validate(array $config, $value): array
     {
         $res = [];
-
-
-        if (static::empty($value) && static::isRequired($config['required'] ?? false)) {
-            if (is_array($config['required'])) {
-                $validationResult = static::_formatValidationResult($config['required']) + [
-                        static::CODE_NAME => 1,
-                        static::MESSAGE_NAME => $config['name'] . " is required"
-                    ];
-            } else {
-                $validationResult = [static::CODE_NAME => 1, static::MESSAGE_NAME => $config['name'] . " is required"];
-            }
-            return $validationResult;
-        }
-
-        if (\is_callable($config['validate'] ?? null)) {
+        if (is_callable($config['validate'] ?? null)) {
             $result = static::_formatValidationResult($config['validate']($value));
 
             if (isset($result) && $result[static::CODE_NAME] !== 0) {
