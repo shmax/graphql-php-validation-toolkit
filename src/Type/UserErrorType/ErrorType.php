@@ -233,7 +233,7 @@ abstract class ErrorType extends ObjectType
             }
 
             $fields[static::CODE_NAME]['resolve'] = static function ($error) {
-                return $error[static::CODE_NAME] ?? 0;
+                return $error[static::CODE_NAME] ?? null;
             };
 
             $fields[static::MESSAGE_NAME] = [

@@ -41,6 +41,7 @@ class InputObjectErrorType extends ErrorType
 
             if ($fieldErrorType) {
                 $diff = [];
+                $validationResult = null;
                 $isKeyPresent = array_key_exists($key, $value);
                 $isRequired = $config['required'] ?? false;
                 if (is_callable($isRequired)) {
