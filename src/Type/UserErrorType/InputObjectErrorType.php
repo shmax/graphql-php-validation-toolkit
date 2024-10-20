@@ -40,7 +40,7 @@ class InputObjectErrorType extends ErrorType
             $fieldErrorType = $this->config['fields'][$key]['type'] ?? null;
 
             if ($fieldErrorType) {
-
+                $diff = [];
                 $isKeyPresent = array_key_exists($key, $value);
                 $isRequired = $config['required'] ?? false;
                 if (is_callable($isRequired)) {
@@ -54,9 +54,8 @@ class InputObjectErrorType extends ErrorType
                     }
                 } else if ($isKeyPresent) {
                     $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null) + [static::CODE_NAME => 0, static::MESSAGE_NAME => ""];
+                    $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                 }
-
-                $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
 
                 if ($validationResult[static::CODE_NAME] !== 0 || !empty($diff)) {
                     $res[$key] = $validationResult;
