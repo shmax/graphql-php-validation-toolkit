@@ -57,7 +57,7 @@ class InputObjectErrorType extends ErrorType
                     $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                 }
 
-                if ($validationResult && ($validationResult[static::CODE_NAME] !== 0 || !empty($diff))) {
+                if (isset($validationResult) && ($validationResult[static::CODE_NAME] !== 0 || !empty($diff))) {
                     $res[$key] = $validationResult;
                 }
             }
