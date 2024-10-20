@@ -60,7 +60,7 @@ final class ListOfScalarValidationTest extends TestBase
             ],
             [
                 '_valid' => true,
-                '_result' => null,
+                '_result' => true,
                 'phoneNumbers' => null
             ]
         );
@@ -111,7 +111,7 @@ final class ListOfScalarValidationTest extends TestBase
             ],
             [
                 '_valid' => true,
-                '_result' => null,
+                '_result' => true,
                 'phoneNumbers' => null
             ]
         );
