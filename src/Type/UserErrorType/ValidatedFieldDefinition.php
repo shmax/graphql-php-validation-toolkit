@@ -64,7 +64,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $result = $errors = $this->userErrorsType->validate($config, $args1);
                 $result[$this->validFieldName] = empty($errors);
 
-                if (!empty($result['valid'])) {
+                if (!empty($result[$this->validFieldName])) {
                     $result[$this->resultFieldName] = $config['resolve']($value, $args1, $context, $info);
                 }
 
