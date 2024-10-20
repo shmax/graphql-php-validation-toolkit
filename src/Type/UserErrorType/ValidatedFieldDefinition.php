@@ -86,9 +86,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 $this->resultFieldName => [
                     'type' => $config['type'],
                     'description' => 'The payload, if any',
-                    'resolve' => static function ($value) {
-                        return $value[$this->resultFieldName] ?? null;
-                    },
+                    'resolve' => fn($value) => $value[$this->resultFieldName]
                 ],
                 $this->validFieldName => [
                     'type' => Type::nonNull(Type::boolean()),
