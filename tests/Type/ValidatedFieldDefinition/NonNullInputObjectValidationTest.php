@@ -14,11 +14,12 @@ use PHPUnit\Framework\TestCase;
 
 final class NonNullInputObjectValidationTest extends TestBase
 {
-    protected array $data = [
-        'people' => [
-            1 => "Joe Blow",
-            2 => "John Fonebone"
-        ]
+    /**
+     * @var array<int, string>
+     */
+    protected array $people = [
+        1 => "Joe Blow",
+        2 => "John Fonebone"
     ];
 
     public function testInputObjectValidationOnFieldFail(): void
@@ -47,7 +48,7 @@ final class NonNullInputObjectValidationTest extends TestBase
                                     'type' => Type::id(),
                                     'description' => 'Provide a valid author id',
                                     'validate' => function ($authorId) {
-                                        if (!isset($this->data['people'][$authorId])) {
+                                        if (!isset($this->people[$authorId])) {
                                             return [1, 'We have no record of that author'];
                                         }
 

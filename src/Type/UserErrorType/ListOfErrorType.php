@@ -82,24 +82,31 @@ class ListOfErrorType extends ErrorType
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
         $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type']->getWrappedType();
-        foreach ($value as $idx => $subValue) {
-            $path[\count($path) - 1] = $idx;
-            if ($wrappedType instanceof ListOfType) {
-                $newPath = $path;
-                $newPath[] = 0;
-                $this->_validateListOfType(["type" => $wrappedType, "validate" => $validate], $subValue, $res, $newPath);
-            } else {
-                if ($wrappedType instanceof ScalarType) {
-                    $err = static::_formatValidationResult($validate($subValue));
-                } else {
-                    $err = $wrappedErrorType->validate([
-                        'type' => $wrappedType
-                    ], $subValue);
-                }
 
-                if (!empty($diff) || ($err && (!isset($err[static::CODE_NAME]) || $err[static::CODE_NAME] !== 0))) {
+        foreach ($value as $idx => $subValue) {
+            // Update the path with the current index
+            $path[\count($path) - 1] = $idx;
+
+            // If the wrapped type is a list, recursively validate each item
+            if ($wrappedType instanceof ListOfType) {
+                $newPath = [...$path, 0]; // Append 0 for list path
+                $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $res, $newPath);
+                continue; // Skip to the next iteration
+            }
+
+            // Validate scalar or complex types
+            if ($wrappedType instanceof ScalarType) {
+                $err = static::_formatValidationResult($validate($subValue));
+            } else {
+                $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue);
+            }
+
+            // Check for errors and add to results if necessary
+            if ($err) {
+                $diff = array_diff_key($err, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+
+                if (!empty($diff) || ($err[static::CODE_NAME] ?? 0) !== 0) {
                     $err[static::PATH_NAME] = $path;
-                    $res[static::ITEMS_NAME] ??= [];
                     $res[static::ITEMS_NAME][] = $err;
                 }
             }
