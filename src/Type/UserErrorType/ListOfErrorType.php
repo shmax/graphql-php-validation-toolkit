@@ -96,8 +96,8 @@ class ListOfErrorType extends ErrorType
                         'type' => $wrappedType
                     ], $subValue);
                 }
-//                $err = static::_formatValidationResult($validate ? $validate($subValue) : 0);
-                if ($err && $err[static::CODE_NAME] !== 0) {
+
+                if (!empty($diff) || ($err && (!isset($err[static::CODE_NAME]) || $err[static::CODE_NAME] !== 0))) {
                     $err[static::PATH_NAME] = $path;
                     $res[static::ITEMS_NAME] ??= [];
                     $res[static::ITEMS_NAME][] = $err;
