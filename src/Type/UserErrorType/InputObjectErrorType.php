@@ -47,7 +47,7 @@ class InputObjectErrorType extends ErrorType
                 if (is_callable($isRequired)) {
                     $isRequired = $isRequired();
                 }
-                if ($isRequired && $fieldErrorType::empty($value[$key])) {
+                if ($isRequired && $fieldErrorType::empty($value[$key] ?? null)) {
                     if ($isRequired === true) {
                         $validationResult = static::_formatValidationResult([1, "$key is required"]);
                     } else if (is_array($isRequired)) {

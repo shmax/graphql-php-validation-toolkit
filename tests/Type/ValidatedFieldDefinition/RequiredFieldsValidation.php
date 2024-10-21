@@ -3,6 +3,7 @@
 
 use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
@@ -11,6 +12,13 @@ use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 enum DingusError
 {
     case dingusRequired;
+}
+
+enum Animal
+{
+    case mammal;
+    case fish;
+    case bird;
 }
 
 final class RequiredFieldsValidation extends TestBase
@@ -69,6 +77,12 @@ final class RequiredFieldsValidation extends TestBase
                                     'gadgets' => [
                                         'type' => Type::listOf(Type::string()),
                                         'required' => true,
+                                    ],
+
+                                    // list of enum
+                                    'animals' => [
+                                        'type' => Type::listOf(new PhpEnumType(Animal::class, "Animal")),
+                                        'required' => true
                                     ],
                                 ],
                             ]);
