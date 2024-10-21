@@ -35,14 +35,12 @@
   },
   "autoload": {
     "psr-4": {
-      "GraphQL\\": "src/"
+      "GraphQlPhpValidationToolkit\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "GraphQL\\Tests\\": "tests/",
-      "GraphQL\\Benchmarks\\": "benchmarks/",
-      "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
+      "GraphQlPhpValidationToolkit\\Tests\\": "tests/"
     }
   },
   "scripts": {

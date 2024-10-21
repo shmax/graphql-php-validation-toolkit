@@ -6,12 +6,12 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\Description;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-enum AuthorValidation {
+enum AuthorValidation
+{
     #[Description(description: 'Author not found.')]
-
     case UnknownAuthor;
     case AuthorAlreadyDeleted;
 }
@@ -61,7 +61,7 @@ try {
             'deleteAuthor' => new ValidatedFieldDefinition([
                 'name' => 'deleteAuthor',
                 'typeSetter' => function (Type $type) use ($types) {
-                    if(!isset($types[$type->name])) {
+                    if (!isset($types[$type->name])) {
                         $types[$type->name] = $type;
                     }
                     return $types[$type->name];

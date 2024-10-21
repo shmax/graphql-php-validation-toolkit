@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
-
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 final class NonNullScalarValidationTest extends TestCase
@@ -105,14 +103,12 @@ final class NonNullScalarValidationTest extends TestCase
                     $bookId:ID!
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        suberrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        _valid
+                        bookId {
+                            _code
+                            _msg
                         }
-                        result {
+                        _result {
                             title
                         }
                     }
@@ -123,7 +119,7 @@ final class NonNullScalarValidationTest extends TestCase
             ['bookId' => 1]
         );
 
-        static::assertTrue($res->data['updateBook']['valid']);
+        static::assertTrue($res->data['updateBook']['_valid']);
     }
 
     public function testNonNullScalarValidationFail(): void
@@ -135,14 +131,12 @@ final class NonNullScalarValidationTest extends TestCase
                         $bookId:ID!
                     ) {
                         updateBook (bookId: $bookId) {
-                            valid
-                            suberrors {
-                                bookId {
-                                    code
-                                    msg
-                                }
+                            _valid
+                            bookId {
+                                _code
+                                _msg
                             }
-                            result {
+                            _result {
                                 title
                             }
                         }
@@ -154,6 +148,6 @@ final class NonNullScalarValidationTest extends TestCase
         );
 
         static::assertEmpty($res->errors);
-        static::assertFalse($res->data['updateBook']['valid']);
+        static::assertFalse($res->data['updateBook']['_valid']);
     }
 }

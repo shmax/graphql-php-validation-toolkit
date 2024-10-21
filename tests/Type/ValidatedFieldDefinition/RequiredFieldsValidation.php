@@ -1,14 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
-final class RequiredFieldsValidation extends FieldDefinition
+enum DingusError
+{
+    case dingusRequired;
+}
+
+enum Animal
+{
+    case mammal;
+    case fish;
+    case bird;
+}
+
+final class RequiredFieldsValidation extends TestBase
 {
     /** @var mixed[] */
     protected $data = [
@@ -19,7 +32,7 @@ final class RequiredFieldsValidation extends FieldDefinition
         ],
     ];
 
-    public function testInputObjectValidationOnFieldFail(): void
+    public function testRequiredFailByOmission(): void
     {
         $this->_checkValidation(
             new ValidatedFieldDefinition([
@@ -31,63 +44,48 @@ final class RequiredFieldsValidation extends FieldDefinition
                             return new InputObjectType([
                                 'name' => 'BookAttributes',
                                 'fields' => [
-                                    'title' => [
-                                        'type' => Type::string(),
-                                        'description' => 'Enter a book title, no more than 10 characters in length',
-                                        'validate' => static function (string $title) {
-                                            if (\strlen($title) > 10) {
-                                                return [1, 'book title must be less than 10 characters'];
-                                            }
-
-                                            return 0;
-                                        },
-                                    ],
+                                    // basic required functionality
                                     'foo' => [
                                         'type' => Type::string(),
                                         'description' => 'Provide a foo',
                                         'required' => true,
-                                        'validate' => function (string $foo) {
-                                            if (strlen($foo) < 10) {
-                                                return [1, 'foo must be more than 10 characters'];
-                                            }
-
-                                            return 0;
-                                        },
                                     ],
+
+                                    // custom required response (with [int, string])
                                     'bar' => [
                                         'type' => Type::string(),
                                         'description' => 'Provide a bar',
                                         'required' => [1, 'Oh, we absolutely must have a bar'],
-                                        'validate' => function (string $foo) {
-                                            if (strlen($foo) < 10) {
-                                                return [1, 'bar must be more than 10 characters!'];
-                                            }
-
-                                            return 0;
-                                        },
                                     ],
+
+                                    // required callback
                                     'naz' => [
                                         'type' => Type::string(),
                                         'description' => 'Provide a naz',
-                                        'required' => static fn () => true,
-                                        'validate' => function (string $naz) {
-                                            if (strlen($naz) < 10) {
-                                                return [1, 'naz must be more than 10 characters!'];
-                                            }
-
-                                            return 0;
-                                        }
+                                        'required' => static fn() => true,
                                     ],
-                                    'author' => [
-                                        'type' => Type::id(),
-                                        'description' => 'Provide a valid author id',
-                                        'validate' => function (string $authorId) {
-                                            if (! isset($this->data['people'][$authorId])) {
-                                                return [1, 'We have no record of that author'];
-                                            }
 
-                                            return 0;
-                                        },
+                                    // custom required response (with [enum, string])
+                                    'dingus' => [
+                                        'type' => Type::string(),
+                                        'errorCodes' => DingusError::class,
+                                        'description' => 'Provide a bar',
+                                        'required' => [DingusError::dingusRequired, 'Make with the dingus'],
+                                    ],
+
+                                    // list of scalar
+                                    'gadgets' => [
+                                        'type' => Type::listOf(Type::string()),
+                                        'required' => true,
+                                    ],
+
+                                    // list of enum
+                                    'animals' => [
+                                        'type' => Type::listOf(new PhpEnumType(
+                                            Animal::class,
+                                            "Animal"
+                                        )),
+                                        'required' => true
                                     ],
                                 ],
                             ]);
@@ -95,7 +93,7 @@ final class RequiredFieldsValidation extends FieldDefinition
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -105,73 +103,67 @@ final class RequiredFieldsValidation extends FieldDefinition
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                title {
-                                    code
-                                    msg
-                                }
-                                author {
-                                    code
-                                    msg
-                                }
-                                foo {
-                                    code
-                                    msg
-                                }
-                                bar {
-                                    code
-                                    msg
-                                }
-                                naz {
-                                    code
-                                    msg
-                                }
+                        _valid
+                        bookAttributes {
+                            foo {
+                                _code
+                                _msg
+                            }
+                            bar {
+                                _code
+                                _msg
+                            }
+                            naz {
+                                _code
+                                _msg
+                            }
+                            dingus {
+                                _code
+                                _msg
+                            }
+                            gadgets {
+                                _code
+                                _msg
                             }
                         }
-                        result
+                        _result
                     }
                 }
             '),
             [
                 'bookAttributes' => [
-                    'title' => 'The Catcher in the Rye',
-                    'author' => 4,
                 ],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'title' => [
-                            'code' => 1,
-                            'msg' => 'book title must be less than 10 characters',
-                        ],
-                        'foo' => [
-                            'code' => 1,
-                            'msg' => 'foo is required',
-                        ],
-                        'bar' => [
-                            'code' => 1,
-                            'msg' => 'Oh, we absolutely must have a bar',
-                        ],
-                        'author' => [
-                            'code' => 1,
-                            'msg' => 'We have no record of that author',
-                        ],
-                        'naz' => [
-                            'code' => 1,
-                            'msg' => 'naz is required',
-                        ],
+                '_valid' => false,
+                'bookAttributes' => [
+                    'foo' => [
+                        '_code' => 1,
+                        '_msg' => 'foo is required',
+                    ],
+                    'bar' => [
+                        '_code' => 1,
+                        '_msg' => 'Oh, we absolutely must have a bar',
+                    ],
+                    'naz' => [
+                        '_code' => 1,
+                        '_msg' => 'naz is required',
+                    ],
+                    'dingus' => [
+                        '_code' => 'dingusRequired',
+                        '_msg' => 'Make with the dingus',
+                    ],
+                    'gadgets' => [
+                        '_code' => 1,
+                        '_msg' => 'gadgets is required',
                     ],
                 ],
-                'result' => null,
+                '_result' => null,
             ]
         );
     }
 
-    public function testInputObjectSuberrorsValidationOnSelf(): void
+    public function testRequiredFailByEmptyValue(): void
     {
         $this->_checkValidation(
             new ValidatedFieldDefinition([
@@ -179,40 +171,67 @@ final class RequiredFieldsValidation extends FieldDefinition
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'validate' => static function ($atts) {
-                            return 0;
+                        'type' => function () { // lazy load
+                            return new InputObjectType([
+                                'name' => 'BookAttributes',
+                                'fields' => [
+                                    // empty string
+                                    'foo' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a foo',
+                                        'required' => true,
+                                    ],
+
+                                    // empty id
+                                    'doodad' => [
+                                        'type' => Type::id(),
+                                        'description' => 'Provide a doodad',
+                                        'required' => true,
+                                    ],
+
+                                    // custom required response (with [int, string])
+                                    'bar' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a bar',
+                                        'required' => [1, 'Oh, we absolutely must have a bar'],
+                                    ],
+
+                                    // required callback
+                                    'naz' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a naz',
+                                        'required' => static fn() => true,
+                                    ],
+
+                                    // custom required response (with [enum, string])
+                                    'dingus' => [
+                                        'type' => Type::string(),
+                                        'errorCodes' => DingusError::class,
+                                        'description' => 'Provide a bar',
+                                        'required' => [DingusError::dingusRequired, 'Make with the dingus'],
+                                    ],
+
+                                    // list of scalar
+                                    'gadgets' => [
+                                        'type' => Type::listOf(Type::string()),
+                                        'required' => true,
+                                    ],
+
+                                    // list of enum
+                                    'animals' => [
+                                        'type' => Type::listOf(new PhpEnumType(
+                                            Animal::class,
+                                            "Animal"
+                                        )),
+                                        'required' => true
+                                    ],
+                                ],
+                            ]);
                         },
-                        'type' => new InputObjectType([
-                            'name' => 'BookAttributes',
-                            'fields' => [
-                                'title' => [
-                                    'type' => Type::string(),
-                                    'description' => 'Enter a book title, no more than 10 characters in length',
-                                    'validate' => static function (string $title) {
-                                        if (\strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 characters'];
-                                        }
-
-                                        return 0;
-                                    },
-                                ],
-                                'author' => [
-                                    'type' => Type::id(),
-                                    'description' => 'Provide a valid author id',
-                                    'validate' => function (string $authorId) {
-                                        if (! isset($this->data['people'][$authorId])) {
-                                            return [1, 'We have no record of that author'];
-                                        }
-
-                                        return 0;
-                                    },
-                                ],
-                            ],
-                        ]),
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return !$value;
                 },
             ]),
             Utils::nowdoc('
@@ -222,53 +241,90 @@ final class RequiredFieldsValidation extends FieldDefinition
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                    author {
-                                        code
-                                        msg
-                                    }
-                                }
+                        _valid
+                        bookAttributes {
+                            foo {
+                                _code
+                                _msg
+                            }
+                            doodad {
+                                _code
+                                _msg
+                            }
+                            bar {
+                                _code
+                                _msg
+                            }
+                            naz {
+                                _code
+                                _msg
+                            }
+                            dingus {
+                                _code
+                                _msg
+                            }
+                            gadgets {
+                                _code
+                                _msg
+                            }
+                            animals {
+                                _code
+                                _msg
                             }
                         }
-                        result
+                        _result
                     }
                 }
             '),
             [
                 'bookAttributes' => [
-                    'title' => 'The Catcher in the Rye',
-                    'author' => 4,
+                    'foo' => '',
+                    'doodad' => '',
+                    'bar' => null,
+                    'naz' => '',
+                    'dingus' => '',
+                    'gadgets' => [],
+                    'animals' => []
                 ],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        'suberrors' => [
-                            'title' => [
-                                'code' => 1,
-                                'msg' => 'book title must be less than 10 characters',
-                            ],
-                            'author' => [
-                                'code' => 1,
-                                'msg' => 'We have no record of that author',
-                            ],
-                        ],
+                '_valid' => false,
+                'bookAttributes' => [
+                    'foo' => [
+                        '_code' => 1,
+                        '_msg' => 'foo is required',
                     ],
+                    'doodad' => [
+                        '_code' => 1,
+                        '_msg' => 'doodad is required',
+                    ],
+                    'bar' => [
+                        '_code' => 1,
+                        '_msg' => 'Oh, we absolutely must have a bar',
+                    ],
+                    'naz' => [
+                        '_code' => 1,
+                        '_msg' => 'naz is required',
+                    ],
+                    'dingus' => [
+                        '_code' => 'dingusRequired',
+                        '_msg' => 'Make with the dingus',
+                    ],
+                    'gadgets' => [
+                        '_code' => 1,
+                        '_msg' => 'gadgets is required',
+                    ],
+                    'animals' => [
+                        '_code' => 1,
+                        '_msg' => 'animals is required',
+                    ]
                 ],
-                'result' => null,
+                '_result' => null,
             ]
         );
     }
 
-    public function testListOfInputObjectSuberrorsValidationOnChildField(): void
+    public function testRequiredValid(): void
     {
         $this->_checkValidation(
             new ValidatedFieldDefinition([
@@ -276,72 +332,130 @@ final class RequiredFieldsValidation extends FieldDefinition
                 'type' => Type::boolean(),
                 'args' => [
                     'bookAttributes' => [
-                        'validate' => static function () {
-                        },
-                        'type' => Type::listOf(new InputObjectType([
-                            'name' => 'BookAttributes',
-                            'fields' => [
-                                'title' => [
-                                    'type' => Type::string(),
-                                    'description' => 'Enter a book title, no more than 10 characters in length',
-                                    'validate' => static function (string $title) {
-                                        if (\strlen($title) > 10) {
-                                            return [1, 'book title must be less than 10 characters'];
-                                        }
+                        'type' => function () { // lazy load
+                            return new InputObjectType([
+                                'name' => 'BookAttributes',
+                                'fields' => [
+                                    // empty string
+                                    'foo' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a foo',
+                                        'required' => true,
+                                    ],
 
-                                        return 0;
-                                    },
+                                    // empty id
+                                    'doodad' => [
+                                        'type' => Type::id(),
+                                        'description' => 'Provide a doodad',
+                                        'required' => true,
+                                    ],
+
+                                    // custom required response (with [int, string])
+                                    'bar' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a bar',
+                                        'required' => [1, 'Oh, we absolutely must have a bar'],
+                                    ],
+
+                                    // required callback
+                                    'naz' => [
+                                        'type' => Type::string(),
+                                        'description' => 'Provide a naz',
+                                        'required' => static fn() => true,
+                                    ],
+
+                                    // custom required response (with [enum, string])
+                                    'dingus' => [
+                                        'type' => Type::string(),
+                                        'errorCodes' => DingusError::class,
+                                        'description' => 'Provide a bar',
+                                        'required' => [DingusError::dingusRequired, 'Make with the dingus'],
+                                    ],
+
+                                    // list of scalar
+                                    'gadgets' => [
+                                        'type' => Type::listOf(Type::string()),
+                                        'required' => true,
+                                    ],
+
+                                    // list of enum
+                                    'animals' => [
+                                        'type' => Type::listOf(new PhpEnumType(
+                                            Animal::class,
+                                            "Animal"
+                                        )),
+                                        'required' => true
+                                    ],
                                 ],
-                            ],
-                        ])),
+                            ]);
+                        },
                     ],
                 ],
                 'resolve' => static function ($value): bool {
-                    return ! $value;
+                    return true;
                 },
             ]),
             Utils::nowdoc('
                 mutation UpdateBook(
-                        $bookAttributes: [BookAttributes]
+                        $bookAttributes: BookAttributes
                     ) {
                     updateBook (
                         bookAttributes: $bookAttributes
                     ) {
-                        valid
-                        suberrors {
-                            bookAttributes {
-                                suberrors {
-                                    title {
-                                        code
-                                        msg
-                                    }
-                                }
+                        _valid
+                        bookAttributes {
+                            foo {
+                                _code
+                                _msg
+                            }
+                            doodad {
+                                _code
+                                _msg
+                            }
+                            bar {
+                                _code
+                                _msg
+                            }
+                            naz {
+                                _code
+                                _msg
+                            }
+                            dingus {
+                                _code
+                                _msg
+                            }
+                            gadgets {
+                                _code
+                                _msg
+                            }
+                            animals {
+                                _code
+                                _msg
                             }
                         }
-                        result
+                        _result
                     }
                 }
             '),
             [
-                'bookAttributes' => [[
-                    'title' => 'The Catcher in the Rye',
-                ]],
+                'bookAttributes' => [
+                    'foo' => 'a valid value',
+                    'doodad' => '3',
+                    'bar' => 'a valid value',
+                    'naz' => 'a valid value',
+                    'dingus' => 'a valid value',
+                    'gadgets' => [
+                        'a valid value'
+                    ],
+                    'animals' => [
+                        Animal::bird
+                    ]
+                ],
             ],
             [
-                'valid' => false,
-                'suberrors' => [
-                    'bookAttributes' => [
-                        [
-                            'suberrors' => [
-                                'title' => [
-                                    'code' => 1,
-                                    'msg' => 'book title must be less than 10 characters',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'result' => null,
+                '_valid' => true,
+                'bookAttributes' => null,
+                '_result' => true,
             ]
         );
     }

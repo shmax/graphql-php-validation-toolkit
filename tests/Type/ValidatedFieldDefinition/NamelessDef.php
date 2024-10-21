@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 
 class NamelessDef extends ValidatedFieldDefinition
 {

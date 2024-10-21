@@ -1,228 +1,191 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ValidatedStringType;
 use PHPUnit\Framework\TestCase;
 
-final class ListOfScalarValidationTest extends TestCase
+final class ListOfScalarValidationTest extends TestBase
 {
-    /** @var ObjectType */
-    protected $query;
-
-    /** @var Schema */
-    protected $schema;
-
-    protected function setUp(): void
+    public function testListOfStringType(): void
     {
-        $this->schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
-            'mutation' => new ObjectType([
-                'name' => 'Mutation',
-                'fields' => static function () {
-                    return [
-                        'setPhoneNumbers' => new ValidatedFieldDefinition([
-                            'name' => 'setPhoneNumbers',
-                            'type' => Type::boolean(),
-                            'validate' => static function (array $args) {
-                                if (\count($args['phoneNumbers']) < 1) {
-                                    return [1, 'You must submit at least one list of numbers'];
-                                }
-
-                                return 0;
-                            },
-                            'args' => [
-                                'phoneNumbers' => [
-                                    'type' => Type::listOf(Type::listOf(Type::string())),
-                                    'validate' => static function ($phoneNumber) {
-                                        $res = \preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-
-                                        return ! $res ? [1, 'That does not seem to be a valid phone number'] : 0;
-                                    },
-                                ],
-                            ],
-                            'resolve' => static function (array $phoneNumbers): bool {
-                                return ! empty($phoneNumbers);
-                            },
-                        ]),
-                    ];
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'savePhoneNumbers',
+                'type' => Type::boolean(),
+                'args' => [
+                    'phoneNumbers' => [
+                        'type' => Type::listOf(Type::string()),
+                        'description' => "Enter a list of names. We'll validate each one",
+                        'items' => ['validate' => static function ($value) {
+                            return strlen($value) <= 7 ? 0 : 1;
+                        }]
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return true;
                 },
             ]),
-        ]);
-    }
-
-    public function testItemsValidationOnWrappedTypeFail(): void
-    {
-        $res = GraphQL::executeQuery(
-            $this->schema,
             Utils::nowdoc('
-                mutation SetPhoneNumbers(
-                        $phoneNumbers: [[String]]
+                mutation SavePhoneNumbers($phoneNumbers: [String]) {
+                    savePhoneNumbers (
+                        phoneNumbers: $phoneNumbers
                     ) {
-                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-                            valid
-                            suberrors {
-                                phoneNumbers {
-                                    path
-                                    code
-                                    msg
-                                }
-                            }
-                            result
-                        }
-                    }
-            '),
-            [],
-            null,
-            [
-                'phoneNumbers' => [
-                    [
-                        '123-4567',
-                        'xxx456-7890xxx',
-                        '555-whoops',
-                    ],
-                ],
-            ]
-        );
-
-        static::assertEquals(
-            [
-                'valid' => false,
-                'suberrors' => [
-                    'phoneNumbers' => [
-                        [
-                            'path' => [
-                                0,
-                                1,
-                            ],
-                            'code' => 1,
-                            'msg' => 'That does not seem to be a valid phone number',
-                        ],
-                        [
-                            'path' => [
-                                0,
-                                2,
-                            ],
-                            'code' => 1,
-                            'msg' => 'That does not seem to be a valid phone number',
-                        ],
-                    ],
-                ],
-                'result' => null,
-            ],
-            $res->data['setPhoneNumbers']
-        );
-
-        static::assertEmpty($res->errors);
-        static::assertFalse($res->data['setPhoneNumbers']['valid']);
-    }
-
-    public function testItemsValidationOnSelfFail(): void
-    {
-        $res = GraphQL::executeQuery(
-            $this->schema,
-            Utils::nowdoc('
-                mutation SetPhoneNumbers(
-                        $phoneNumbers: [[String]]
-                    ) {
-                        setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-                            valid
-                            code
-                            msg
-                            suberrors {
-                                phoneNumbers {
-                                    code
-                                    msg
-                                    path
-                                }
-                            }
-                            result
-                        }
-                    }
-            '),
-            [],
-            null,
-            [
-                'phoneNumbers' => [],
-            ]
-        );
-
-        static::assertEquals(
-            [
-                'valid' => false,
-                'code' => 1,
-                'msg' => 'You must submit at least one list of numbers',
-                'suberrors' => null,
-                'result' => null,
-            ],
-            $res->data['setPhoneNumbers']
-        );
-
-        static::assertEmpty($res->errors);
-        static::assertFalse($res->data['setPhoneNumbers']['valid']);
-    }
-
-    public function testListOfValidationFail(): void
-    {
-        $res = GraphQL::executeQuery(
-            $this->schema,
-            Utils::nowdoc('
-                mutation SetPhoneNumbers(
-                        $phoneNumbers: [[String]]
-                    ) {
-                    setPhoneNumbers ( phoneNumbers: $phoneNumbers ) {
-                        valid
-                        suberrors {
-                            phoneNumbers {
-                                code
-                                msg
-                                path
+                        _valid
+                        phoneNumbers {
+                            _items {
+                                _code
+                                _msg
+                                _path
                             }
                         }
-                        result
+                        _result
                     }
                 }
             '),
-            [],
-            null,
             [
                 'phoneNumbers' => [
-                    [],
-                    [
-                        '123-4567',
-                        'xxx-7890',
-                        '321-1234',
-                    ],
+                    '1',
+                    '2',
+                    '3'
                 ],
+            ],
+            [
+                '_valid' => true,
+                '_result' => true,
+                'phoneNumbers' => null
             ]
         );
+    }
 
-        static::assertEmpty($res->errors);
-        static::assertEquals(
-            [
-                'valid' => false,
-                'suberrors' => [
+    public function testListOfListOfStringTypeValid(): void
+    {
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'savePhoneNumbers',
+                'type' => Type::boolean(),
+                'args' => [
                     'phoneNumbers' => [
-                        [
-                            'code' => 1,
-                            'msg' => 'That does not seem to be a valid phone number',
-                            'path' => [
-                                0 => 1,
-                                1 => 1,
-                            ],
-                        ],
+                        'type' => Type::listOf(Type::listOf(Type::string())),
+                        'description' => "Enter a list of names. We'll validate each one",
+                        'items' => ['validate' => static function ($value) {
+                            return strlen($value) <= 7 ? 0 : 1;
+                        }]
                     ],
                 ],
-                'result' => null,
+                'resolve' => static function ($value): bool {
+                    return true;
+                },
+            ]),
+            Utils::nowdoc('
+                mutation SavePhoneNumbers($phoneNumbers: [[String]]) {
+                    savePhoneNumbers (
+                        phoneNumbers: $phoneNumbers
+                    ) {
+                        _valid
+                        phoneNumbers {
+                            _items {
+                                _code
+                                _msg
+                                _path
+                            }
+                        }
+                        _result
+                    }
+                }
+            '),
+            [
+                'phoneNumbers' => [[
+                    '1',
+                    '2',
+                    '3'
+                ]],
             ],
-            $res->data['setPhoneNumbers']
+            [
+                '_valid' => true,
+                '_result' => true,
+                'phoneNumbers' => null
+            ]
         );
+    }
 
-        static::assertFalse($res->data['setPhoneNumbers']['valid']);
+    public function testListOfListOfStringTypeInvalid(): void
+    {
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'savePhoneNumbers',
+                'type' => Type::boolean(),
+                'args' => [
+                    'phoneNumbers' => [
+                        'type' => Type::listOf(Type::listOf(Type::string())),
+                        'description' => "Enter a list of names. We'll validate each one",
+                        'items' => ['validate' => static function ($number) {
+                            return preg_match('/^[0-9\-]+$/', $number) === 1 ? 0 : [1, "only hyphens and digits are allowed"];
+                        }]
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return true;
+                },
+            ]),
+            Utils::nowdoc('
+                mutation SavePhoneNumbers($phoneNumbers: [[String]]) {
+                    savePhoneNumbers (
+                        phoneNumbers: $phoneNumbers
+                    ) {
+                        _valid
+                        phoneNumbers {
+                            _items {
+                                _code
+                                _msg
+                                _path
+                            }
+                        }
+                        _result
+                    }
+                }
+            '),
+            [
+                'phoneNumbers' => [
+                    [
+                        'xxx-1234',
+                        '555-12345',
+                        '3'
+                    ],
+                    [
+                        '555-1234',
+                        '555-12345',
+                        '343-4343',
+                        'xxx-8309'
+                    ]
+                ],
+            ],
+            [
+                '_valid' => false,
+                '_result' => null,
+                'phoneNumbers' => [
+                    '_items' => [
+                        [
+                            '_code' => 1,
+                            '_msg' => "only hyphens and digits are allowed",
+                            '_path' => [0, 0]
+                        ],
+                        [
+                            '_code' => 1,
+                            '_msg' => "only hyphens and digits are allowed",
+                            '_path' => [1, 3]
+                        ]
+                    ]
+                ]
+            ]
+        );
     }
 }

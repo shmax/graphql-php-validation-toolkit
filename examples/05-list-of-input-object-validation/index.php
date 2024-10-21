@@ -6,7 +6,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 
 class AuthorType extends ObjectType
@@ -63,6 +63,8 @@ try {
                     'authors' => [
                         'type' => Type::listOf(new InputObjectType([
                             'name' => 'AuthorInput',
+                            'validate' => function ($args) {
+                            },
                             'fields' => [
                                 'id' => [
                                     'type' => Type::nonNull(Type::id()),

@@ -5,8 +5,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ValidatedStringType;
 
 try {
     $mutationType = new ObjectType([
@@ -21,16 +22,18 @@ try {
                     }
 
                     return 0;
+
                 },
                 'args' => [
                     'phoneNumbers' => [
-                        'validate' => function ($phoneNumber) {
-                            $res = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
-
-                            return ! $res ? [1, 'That does not seem to be a valid phone number'] : 0;
-                        },
                         'type' => Type::listOf(Type::string()),
-                    ],
+                        'items' => [
+                            'validate' => function ($phoneNumber) {
+                                $isValid = preg_match('/^[0-9\-]+$/', $phoneNumber) === 1;
+                                return $isValid === 1 ? 0 : 1;
+                            }
+                        ],
+                    ]
                 ],
                 'resolve' => function ($value, $args) {
                     // PhoneNumberProvider::setPhoneNumbers($args['phoneNumbers']);
