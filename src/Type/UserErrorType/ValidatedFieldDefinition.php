@@ -31,7 +31,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     /** @var callable */
     protected $typeSetter;
 
-    protected ErrorType $userErrorsType;
+    protected ValidationErrorType $userErrorsType;
 
     protected string $validFieldName;
 
@@ -61,6 +61,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 ]);
                 $config['isRoot'] = true;
 
+
                 $result = $errors = $this->userErrorsType->validate($config, $args1);
                 $result[$this->validFieldName] = empty($errors);
 
@@ -77,9 +78,9 @@ class ValidatedFieldDefinition extends FieldDefinition
      * @phpstan-param array<UnnamedArgumentConfig> $args
      * @phpstan-param ValidatedFieldConfig $config
      */
-    protected function _createUserErrorsType(string $name, array $args, array $config): ErrorType
+    protected function _createUserErrorsType(string $name, array $args, array $config): ValidationErrorType
     {
-        $userErrorType = ErrorType::create([
+        $userErrorType = ValidationErrorType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'isRoot' => true,
             'fields' => [

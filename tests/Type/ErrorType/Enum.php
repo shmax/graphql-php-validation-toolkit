@@ -4,7 +4,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
 enum Animal
 {
@@ -14,18 +14,18 @@ enum Animal
 
 final class Enum extends TestBase
 {
-    public function validatedEnum(): void
+    public function testValidatedEnum(): void
     {
-        $this->_checkSchema(ErrorType::create([
+        $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => new PhpEnumType(Animal::class, "animals"),
         ], ['palette']), '
             schema {
-              mutation: PaletteError
+              mutation: ValidationError
             }
             
-            "User errors for Palette"
-            type PaletteError {
+            "Validation error"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 

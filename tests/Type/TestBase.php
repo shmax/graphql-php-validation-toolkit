@@ -8,13 +8,16 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 abstract class TestBase extends TestCase
 {
 //    protected $outputPath = 'tmp/';
+
+    protected $maxDiff = PHP_INT_MAX;
+
     protected function _checkSchema(Type $field, string $expected): void
     {
         $actual = SchemaPrinter::doPrint(new Schema(['mutation' => $field]));
@@ -62,7 +65,7 @@ abstract class TestBase extends TestCase
     /**
      * @param array<string, string> $expectedMap
      */
-    protected function _checkTypes(ErrorType $field, array $expectedMap): void
+    protected function _checkTypes(ValidationErrorType $field, array $expectedMap): void
     {
         $mutation = new ObjectType([
             'name' => 'Mutation',

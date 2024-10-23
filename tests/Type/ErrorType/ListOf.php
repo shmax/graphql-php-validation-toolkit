@@ -8,21 +8,21 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
 final class ListOf extends TestBase
 {
     public function testScalarTypeWithNoValidation(): void
     {
         $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
-        ErrorType::create([
+        ValidationErrorType::create([
             'type' => Type::listOf(Type::id()),
         ], ['upsertSku']);
     }
 
     public function testCheckTypesOnListOfWithValidatedString(): void
     {
-        $type = ErrorType::create([
+        $type = ValidationErrorType::create([
             'type' => Type::listOf(Type::string()),
             'validate' => static fn() => null,
             'items' => [
@@ -45,11 +45,11 @@ final class ListOf extends TestBase
               _msg: String
 
               "Validation errors for each String in the list"
-              _items: [UpsertSkuError_StringError]
+              _items: [ListItemValidationError]
             }
             
-            "User errors for String"
-            type UpsertSkuError_StringError {
+            "User errors"
+            type ListItemValidationError {
               "A path describing this item\'s location in the nested array"
               _path: [Int]
 
@@ -65,7 +65,7 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfInputObjectWithValidation(): void
     {
-        $type = ErrorType::create([
+        $type = ValidationErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'validate' => static fn($value) => null,
@@ -125,7 +125,7 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfListOfWithValidatedString(): void
     {
-        $type = ErrorType::create([
+        $type = ValidationErrorType::create([
             'type' => Type::listOf(Type::listOf(Type::string())),
             'items' => [
                 'validate' => static fn($str) => null
@@ -160,7 +160,7 @@ final class ListOf extends TestBase
 
     public function testCheckTypesOnListOfWithValidatedBoolean(): void
     {
-        $type = ErrorType::create([
+        $type = ValidationErrorType::create([
             'type' => Type::listOf(Type::boolean()),
             'items' => [
                 'validate' => static fn($str) => null

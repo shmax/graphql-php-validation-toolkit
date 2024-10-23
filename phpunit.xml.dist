@@ -11,6 +11,7 @@
     </coverage>
     <php>
         <ini name="error_reporting" value="E_ALL"/>
+
     </php>
     <testsuites>
         <testsuite name="shmax/graphql-php-validation-toolkit Test Suite">

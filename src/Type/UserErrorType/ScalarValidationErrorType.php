@@ -4,7 +4,7 @@ namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
-class ScalarErrorType extends ErrorType
+class ScalarValidationErrorType extends ValidationErrorType
 {
     protected function __construct(array $config, array $path)
     {

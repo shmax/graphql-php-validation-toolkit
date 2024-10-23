@@ -7,11 +7,18 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
-class ListOfErrorType extends ErrorType
+class ListOfValidationErrorType extends ValidationErrorType
 {
     public const ITEMS_NAME = 'items';
 
-    protected const PATH_NAME = '_path';
+    public const PATH_NAME = '_path';
+
+    protected static ListItemValidationValidationErrorType $listItemValidatedErrorType;
+
+    public static function listItemValidationErrorType(): ListItemValidationValidationErrorType
+    {
+        return static::$listItemValidatedErrorType ??= new ListItemValidationValidationErrorType();
+    }
 
     protected function __construct(array $config, array $path)
     {
@@ -31,21 +38,25 @@ class ListOfErrorType extends ErrorType
                 $errorCodes = $type->config['errorCodes'] ?? null;
             }
 
-            $errorType = static::create([
-                'type' => $type,
-                'typeSetter' => $config['typeSetter'] ?? null,
-                'validate' => $validate,
-                'errorCodes' => $errorCodes,
-                'fields' => [
-                    static::PATH_NAME => [
-                        'type' => Type::listOf(Type::int()),
-                        'description' => 'A path describing this item\'s location in the nested array',
-                        'resolve' => static function ($value) {
-                            return $value[static::PATH_NAME];
-                        },
-                    ]
-                ],
-            ], [$this->name, $type->name]);
+            if (!$errorCodes) {
+                $errorType = static::listItemValidationErrorType();
+            } else {
+                $errorType = static::create([
+                    'type' => $type,
+                    'typeSetter' => $config['typeSetter'] ?? null,
+                    'validate' => $validate,
+                    'errorCodes' => $errorCodes,
+                    'fields' => [
+                        static::PATH_NAME => [
+                            'type' => Type::listOf(Type::int()),
+                            'description' => 'A path describing this item\'s location in the nested array',
+                            'resolve' => static function ($value) {
+                                return $value[static::PATH_NAME];
+                            },
+                        ]
+                    ],
+                ], [$this->name, $type->name]);
+            }
 
             $this->config['fields']['_' . static::ITEMS_NAME] = [
                 'type' => Type::listOf($errorType),

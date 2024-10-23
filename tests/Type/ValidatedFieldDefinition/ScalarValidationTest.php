@@ -6,11 +6,12 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
-final class ScalarValidationTest extends TestCase
+final class ScalarValidationTest extends TestBase
 {
     /** @var Type */
     protected $bookType;
@@ -19,90 +20,59 @@ final class ScalarValidationTest extends TestCase
     protected $personType;
 
     /** @var mixed[] */
-    protected $data = [
-        'people' => [
-            1 => ['firstName' => 'Wilson'],
-        ],
-        'books' => [
-            1 => [
-                'title' => 'Where the Red Fern Grows',
-                'author' => 1,
-            ],
+    protected $books = [
+        1 => [
+            'title' => 'Where the Red Fern Grows',
+            'author' => 1,
         ],
     ];
 
-    /** @var ObjectType */
-    protected $query;
-
-    /** @var Schema */
-    protected $schema;
-
-    protected function setUp(): void
-    {
-        $this->personType = new ObjectType([
-            'name' => 'Person',
-            'fields' => [
-                'firstName' => [
-                    'type' => Type::string(),
-                ],
-            ],
-        ]);
-
-        $this->bookType = new ObjectType([
-            'name' => 'Book',
-            'fields' => [
-                'title' => [
-                    'type' => Type::string(),
-                    'resolve' => static function ($book) {
-                        return $book['title'];
-                    },
-                ],
-                'author' => [
-                    'type' => $this->personType,
-                    'resolve' => static function ($book) {
-                        return $book['author'];
-                    },
-                ],
-            ],
-        ]);
-
-        $this->query = new ObjectType(['name' => 'Query', 'fields' => []]);
-
-        $this->schema = new Schema([
-            'query' => $this->query,
-            'mutation' => new ObjectType([
-                'name' => 'Mutation',
-                'fields' => function () {
-                    return [
-                        'updateBook' => new ValidatedFieldDefinition([
-                            'name' => 'updateBook',
-                            'type' => $this->bookType,
-                            'args' => [
-                                'bookId' => [
-                                    'type' => Type::id(),
-                                    'validate' => function ($bookId) {
-                                        if (isset($this->data['books'][$bookId])) {
-                                            return 0;
-                                        }
-
-                                        return [1, 'Unknown book!'];
-                                    },
-                                ],
-                            ],
-                            'resolve' => static function ($value): bool {
-                                return (bool)$value;
-                            },
-                        ]),
-                    ];
-                },
-            ]),
-        ]);
-    }
 
     public function testNullableScalarValidationOnNullValueSuccess(): void
     {
-        $res = GraphQL::executeQuery(
-            $this->schema,
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBook',
+                'type' => new ObjectType([
+                    'name' => 'Book',
+                    'fields' => [
+                        'title' => [
+                            'type' => Type::string(),
+                            'resolve' => static function ($book) {
+                                return $book['title'];
+                            },
+                        ],
+                        'author' => [
+                            'type' => new ObjectType([
+                                'name' => 'Person',
+                                'fields' => [
+                                    'firstName' => [
+                                        'type' => Type::string(),
+                                    ],
+                                ],
+                            ]),
+                            'resolve' => static function ($book) {
+                                return $book['author'];
+                            },
+                        ],
+                    ],
+                ]),
+                'args' => [
+                    'bookId' => [
+                        'type' => Type::id(),
+                        'validate' => function ($bookId) {
+                            if (isset($this->books[$bookId])) {
+                                return 0;
+                            }
+
+                            return [1, 'Unknown book!'];
+                        },
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return (bool)$value;
+                },
+            ]),
             Utils::nowdoc('
                 mutation UpdateBook(
                     $bookId:ID
@@ -119,12 +89,15 @@ final class ScalarValidationTest extends TestCase
                     }
                 }
             '),
-            [],
-            null,
-            ['bookId' => null]
+            ['bookId' => null],
+            [
+                '_valid' => false,
+                '_result' => null,
+                'bookId' => [
+                    '_code' => 1,
+                    '_msg' => 'Unknown book!',
+                ],
+            ]
         );
-
-        static::assertEmpty($res->errors);
-        static::assertFalse($res->data['updateBook']['_valid']);
     }
 }

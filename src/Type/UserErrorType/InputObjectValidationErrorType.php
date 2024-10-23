@@ -9,12 +9,12 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 /**
- * @phpstan-import-type UserErrorsConfig from ErrorType
- * @phpstan-import-type Path from ErrorType
+ * @phpstan-import-type UserErrorsConfig from ValidationErrorType
+ * @phpstan-import-type Path from ValidationErrorType
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  */
-class InputObjectErrorType extends ErrorType
+class InputObjectValidationErrorType extends ValidationErrorType
 {
     /**
      * @param UserErrorsConfig $config
@@ -31,6 +31,19 @@ class InputObjectErrorType extends ErrorType
 
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
+        if (is_callable($arg['validate'] ?? null)) {
+            $result = static::_formatValidationResult($arg['validate']($value));
+
+            if (isset($result) && $result[static::CODE_NAME] !== 0) {
+                $res = $result;
+            }
+        }
+
+        if (\is_callable($arg['type'])) {
+            $config['type'] = $arg['type']();
+        }
+
+
         $type = Type::getNamedType($arg['type']);
         assert($type instanceof InputObjectType);
 
@@ -54,8 +67,15 @@ class InputObjectErrorType extends ErrorType
                         $validationResult = static::_formatValidationResult($isRequired);
                     }
                 } else if ($isKeyPresent) {
-                    $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
-                    $diff = array_diff_key($validationResult ?? [], array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+                    $validate = $config['validate'] ?? null;
+                    if (isset($validate) && $fieldErrorType instanceof ValidationErrorType ||
+                        $fieldErrorType instanceof ScalarValidationErrorType
+                    ) {
+                        $validationResult = static::_formatValidationResult($validate($value[$key]));
+                    } else {
+                        $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
+                        $diff = array_diff_key($validationResult ?? [], array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+                    }
                 }
 
                 if (!empty($validationResult) && (($validationResult[static::CODE_NAME] ?? null) !== 0 || !empty($diff))) {

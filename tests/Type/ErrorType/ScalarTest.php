@@ -5,22 +5,22 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
 final class ScalarTest extends TestBase
 {
     public function testId(): void
     {
-        $this->_checkSchema(ErrorType::create([
+        $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => Type::id(),
         ], ['palette']), '
             schema {
-              mutation: PaletteError
+              mutation: ValidationError
             }
             
-            "User errors for Palette"
-            type PaletteError {
+            "User errors"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 
@@ -33,16 +33,16 @@ final class ScalarTest extends TestBase
 
     public function testBoolean(): void
     {
-        $this->_checkSchema(ErrorType::create([
+        $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
-            'type' => Type::boolean(),
+            'type' => Type::id(),
         ], ['palette']), '
             schema {
-              mutation: PaletteError
+              mutation: ValidationError
             }
             
-            "User errors for Palette"
-            type PaletteError {
+            "User errors"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 
@@ -55,16 +55,16 @@ final class ScalarTest extends TestBase
 
     public function testString(): void
     {
-        $this->_checkSchema(ErrorType::create([
+        $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => Type::string(),
         ], ['palette']), '
             schema {
-              mutation: PaletteError
+              mutation: ValidationError
             }
             
-            "User errors for Palette"
-            type PaletteError {
+            "User errors"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 

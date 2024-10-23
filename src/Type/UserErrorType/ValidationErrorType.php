@@ -31,10 +31,17 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  */
-abstract class ErrorType extends ObjectType
+class ValidationErrorType extends ObjectType
 {
     protected const CODE_NAME = '_code';
     protected const MESSAGE_NAME = '_msg';
+
+    protected static ValidationErrorType $validatedErrorType;
+
+    public static function validatedErrorType(): ValidationErrorType
+    {
+        return static::$validatedErrorType ??= new ValidationErrorType(['validate' => static fn() => null]);
+    }
 
     /**
      * @param ValidatedFieldConfig $arg
@@ -42,24 +49,24 @@ abstract class ErrorType extends ObjectType
      * @param array<mixed> $res ;
      */
 
-    abstract protected function _validate(array $arg, mixed $value, array &$res): void;
+//    abstract protected function _validate(array $arg, mixed $value, array &$res): void;
 
 
     /**
      * @phpstan-param UserErrorsConfig $config
      * @phpstan-param Path $path
      */
-    protected function __construct(array $config, array $path)
+    protected function __construct(array $config, array $path = [])
     {
         $fields = $config['fields'] ?? [];
         $this->_addCodeAndMessageFields($config, $fields, $path);
 
         $pathEnd = end($path);
-        assert($pathEnd != false);
+//        assert($pathEnd != false);
 
         parent::__construct(array_merge($config, [
-            'name' => $this->_nameFromPath($path) . 'Error',
-            'description' => 'User errors for ' . \ucfirst((string)$pathEnd),
+            'name' => $this->_nameFromPath($path) . 'ValidationError',
+            'description' => 'Validation error' . ($pathEnd ? ' for ' . ucfirst($pathEnd) : ''),
             'fields' => $fields,
             'typeSetter' => $config['typeSetter'] ?? null,
         ]));
@@ -76,22 +83,21 @@ abstract class ErrorType extends ObjectType
         $resolvedType = self::_resolveType($config['type']);
 
         if ($resolvedType instanceof InputObjectType) {
-            $type = new InputObjectErrorType($config, $path);
+            $type = new InputObjectValidationErrorType($config, $path);
         } else if ($resolvedType instanceof ListOfType) {
-            $type = new ListOfErrorType($config, $path);
+            $type = new ListOfValidationErrorType($config, $path);
         } else if ($resolvedType instanceof NonNull) {
             $config['type'] = static::_resolveType($config['type'], true);
             $type = static::create($config, $path);
-        } else if ($resolvedType instanceof StringType) {
-            $type = new StringErrorType($config, $path);
-        } else if ($resolvedType instanceof IDType) {
-            $type = new IDErrorType($config, $path);
-        } else if ($resolvedType instanceof ScalarType) {
-            $type = new ScalarErrorType($config, $path);
-        } else if ($resolvedType instanceof EnumType) {
-            $type = new EnumErrorType($config, $path);
         } else {
-            throw new \Exception("Unknown type");
+            if (!isset($config['validate'])) {
+                throw new NoValidatationFoundException();
+            }
+            if (!isset($config['errorCodes'])) {
+                $type = static::validatedErrorType();
+            } else {
+                $type = new ValidationErrorType($config, $path);
+            }
         }
         return static::_set($type, $config);
     }
@@ -111,18 +117,6 @@ abstract class ErrorType extends ObjectType
     public function validate(array $config, $value): array
     {
         $res = [];
-        if (is_callable($config['validate'] ?? null)) {
-            $result = static::_formatValidationResult($config['validate']($value));
-
-            if (isset($result) && $result[static::CODE_NAME] !== 0) {
-                $res = $result;
-            }
-        }
-
-        if (\is_callable($config['type'])) {
-            $config['type'] = $config['type']();
-        }
-
         $this->_validate($config, $value, $res);
         return $res;
     }

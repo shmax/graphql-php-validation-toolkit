@@ -4,7 +4,7 @@ namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
-class EnumErrorType extends ErrorType
+class EnumValidationErrorType extends ValidationErrorType
 {
     protected function __construct(array $config, array $path)
     {

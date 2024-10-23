@@ -6,6 +6,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
@@ -16,38 +17,26 @@ enum BookError
     case invalidIsbn;
 }
 
-final class ErrorFormats extends TestCase
+final class ErrorFormats extends TestBase
 {
     public function testIntCodeType(): void
     {
-        $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
-            'mutation' => new ObjectType([
-                'name' => 'Mutation',
-                'fields' => function () {
-                    return [
-                        'updateBook' => new ValidatedFieldDefinition([
-                            'name' => 'updateBook',
-                            'type' => Type::boolean(),
-                            'args' => [
-                                'bookId' => [
-                                    'type' => Type::id(),
-                                    'validate' => function ($bookId) {
-                                        return empty($bookId) ? 1 : 0;
-                                    },
-                                ],
-                            ],
-                            'resolve' => static function ($value): bool {
-                                return (bool)$value;
-                            },
-                        ]),
-                    ];
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBook',
+                'type' => Type::boolean(),
+                'args' => [
+                    'bookId' => [
+                        'type' => Type::id(),
+                        'validate' => function ($bookId) {
+                            return empty($bookId) ? 1 : 0;
+                        },
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return (bool)$value;
                 },
             ]),
-        ]);
-
-        $res = GraphQL::executeQuery(
-            $schema,
             Utils::nowdoc('
                 mutation UpdateBook(
                     $bookId:ID
@@ -62,46 +51,37 @@ final class ErrorFormats extends TestCase
                     }
                 }
             '),
-            [],
-            null,
-            ['bookId' => null]
+            ['bookId' => null],
+            [
+                '_valid' => false,
+                '_result' => null,
+                'bookId' => [
+                    '_code' => 1,
+                    '_msg' => '',
+                ]
+            ]
         );
-
-        static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['bookId']['_code'], 1);
     }
 
     public function testEnumCodeType(): void
     {
-        $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
-            'mutation' => new ObjectType([
-                'name' => 'Mutation',
-                'fields' => function () {
-                    return [
-                        'updateBook' => new ValidatedFieldDefinition([
-                            'name' => 'updateBook',
-                            'type' => Type::boolean(),
-                            'args' => [
-                                'bookId' => [
-                                    'type' => Type::id(),
-                                    'errorCodes' => BookError::class,
-                                    'validate' => function ($bookId) {
-                                        return empty($bookId) ? BookError::required : 0;
-                                    },
-                                ],
-                            ],
-                            'resolve' => static function ($value): bool {
-                                return (bool)$value;
-                            },
-                        ]),
-                    ];
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBook',
+                'type' => Type::boolean(),
+                'args' => [
+                    'bookId' => [
+                        'type' => Type::id(),
+                        'errorCodes' => BookError::class,
+                        'validate' => function ($bookId) {
+                            return empty($bookId) ? BookError::required : 0;
+                        },
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return (bool)$value;
                 },
             ]),
-        ]);
-
-        $res = GraphQL::executeQuery(
-            $schema,
             Utils::nowdoc('
                 mutation UpdateBook(
                     $bookId:ID
@@ -116,13 +96,16 @@ final class ErrorFormats extends TestCase
                     }
                 }
             '),
-            [],
-            null,
-            ['bookId' => null]
+            ['bookId' => null],
+            [
+                'bookId' => [
+                    '_code' => 'required',
+                    '_msg' => ''
+                ],
+                '_valid' => false,
+                '_result' => null
+            ]
         );
-
-        static::assertEmpty($res->errors);
-        static::assertEquals($res->data['updateBook']['bookId']['_code'], 'required');
     }
 
     public function testIntCodeTypeAndMessage(): void

@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
 enum AuthorErrorTest
 {
@@ -18,7 +18,7 @@ final class InputObjectTest extends TestBase
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
 
-        ErrorType::create([
+        ValidationErrorType::create([
             'errorCodes' => PersonErrorCode::class,
             'type' => new InputObjectType([
                 'name' => 'updateBook',
@@ -34,7 +34,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkSchema(
-            ErrorType::create([
+            ValidationErrorType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -61,23 +61,14 @@ final class InputObjectTest extends TestBase
                 "User errors for UpdateBook"
                 type UpdateBookError {
                   "Error for title"
-                  title: UpdateBook_TitleError
+                  title: ValidationError
                 
                   "Error for authorId"
-                  authorId: UpdateBook_AuthorIdError
+                  authorId: ValidationError
                 }
                 
-                "User errors for Title"
-                type UpdateBook_TitleError {
-                  "A numeric error code. 0 on success, non-zero on failure."
-                  _code: Int
-                
-                  "An error message."
-                  _msg: String
-                }
-                
-                "User errors for AuthorId"
-                type UpdateBook_AuthorIdError {
+                "User errors"
+                type ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
                 
@@ -92,7 +83,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkSchema(
-            ErrorType::create([
+            ValidationErrorType::create([
                 'validate' => static function () {
                 },
                 'type' => new InputObjectType([
@@ -128,7 +119,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnSelfAndOnFields(): void
     {
         $this->_checkSchema(
-            ErrorType::create([
+            ValidationErrorType::create([
                 'validate' => static function () {
                 },
                 'type' => new InputObjectType([
@@ -161,14 +152,14 @@ final class InputObjectTest extends TestBase
               _msg: String
 
               "Error for title"
-              title: UpdateBook_TitleError
+              title: ValidationError
             
               "Error for authorId"
-              authorId: UpdateBook_AuthorIdError
+              authorId: ValidationError
             }
             
-            "User errors for Title"
-            type UpdateBook_TitleError {
+            "User errors"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
             
@@ -176,15 +167,6 @@ final class InputObjectTest extends TestBase
               _msg: String
             }
             
-            "User errors for AuthorId"
-            type UpdateBook_AuthorIdError {
-              "A numeric error code. 0 on success, non-zero on failure."
-              _code: Int
-            
-              "An error message."
-              _msg: String
-            }
-
             '
         );
     }
@@ -192,7 +174,7 @@ final class InputObjectTest extends TestBase
     public function testValidateOnDeeplyNestedField(): void
     {
         $this->_checkSchema(
-            ErrorType::create([
+            ValidationErrorType::create([
                 'type' => new InputObjectType([
                     'name' => 'book',
                     'fields' => [
@@ -225,11 +207,11 @@ final class InputObjectTest extends TestBase
                 "User errors for Author"
                 type UpdateBook_AuthorError {
                   "Error for zip"
-                  zip: UpdateBook_Author_ZipError
+                  zip: ValidationError
                 }
                 
-                "User errors for Zip"
-                type UpdateBook_Author_ZipError {
+                "User errors"
+                type ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
                 
