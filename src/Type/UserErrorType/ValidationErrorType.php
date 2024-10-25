@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\TypeManager;
 
 /**
  * @phpstan-type UserErrorsConfig array{
@@ -189,6 +190,8 @@ class ValidationErrorType extends ObjectType
     {
         if (\is_callable($config['typeSetter'] ?? null)) {
             return $config['typeSetter']($type);
+        } else {
+            return TypeManager::set($type);
         }
 
         return $type;
@@ -211,9 +214,6 @@ class ValidationErrorType extends ObjectType
                     throw new \Exception('If you specify errorCodes, you must also provide a \'validate\' callback, or mark the field as \'required\'');
                 }
                 $type = new PhpEnumType($config['errorCodes']);
-                if (!isset($config['typeSetter'])) {
-                    $type->name = $this->_nameFromPath(\array_merge($path, [$type->name]));
-                }
 
                 $fields[static::CODE_NAME] = [
                     'type' => static::_set($type, $config),

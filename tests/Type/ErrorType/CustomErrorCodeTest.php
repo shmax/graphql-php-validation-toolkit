@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\CustomErrorCodeWithTypeSetterTest;
 
-use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
@@ -21,7 +19,7 @@ enum PersonErrorCode
     case Retired;
 }
 
-final class CustomErrorCodeTest extends TestBase
+final class CustomErrorCodeWithTypeSetterTest extends TestBase
 {
     public function testCustomEnumOnSelf(): void
     {
@@ -37,13 +35,13 @@ final class CustomErrorCodeTest extends TestBase
             "Validation error for Palette"
             type PaletteValidationError {
               "An enumerated error code."
-              _code: Palette_ColorErrorCode
+              _code: ColorErrorCode
             
               "An error message."
               _msg: String
             }
             
-            enum Palette_ColorErrorCode {
+            enum ColorErrorCode {
               invalidColor
               badHue
             }
@@ -76,13 +74,13 @@ final class CustomErrorCodeTest extends TestBase
               _path: [Int]
             
               "An enumerated error code."
-              _code: PaletteValidationError_ID_ColorErrorCode
+              _code: ColorErrorCode
             
               "An error message."
               _msg: String
             }
             
-            enum PaletteValidationError_ID_ColorErrorCode {
+            enum ColorErrorCode {
               invalidColor
               badHue
             }
@@ -113,28 +111,42 @@ final class CustomErrorCodeTest extends TestBase
                     ],
                 ]),
             ], ['updateBook']), '
-            schema {
-              mutation: UpdateBookValidationError
-            }
-            
-            "Validation error for UpdateBook"
-            type UpdateBookValidationError {
-              "Error for authorId"
-              authorId: UpdateBook_AuthorIdValidationError
-            
-              "Error for editorId"
-              editorId: UpdateBook_EditorIdValidationError
-            }
-            
-            "User errors"
-            type PersonErrorCodeValidationError {
-              "An enumerated error code."
-              _code: PersonErrorCode
-            
-              "An error message."
-              _msg: String
-            }
+                schema {
+                  mutation: UpdateBookValidationError
+                }
+                
+                "Validation error for UpdateBook"
+                type UpdateBookValidationError {
+                  "Error for authorId"
+                  authorId: UpdateBook_AuthorIdValidationError
+                
+                  "Error for editorId"
+                  editorId: UpdateBook_EditorIdValidationError
+                }
+                
+                "Validation error for AuthorId"
+                type UpdateBook_AuthorIdValidationError {
+                  "An enumerated error code."
+                  _code: PersonErrorCode
+                
+                  "An error message."
+                  _msg: String
+                }
+                
+                enum PersonErrorCode {
+                  PersonNotFound
+                  Retired
+                }
+                
+                "Validation error for EditorId"
+                type UpdateBook_EditorIdValidationError {
+                  "An enumerated error code."
+                  _code: PersonErrorCode
+                
+                  "An error message."
+                  _msg: String
+                }
+
         ');
     }
-
 }
