@@ -2,24 +2,30 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 
-use GraphQL\Type\Definition\StringType;
+use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
-final class ScalarTest extends TestBase
+enum Animal
+{
+    case Mammal;
+    case Bird;
+}
+
+final class ValidationErrorTest extends TestBase
 {
     public function testId(): void
     {
         $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => Type::id(),
-        ], ['palette']), '
+        ]), '
             schema {
               mutation: ValidationError
             }
             
-            "User errors"
+            "Validation error"
             type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
@@ -36,12 +42,12 @@ final class ScalarTest extends TestBase
         $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => Type::id(),
-        ], ['palette']), '
+        ]), '
             schema {
               mutation: ValidationError
             }
             
-            "User errors"
+            "Validation error"
             type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
@@ -58,12 +64,34 @@ final class ScalarTest extends TestBase
         $this->_checkSchema(ValidationErrorType::create([
             'validate' => static fn() => null,
             'type' => Type::string(),
-        ], ['palette']), '
+        ]), '
             schema {
               mutation: ValidationError
             }
             
-            "User errors"
+            "Validation error"
+            type ValidationError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              _code: Int
+
+              "An error message."
+              _msg: String
+            }
+
+        ');
+    }
+
+    public function testValidatedEnum(): void
+    {
+        $this->_checkSchema(ValidationErrorType::create([
+            'validate' => static fn() => null,
+            'type' => new PhpEnumType(Animal::class, "animals"),
+        ]), '
+            schema {
+              mutation: ValidationError
+            }
+            
+            "Validation error"
             type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int

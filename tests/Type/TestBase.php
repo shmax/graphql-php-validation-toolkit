@@ -10,13 +10,16 @@ use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 
 abstract class TestBase extends TestCase
 {
-//    protected $outputPath = 'tmp/';
-
-    protected $maxDiff = PHP_INT_MAX;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        TypeRegistry::clearTypes();
+    }
 
     protected function _checkSchema(Type $field, string $expected): void
     {

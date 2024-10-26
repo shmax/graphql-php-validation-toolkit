@@ -2,7 +2,7 @@
 
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
-class IDErrorType extends ScalarValidationErrorType
+class IDValidationErrorType extends ScalarValidationErrorType
 {
     static protected function empty(mixed $value): bool
     {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\ListOf;
 
 use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\BooleanType;
@@ -9,6 +9,11 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+
+enum PersonErrorCode
+{
+    case unknownPerson;
+}
 
 final class ListOf extends TestBase
 {
@@ -20,7 +25,8 @@ final class ListOf extends TestBase
         ], ['upsertSku']);
     }
 
-    public function testCheckTypesOnListOfWithValidatedString(): void
+    #[TestDescription("For a scalar wrapped type, items type is ListItemValidationError")]
+    public function testListOfValidatedScalar(): void
     {
         $type = ValidationErrorType::create([
             'type' => Type::listOf(Type::string()),
@@ -33,11 +39,11 @@ final class ListOf extends TestBase
 
         $this->_checkSchema($type, '
             schema {
-              mutation: UpsertSkuError
+              mutation: upsertSku_ListOfValidationError
             }
             
-            "User errors for UpsertSku"
-            type UpsertSkuError {
+            "Validation error for UpsertSku"
+            type upsertSku_ListOfValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 
@@ -48,7 +54,7 @@ final class ListOf extends TestBase
               _items: [ListItemValidationError]
             }
             
-            "User errors"
+            "Validation error"
             type ListItemValidationError {
               "A path describing this item\'s location in the nested array"
               _path: [Int]
@@ -58,6 +64,52 @@ final class ListOf extends TestBase
             
               "An error message."
               _msg: String
+            }
+
+        ');
+    }
+
+    #[TestDescription("For a scalar wrapped type with errorCodes set, items type is <enum-stem>ValidationError")]
+    public function testListOfValidatedScalarWithEnumErrorCode(): void
+    {
+        $this->_checkSchema(ValidationErrorType::create([
+            'type' => Type::listOf(Type::string()),
+            'validate' => static fn() => null,
+            'items' => [
+                'validate' => static fn($str) => null,
+                'errorCodes' => PersonErrorCode::class
+            ]
+        ], ['upsertSku']), '
+            schema {
+              mutation: upsertSku_ListOfValidationError
+            }
+            
+            "Validation error for UpsertSku"
+            type upsertSku_ListOfValidationError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              _code: Int
+
+              "An error message."
+              _msg: String
+
+              "Validation errors for each String in the list"
+              _items: [PersonListItemValidationError]
+            }
+            
+            "Validation error for UpsertSku"
+            type PersonListItemValidationError {
+              "A path describing this item\'s location in the nested array"
+              _path: [Int]
+
+              "An enumerated error code."
+              _code: PersonErrorCode
+            
+              "An error message."
+              _msg: String
+            }
+            
+            enum PersonErrorCode {
+              unknownPerson
             }
 
         ');
@@ -81,11 +133,11 @@ final class ListOf extends TestBase
 
         $this->_checkSchema($type, '
             schema {
-              mutation: UpsertSkuError
+              mutation: upsertSku_ListOfValidationError
             }
 
-            "User errors for UpsertSku"
-            type UpsertSkuError {
+            "Validation error for UpsertSku"
+            type upsertSku_ListOfValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
 
@@ -93,11 +145,11 @@ final class ListOf extends TestBase
               _msg: String
 
               "Validation errors for each updateBook in the list"
-              _items: [UpsertSkuError_UpdateBookError]
+              _items: [upsertSku_ListItemValidationError]
             }
 
-            "User errors for UpdateBook"
-            type UpsertSkuError_UpdateBookError {
+            "Validation error for UpsertSku"
+            type upsertSku_ListItemValidationError {
               "A path describing this item\'s location in the nested array"
               _path: [Int]
             
@@ -108,11 +160,11 @@ final class ListOf extends TestBase
               _msg: String
             
               "Error for authorId"
-              authorId: UpsertSkuError_UpdateBook_AuthorIdError
+              authorId: ValidationError
             }
             
-            "User errors for AuthorId"
-            type UpsertSkuError_UpdateBook_AuthorIdError {
+            "Validation error"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
             
@@ -134,17 +186,17 @@ final class ListOf extends TestBase
 
         $this->_checkSchema($type, '
             schema {
-              mutation: UpsertSkuError
+              mutation: upsertSku_ListOfValidationError
             }
             
-            "User errors for UpsertSku"
-            type UpsertSkuError {
+            "Validation error for UpsertSku"
+            type upsertSku_ListOfValidationError {
               "Validation errors for each String in the list"
-              _items: [UpsertSkuError_StringError]
+              _items: [ListItemValidationError]
             }
             
-            "User errors for String"
-            type UpsertSkuError_StringError {
+            "Validation error"
+            type ListItemValidationError {
               "A path describing this item\'s location in the nested array"
               _path: [Int]
 
@@ -155,41 +207,6 @@ final class ListOf extends TestBase
               _msg: String
             }
 
-        ');
-    }
-
-    public function testCheckTypesOnListOfWithValidatedBoolean(): void
-    {
-        $type = ValidationErrorType::create([
-            'type' => Type::listOf(Type::boolean()),
-            'items' => [
-                'validate' => static fn($str) => null
-            ]
-        ], ['upsertSku']);
-
-        $this->_checkSchema($type, '
-            schema {
-              mutation: UpsertSkuError
-            }
-            
-            "User errors for UpsertSku"
-            type UpsertSkuError {
-              "Validation errors for each Boolean in the list"
-              _items: [UpsertSkuError_BooleanError]
-            }
-            
-            "User errors for Boolean"
-            type UpsertSkuError_BooleanError {
-              "A path describing this item\'s location in the nested array"
-              _path: [Int]
-
-              "A numeric error code. 0 on success, non-zero on failure."
-              _code: Int
-            
-              "An error message."
-              _msg: String
-            }
-            
         ');
     }
 }

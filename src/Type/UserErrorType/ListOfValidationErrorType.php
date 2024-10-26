@@ -3,9 +3,11 @@
 namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
 
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\TypeRegistry;
 
 class ListOfValidationErrorType extends ValidationErrorType
 {
@@ -13,11 +15,15 @@ class ListOfValidationErrorType extends ValidationErrorType
 
     public const PATH_NAME = '_path';
 
-    protected static ListItemValidationValidationErrorType $listItemValidatedErrorType;
-
-    public static function listItemValidationErrorType(): ListItemValidationValidationErrorType
+    static function pathFieldConfig()
     {
-        return static::$listItemValidatedErrorType ??= new ListItemValidationValidationErrorType();
+        return [
+            'type' => Type::listOf(Type::int()),
+            'description' => 'A path describing this item\'s location in the nested array',
+            'resolve' => static function ($value) {
+                return $value[static::PATH_NAME];
+            },
+        ];
     }
 
     protected function __construct(array $config, array $path)
@@ -38,8 +44,8 @@ class ListOfValidationErrorType extends ValidationErrorType
                 $errorCodes = $type->config['errorCodes'] ?? null;
             }
 
-            if (!$errorCodes) {
-                $errorType = static::listItemValidationErrorType();
+            if (!$errorCodes && ($type instanceof ScalarType) && $validate) {
+                $errorType = TypeRegistry::listItemValidationError();
             } else {
                 $errorType = static::create([
                     'type' => $type,
@@ -47,15 +53,9 @@ class ListOfValidationErrorType extends ValidationErrorType
                     'validate' => $validate,
                     'errorCodes' => $errorCodes,
                     'fields' => [
-                        static::PATH_NAME => [
-                            'type' => Type::listOf(Type::int()),
-                            'description' => 'A path describing this item\'s location in the nested array',
-                            'resolve' => static function ($value) {
-                                return $value[static::PATH_NAME];
-                            },
-                        ]
+                        static::PATH_NAME => static::pathFieldConfig(),
                     ],
-                ], [$this->name, $type->name]);
+                ], $path);
             }
 
             $this->config['fields']['_' . static::ITEMS_NAME] = [
@@ -80,6 +80,11 @@ class ListOfValidationErrorType extends ValidationErrorType
     protected function _validate(array $arg, mixed $value, array &$res): void
     {
         $this->_validateListOfType($arg, $value, $res, [0]);
+    }
+
+    protected function _leafName(array $config): string
+    {
+        return "ListOf" . parent::_leafName($config);
     }
 
     /**

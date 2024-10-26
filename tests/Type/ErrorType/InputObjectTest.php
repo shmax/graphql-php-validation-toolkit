@@ -7,13 +7,14 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
-enum AuthorErrorTest
+enum StreetErrorCode
 {
-    case AuthorNotFound;
+    case StreetNotFound;
 }
 
 final class InputObjectTest extends TestBase
 {
+    #[TestDescription("An exception should be thrown if errorCodes is provided without a validate callback")]
     public function testFieldsWithErrorCodesButNoValidate(): void
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
@@ -31,6 +32,7 @@ final class InputObjectTest extends TestBase
         ], ['updateBook']);
     }
 
+    #[TestDescription("Generated error should include field errors at top level, but not _code or _msg")]
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkSchema(
@@ -55,11 +57,11 @@ final class InputObjectTest extends TestBase
             ], ['updateBook']),
             '
                 schema {
-                  mutation: UpdateBookError
+                  mutation: updateBook_ValidationError
                 }
                 
-                "User errors for UpdateBook"
-                type UpdateBookError {
+                "Validation error for UpdateBook"
+                type updateBook_ValidationError {
                   "Error for title"
                   title: ValidationError
                 
@@ -67,7 +69,7 @@ final class InputObjectTest extends TestBase
                   authorId: ValidationError
                 }
                 
-                "User errors"
+                "Validation error"
                 type ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
@@ -80,6 +82,7 @@ final class InputObjectTest extends TestBase
         );
     }
 
+    #[TestDescription("If none of the fields are validated, then the error type should not include them")]
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkSchema(
@@ -100,11 +103,11 @@ final class InputObjectTest extends TestBase
             ], ['updateBook']),
             '
                 schema {
-                  mutation: UpdateBookError
+                  mutation: updateBook_ValidationError
                 }
                 
-                "User errors for UpdateBook"
-                type UpdateBookError {
+                "Validation error for UpdateBook"
+                type updateBook_ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
                 
@@ -140,11 +143,11 @@ final class InputObjectTest extends TestBase
             ], ['updateBook']),
             '
             schema {
-              mutation: UpdateBookError
+              mutation: updateBook_ValidationError
             }
             
-            "User errors for UpdateBook"
-            type UpdateBookError {
+            "Validation error for UpdateBook"
+            type updateBook_ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
             
@@ -158,7 +161,7 @@ final class InputObjectTest extends TestBase
               authorId: ValidationError
             }
             
-            "User errors"
+            "Validation error"
             type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
@@ -187,6 +190,12 @@ final class InputObjectTest extends TestBase
                                         },
                                         'type' => Type::string(),
                                     ],
+                                    'street' => [
+                                        'errorCodes' => StreetErrorCode::class,
+                                        'validate' => static function () {
+                                        },
+                                        'type' => Type::string(),
+                                    ],
                                 ],
                             ]),
                         ],
@@ -195,28 +204,44 @@ final class InputObjectTest extends TestBase
             ], ['updateBook']),
             '
                 schema {
-                  mutation: UpdateBookError
+                  mutation: updateBook_ValidationError
                 }
                 
-                "User errors for UpdateBook"
-                type UpdateBookError {
+                "Validation error for UpdateBook"
+                type updateBook_ValidationError {
                   "Error for author"
-                  author: UpdateBook_AuthorError
+                  author: updateBook_author_ValidationError
                 }
                 
-                "User errors for Author"
-                type UpdateBook_AuthorError {
+                "Validation error for Author"
+                type updateBook_author_ValidationError {
                   "Error for zip"
                   zip: ValidationError
+
+                  "Error for street"
+                  street: StreetValidationError
                 }
-                
-                "User errors"
+
+                "Validation error"
                 type ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
                 
                   "An error message."
                   _msg: String
+                }
+                
+                "Validation error for Street"
+                type StreetValidationError {
+                  "An enumerated error code."
+                  _code: StreetErrorCode
+
+                  "An error message."
+                  _msg: String
+                }
+                
+                enum StreetErrorCode {
+                  StreetNotFound
                 }
 
             '

@@ -15,7 +15,7 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
-use GraphQlPhpValidationToolkit\TypeManager;
+use GraphQlPhpValidationToolkit\TypeRegistry;
 
 /**
  * @phpstan-type UserErrorsConfig array{
@@ -37,13 +37,6 @@ class ValidationErrorType extends ObjectType
     protected const CODE_NAME = '_code';
     protected const MESSAGE_NAME = '_msg';
 
-    protected static ValidationErrorType $validatedErrorType;
-
-    public static function validatedErrorType(): ValidationErrorType
-    {
-        return static::$validatedErrorType ??= new ValidationErrorType(['validate' => static fn() => null]);
-    }
-
     /**
      * @param ValidatedFieldConfig $arg
      * @param mixed $value
@@ -57,7 +50,7 @@ class ValidationErrorType extends ObjectType
      * @phpstan-param UserErrorsConfig $config
      * @phpstan-param Path $path
      */
-    protected function __construct(array $config, array $path = [])
+    public function __construct(array $config, array $path = [])
     {
         $fields = $config['fields'] ?? [];
         $this->_addCodeAndMessageFields($config, $fields, $path);
@@ -66,11 +59,35 @@ class ValidationErrorType extends ObjectType
 //        assert($pathEnd != false);
 
         parent::__construct(array_merge($config, [
-            'name' => $this->_nameFromPath($path) . 'ValidationError',
+            'name' => $this->_generateName($path, $config),
             'description' => 'Validation error' . ($pathEnd ? ' for ' . ucfirst($pathEnd) : ''),
             'fields' => $fields,
             'typeSetter' => $config['typeSetter'] ?? null,
         ]));
+    }
+
+    protected function _generateName(array $path, array $config): string
+    {
+        $namespace = ($config['type'] ?? null) instanceof ScalarType ? null : $this->_nameFromPath($path);
+        $leafName = $this->_leafName($config);
+        $name = implode("_", array_filter([$namespace, $leafName]));
+        return $name;
+    }
+
+    protected function _leafName(array $config): string
+    {
+        $prefix = '';
+
+        if (isset($config['errorCodes'])) {
+            $phpEnum = (new PhpEnumType($config['errorCodes']))->name;
+            $prefix .= preg_replace('~ErrorCode$~', '', $phpEnum);
+        }
+
+        if (isset($config['fields'][ListOfValidationErrorType::PATH_NAME])) {
+            $prefix .= "ListItem";
+        }
+
+        return "{$prefix}ValidationError";
     }
 
     /**
@@ -79,7 +96,7 @@ class ValidationErrorType extends ObjectType
      * @phpstan-param UserErrorsConfig $config
      * @phpstan-param Path $path
      */
-    public static function create(array $config, array $path): self
+    public static function create(array $config, array $path = []): self
     {
         $resolvedType = self::_resolveType($config['type']);
 
@@ -91,11 +108,11 @@ class ValidationErrorType extends ObjectType
             $config['type'] = static::_resolveType($config['type'], true);
             $type = static::create($config, $path);
         } else {
-            if (!isset($config['validate'])) {
+            if (!isset($config['validate']) && empty($config['required'])) {
                 throw new NoValidatationFoundException();
             }
             if (!isset($config['errorCodes'])) {
-                $type = static::validatedErrorType();
+                $type = TypeRegistry::validationError();
             } else {
                 $type = new ValidationErrorType($config, $path);
             }
@@ -191,7 +208,7 @@ class ValidationErrorType extends ObjectType
         if (\is_callable($config['typeSetter'] ?? null)) {
             return $config['typeSetter']($type);
         } else {
-            return TypeManager::set($type);
+            return TypeRegistry::set($type);
         }
 
         return $type;
@@ -252,6 +269,6 @@ class ValidationErrorType extends ObjectType
      */
     protected function _nameFromPath(array $path): string
     {
-        return implode('_', array_map('ucfirst', $path));
+        return implode('_', $path);
     }
 }

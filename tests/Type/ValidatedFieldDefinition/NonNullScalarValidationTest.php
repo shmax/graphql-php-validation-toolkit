@@ -4,11 +4,12 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
-final class NonNullScalarValidationTest extends TestCase
+final class NonNullScalarValidationTest extends TestBase
 {
     /** @var Type */
     protected $bookType;
@@ -34,6 +35,7 @@ final class NonNullScalarValidationTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->personType = new ObjectType([
             'name' => 'Person',
             'fields' => [

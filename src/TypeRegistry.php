@@ -7,12 +7,20 @@ use Exception;
 
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\Type as GraphQLType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ListOfValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
 
 
-class TypeManager
+class TypeRegistry
 {
     /** @var array<Type> * */
     protected static array $types = [];
+
+    // for the benefit of unit tests
+    static function clearTypes(): void
+    {
+        static::$types = [];
+    }
 
     /**
      * @throws Exception
@@ -51,8 +59,25 @@ class TypeManager
     public static function cacheName(string $classname): string
     {
         $parts = explode("\\", $classname);
-        $parts = \Safe\preg_replace('~Type$~', '', $parts[count($parts) - 1]);
+        $parts = preg_replace('~Type$~', '', $parts[count($parts) - 1]);
         assert(!is_array($parts));
         return strtolower($parts);
+    }
+
+    public static function validationError(): ValidationErrorType
+    {
+        return static::$types[static::cacheName(ValidationErrorType::class)] ??= new ValidationErrorType([
+            'validate' => static fn() => null
+        ]);
+    }
+
+    public static function listItemValidationError(): ValidationErrorType
+    {
+        return static::$types['listItemValidationError'] ??= new ValidationErrorType([
+            'validate' => static fn() => null,
+            'fields' => [
+                ListOfValidationErrorType::PATH_NAME => ListOfValidationErrorType::pathFieldConfig(),
+            ],
+        ]);
     }
 }

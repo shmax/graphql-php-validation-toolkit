@@ -44,7 +44,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
         }
 
 
-        $type = Type::getNamedType($arg['type']);
+        $type = Type::getNamedType(self::_resolveType($arg['type']));
         assert($type instanceof InputObjectType);
 
         $fields = $type->getFields();

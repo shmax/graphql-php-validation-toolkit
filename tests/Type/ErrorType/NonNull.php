@@ -16,11 +16,11 @@ final class NonNull extends TestBase
             'validate' => static fn() => null
         ], ['upsertSku']), '
             schema {
-              mutation: UpsertSkuError
+              mutation: ValidationError
             }
             
-            "User errors for UpsertSku"
-            type UpsertSkuError {
+            "Validation error"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
             
@@ -31,6 +31,7 @@ final class NonNull extends TestBase
         ');
     }
 
+    #[TestDescription("Test validation error for a nonNull-wrapped InputObjectType with validation on fields")]
     public function testInputObjectWrappedType(): void
     {
         $this->_checkSchema(ValidationErrorType::create([
@@ -63,29 +64,20 @@ final class NonNull extends TestBase
             ])),
         ], ['upsertSku']), '
             schema {
-              mutation: UpsertSkuError
+              mutation: upsertSku_ValidationError
             }
             
-            "User errors for UpsertSku"
-            type UpsertSkuError {
+            "Validation error for UpsertSku"
+            type upsertSku_ValidationError {
               "Error for firstName"
-              firstName: UpsertSku_FirstNameError
+              firstName: ValidationError
             
               "Error for lastName"
-              lastName: UpsertSku_LastNameError
+              lastName: ValidationError
             }
             
-            "User errors for FirstName"
-            type UpsertSku_FirstNameError {
-              "A numeric error code. 0 on success, non-zero on failure."
-              _code: Int
-            
-              "An error message."
-              _msg: String
-            }
-            
-            "User errors for LastName"
-            type UpsertSku_LastNameError {
+            "Validation error"
+            type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
             
