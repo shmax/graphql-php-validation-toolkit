@@ -127,7 +127,6 @@ class ValidationErrorType extends ObjectType
             }
             if (!isset($config['errorCodes'])) {
                 $type = TypeRegistry::validationError();
-                $type = TypeRegistry::validationError();
             } else {
                 $type = new ValidationErrorType($config, $path);
             }
