@@ -8,8 +8,8 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 

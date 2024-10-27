@@ -1,6 +1,6 @@
 <?php
 
-namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 
 /**
- * @phpstan-import-type UserErrorsConfig from ValidationErrorType
+ * @phpstan-import-type ValidationErrorConfig from ValidationErrorType
  * @phpstan-import-type Path from ValidationErrorType
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
@@ -17,7 +17,7 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 class InputObjectValidationErrorType extends ValidationErrorType
 {
     /**
-     * @param UserErrorsConfig $config
+     * @param ValidationErrorConfig $config
      * @param Path $path
      * @throws NoValidatationFoundException
      */
@@ -39,16 +39,15 @@ class InputObjectValidationErrorType extends ValidationErrorType
             }
         }
 
-        if (\is_callable($arg['type'])) {
-            $config['type'] = $arg['type']();
-        }
-
-
+        $arg['type'] = static::_resolveType($arg['type']);
         $type = Type::getNamedType(self::_resolveType($arg['type']));
         assert($type instanceof InputObjectType);
 
         $fields = $type->getFields();
         foreach ($fields as $key => $field) {
+            /**
+             * @var ValidationErrorConfig
+             */
             $config = $field->config;
             $fieldErrorType = $this->config['fields'][$key]['type'] ?? null;
 
@@ -68,9 +67,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                     }
                 } else if ($isKeyPresent) {
                     $validate = $config['validate'] ?? null;
-                    if (isset($validate) && $fieldErrorType instanceof ValidationErrorType ||
-                        $fieldErrorType instanceof ScalarValidationErrorType
-                    ) {
+                    if (isset($config['validate']) && $fieldErrorType instanceof ValidationErrorType) {
                         $validationResult = static::_formatValidationResult($validate($value[$key]));
                     } else {
                         $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
@@ -86,7 +83,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
     }
 
     /**
-     * @param UserErrorsConfig $config
+     * @param ValidationErrorConfig $config
      * @param Path $path
      * @return array<string, UnnamedFieldDefinitionConfig>
      * @throws NoValidatationFoundException

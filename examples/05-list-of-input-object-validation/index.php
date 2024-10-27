@@ -6,7 +6,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
 
 class AuthorType extends ObjectType

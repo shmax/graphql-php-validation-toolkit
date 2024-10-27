@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 final class NonNull extends TestBase
 {
@@ -31,7 +31,9 @@ final class NonNull extends TestBase
         ');
     }
 
-    #[TestDescription("Test validation error for a nonNull-wrapped InputObjectType with validation on fields")]
+    /**
+     * Test validation error for a nonNull-wrapped InputObjectType with validation on fields
+     */
     public function testInputObjectWrappedType(): void
     {
         $this->_checkSchema(ValidationErrorType::create([

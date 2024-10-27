@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
 enum DingusError
 {

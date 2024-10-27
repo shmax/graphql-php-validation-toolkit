@@ -1,6 +1,6 @@
 <?php
 
-namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 

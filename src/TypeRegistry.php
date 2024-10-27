@@ -7,8 +7,8 @@ use Exception;
 
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\Type as GraphQLType;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ListOfValidationErrorType;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ListOfValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 
 class TypeRegistry
@@ -30,8 +30,9 @@ class TypeRegistry
         return static fn() => static::byClass($classname, static::cacheName($classname));
     }
 
-    public static function set(GraphQLType $type): callable|Type
+    public static function set(Type $type): callable|Type
     {
+        // @phpstan-ignore-next-line
         $cachedName = $type->name;
         if (!isset(self::$types[$cachedName])) {
             self::$types[$cachedName] = $type;
@@ -66,6 +67,9 @@ class TypeRegistry
 
     public static function validationError(): ValidationErrorType
     {
+        /**
+         * @var ValidationErrorType
+         */
         return static::$types[static::cacheName(ValidationErrorType::class)] ??= new ValidationErrorType([
             'validate' => static fn() => null
         ]);
@@ -73,6 +77,9 @@ class TypeRegistry
 
     public static function listItemValidationError(): ValidationErrorType
     {
+        /**
+         * @var ValidationErrorType
+         */
         return static::$types['listItemValidationError'] ??= new ValidationErrorType([
             'validate' => static fn() => null,
             'fields' => [

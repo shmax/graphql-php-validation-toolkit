@@ -1,20 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
+namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\InputObjectTest;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum StreetErrorCode
 {
     case StreetNotFound;
 }
 
+enum PersonErrorCode
+{
+    case unknownPerson;
+}
+
 final class InputObjectTest extends TestBase
 {
-    #[TestDescription("An exception should be thrown if errorCodes is provided without a validate callback")]
+    /**
+     * An exception should be thrown if errorCodes is provided without a validate callback"
+     */
     public function testFieldsWithErrorCodesButNoValidate(): void
     {
         $this->expectExceptionMessage('If you specify errorCodes, you must also provide a validate callback');
@@ -32,7 +39,10 @@ final class InputObjectTest extends TestBase
         ], ['updateBook']);
     }
 
-    #[TestDescription("Generated error should include field errors at top level, but not _code or _msg")]
+
+    /**
+     * Generated error should include field errors at top level, but not _code or _msg
+     */
     public function testValidateOnFieldsButNotOnSelf(): void
     {
         $this->_checkSchema(
@@ -82,7 +92,9 @@ final class InputObjectTest extends TestBase
         );
     }
 
-    #[TestDescription("If none of the fields are validated, then the error type should not include them")]
+    /**
+     * If none of the fields are validated, then the error type should not include them
+     */
     public function testValidateOnSelfButNotOnFields(): void
     {
         $this->_checkSchema(

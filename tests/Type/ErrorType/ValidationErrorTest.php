@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType;
 use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum Animal
 {

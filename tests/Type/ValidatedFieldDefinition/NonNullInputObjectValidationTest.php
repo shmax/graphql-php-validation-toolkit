@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 use PHPUnit\Framework\TestCase;
 
 final class NonNullInputObjectValidationTest extends TestBase

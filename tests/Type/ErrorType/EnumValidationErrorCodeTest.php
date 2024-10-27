@@ -5,7 +5,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\CustomErrorCodeWithTy
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum ColorErrorCode
 {
@@ -21,7 +21,10 @@ enum PersonErrorCode
 
 final class EnumValidationErrorCodeTest extends TestBase
 {
-    #[TestDescription("Test validation error for a scalar type with a custom error code")]
+
+    /**
+     * Test validation error for a scalar type with a custom error code
+     */
     public function testValidationErrorForScalarWithCustomErrorCode(): void
     {
         $this->_checkSchema(ValidationErrorType::create([
@@ -50,7 +53,9 @@ final class EnumValidationErrorCodeTest extends TestBase
         ');
     }
 
-    #[TestDescription("Test validation error for a scalar type with a custom error code that is wrapped in a list")]
+    /**
+     * Test validation error for a scalar type with a custom error code that is wrapped in a list
+     */
     public function testValidationErrorForScalarListItemWithCustomErrorCode(): void
     {
         $this->_checkSchema(ValidationErrorType::create([
@@ -96,67 +101,4 @@ final class EnumValidationErrorCodeTest extends TestBase
 
         ');
     }
-
-//
-//    /**
-//     * When there is no typesetter provided, we expect unique name for each error code enum
-//     */
-//    public function testFieldsWithErrorCodes(): void
-//    {
-//        $this->_checkSchema(
-//            ValidationErrorType::create([
-//                'type' => new InputObjectType([
-//                    'name' => 'updateBook',
-//                    'fields' => [
-//                        'authorId' => [
-//                            'errorCodes' => PersonErrorCode::class,
-//                            'type' => Type::id(),
-//                            'validate' => static fn() => null,
-//                        ],
-//                        'editorId' => [
-//                            'errorCodes' => PersonErrorCode::class,
-//                            'type' => Type::id(),
-//                            'validate' => static fn() => null,
-//                        ],
-//                    ],
-//                ]),
-//            ], ['updateBook']), '
-//                schema {
-//                  mutation: UpdateBookValidationError
-//                }
-//
-//                "Validation error for UpdateBook"
-//                type UpdateBookValidationError {
-//                  "Error for authorId"
-//                  authorId: UpdateBook_AuthorIdValidationError
-//
-//                  "Error for editorId"
-//                  editorId: UpdateBook_EditorIdValidationError
-//                }
-//
-//                "Validation error for AuthorId"
-//                type UpdateBook_AuthorIdValidationError {
-//                  "An enumerated error code."
-//                  _code: PersonErrorCode
-//
-//                  "An error message."
-//                  _msg: String
-//                }
-//
-//                enum PersonErrorCode {
-//                  PersonNotFound
-//                  Retired
-//                }
-//
-//                "Validation error for EditorId"
-//                type UpdateBook_EditorIdValidationError {
-//                  "An enumerated error code."
-//                  _code: PersonErrorCode
-//
-//                  "An error message."
-//                  _msg: String
-//                }
-//
-//        ');
-//    }
 }

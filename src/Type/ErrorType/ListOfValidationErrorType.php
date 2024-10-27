@@ -1,21 +1,27 @@
 <?php
 
-namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\PhpEnumType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 class ListOfValidationErrorType extends ValidationErrorType
 {
     public const ITEMS_NAME = 'items';
 
     public const PATH_NAME = '_path';
 
-    static function pathFieldConfig()
+    /**
+     * @return UnnamedFieldDefinitionConfig
+     */
+    static function pathFieldConfig(): array
     {
         return [
             'type' => Type::listOf(Type::int()),

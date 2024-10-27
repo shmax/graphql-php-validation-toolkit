@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -18,8 +18,8 @@ use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 
 /**
- * @phpstan-type UserErrorsConfig array{
- *   type: Type,
+ * @phpstan-type ValidationErrorConfig array{
+ *   type?: Type,
  *   errorCodes?: class-string<\UnitEnum>|null,
  *   fields?: array<string,mixed>,
  *   validate?: null|callable(mixed $value): mixed,
@@ -43,15 +43,22 @@ class ValidationErrorType extends ObjectType
      * @param array<mixed> $res ;
      */
 
-//    abstract protected function _validate(array $arg, mixed $value, array &$res): void;
+    protected function _validate(array $arg, mixed $value, array &$res): void
+    {
+
+    }
 
 
     /**
-     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param ValidationErrorConfig $config
      * @phpstan-param Path $path
      */
     public function __construct(array $config, array $path = [])
     {
+//        $config['type'] = null;
+        if (!isset($config['type'])) {
+//            xdebug_break();
+        }
         $fields = $config['fields'] ?? [];
         $this->_addCodeAndMessageFields($config, $fields, $path);
 
@@ -66,6 +73,10 @@ class ValidationErrorType extends ObjectType
         ]));
     }
 
+    /**
+     * @phpstan-param Path $path
+     * @phpstan-param ValidationErrorConfig $config
+     */
     protected function _generateName(array $path, array $config): string
     {
         $namespace = ($config['type'] ?? null) instanceof ScalarType ? null : $this->_nameFromPath($path);
@@ -74,6 +85,9 @@ class ValidationErrorType extends ObjectType
         return $name;
     }
 
+    /**
+     * @phpstan-param ValidationErrorConfig $config
+     */
     protected function _leafName(array $config): string
     {
         $prefix = '';
@@ -93,7 +107,7 @@ class ValidationErrorType extends ObjectType
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      *
-     * @phpstan-param UserErrorsConfig $config
+     * @phpstan-param ValidationErrorConfig $config
      * @phpstan-param Path $path
      */
     public static function create(array $config, array $path = []): self
@@ -112,6 +126,7 @@ class ValidationErrorType extends ObjectType
                 throw new NoValidatationFoundException();
             }
             if (!isset($config['errorCodes'])) {
+                $type = TypeRegistry::validationError();
                 $type = TypeRegistry::validationError();
             } else {
                 $type = new ValidationErrorType($config, $path);
@@ -200,7 +215,7 @@ class ValidationErrorType extends ObjectType
     /**
      * @template T of Type
      * @param T $type
-     * @param UserErrorsConfig $config
+     * @param ValidationErrorConfig $config
      * @return T
      */
     static protected function _set(Type $type, array $config): Type
@@ -210,12 +225,10 @@ class ValidationErrorType extends ObjectType
         } else {
             return TypeRegistry::set($type);
         }
-
-        return $type;
     }
 
     /**
-     * @param UserErrorsConfig $config
+     * @param ValidationErrorConfig $config
      * @param array<FieldDefinitionConfig> $fields
      * @param Path $path
      * @throws \Exception

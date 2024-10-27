@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Type\UserErrorType;
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\Argument;
@@ -80,7 +80,7 @@ class ValidatedFieldDefinition extends FieldDefinition
      */
     protected function _createUserErrorsType(string $name, array $args, array $config): ValidationErrorType
     {
-        $userErrorType = ValidationErrorType::create([
+        $validationErrorType = ValidationErrorType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
             'isRoot' => true,
             'fields' => [
@@ -105,8 +105,8 @@ class ValidatedFieldDefinition extends FieldDefinition
             'typeSetter' => $config['typeSetter'] ?? null,
         ], [$name]);
 
-        $userErrorType->name = \ucfirst($name) . 'Result';
-        return $userErrorType;
+        $validationErrorType->name = \ucfirst($name) . 'Result';
+        return $validationErrorType;
     }
 
     /**

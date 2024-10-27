@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
-use GraphQlPhpValidationToolkit\Type\UserErrorType\ValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum PersonErrorCode
 {
@@ -25,7 +25,9 @@ final class ListOf extends TestBase
         ], ['upsertSku']);
     }
 
-    #[TestDescription("For a scalar wrapped type, items type is ListItemValidationError")]
+    /**
+     * For a scalar wrapped type, items type is ListItemValidationError
+     */
     public function testListOfValidatedScalar(): void
     {
         $type = ValidationErrorType::create([
@@ -69,7 +71,9 @@ final class ListOf extends TestBase
         ');
     }
 
-    #[TestDescription("For a scalar wrapped type with errorCodes set, items type is <enum-stem>ValidationError")]
+    /**
+     * For a scalar wrapped type with errorCodes set, items type is <enum-stem>ValidationError
+     */
     public function testListOfValidatedScalarWithEnumErrorCode(): void
     {
         $this->_checkSchema(ValidationErrorType::create([
