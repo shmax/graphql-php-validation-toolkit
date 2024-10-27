@@ -26,6 +26,34 @@ final class ListOf extends TestBase
     }
 
     /**
+     * If we're only validating the entire list but not each item, then we can use a simple type
+     */
+    public function testValidationOnSelfButNotOnWrappedType(): void
+    {
+        $type = ValidationErrorType::create([
+            'type' => Type::listOf(Type::string()),
+            'validate' => static fn() => null,
+        ], ['upsertSku']);
+
+
+        $this->_checkSchema($type, '
+            schema {
+              mutation: ValidationError
+            }
+            
+            "Validation error for UpsertSku"
+            type ValidationError {
+              "A numeric error code. 0 on success, non-zero on failure."
+              _code: Int
+
+              "An error message."
+              _msg: String
+            }
+
+        ');
+    }
+
+    /**
      * For a scalar wrapped type, items type is ListItemValidationError
      */
     public function testListOfValidatedScalar(): void

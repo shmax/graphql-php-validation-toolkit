@@ -74,6 +74,8 @@ class ListOfValidationErrorType extends ValidationErrorType
         } catch (NoValidatationFoundException $e) {
             if (empty($config['required']) && !isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
                 throw $e;
+            } else {
+                $this->name = parent::_leafName($this->config);
             }
         }
     }
