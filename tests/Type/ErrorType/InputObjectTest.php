@@ -115,11 +115,11 @@ final class InputObjectTest extends TestBase
             ], ['updateBook']),
             '
                 schema {
-                  mutation: ValidationError
+                  mutation: updateBook_ValidationError
                 }
                 
                 "Validation error for UpdateBook"
-                type ValidationError {
+                type updateBook_ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
                 

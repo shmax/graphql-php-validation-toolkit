@@ -108,11 +108,8 @@ class InputObjectValidationErrorType extends ValidationErrorType
             ];
         }
 
-        if (empty($fields)) {
-            if (!isset($this->config['validate'])) {
-                throw new NoValidatationFoundException();
-            }
-            $this->name = 'ValidationError';
+        if (empty($fields) && !isset($this->config['validate'])) {
+            throw new NoValidatationFoundException();
         }
 
         return $fields;
