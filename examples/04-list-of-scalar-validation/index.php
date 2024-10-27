@@ -7,7 +7,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
-use GraphQlPhpValidationToolkit\Type\ValidatedStringType;
 
 try {
     $mutationType = new ObjectType([

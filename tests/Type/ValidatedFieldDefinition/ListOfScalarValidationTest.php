@@ -2,16 +2,10 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Type\ValidatedFieldDefinition;
 
-use GraphQL\GraphQL;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
-use GraphQlPhpValidationToolkit\Type\ValidatedStringType;
-use PHPUnit\Framework\TestCase;
 
 final class ListOfScalarValidationTest extends TestBase
 {
