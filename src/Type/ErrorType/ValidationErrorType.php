@@ -243,6 +243,7 @@ class ValidationErrorType extends ObjectType
                     throw new \Exception('If you specify errorCodes, you must also provide a \'validate\' callback, or mark the field as \'required\'');
                 }
                 $type = new PhpEnumType($config['errorCodes']);
+                $type->name = preg_replace('~ErrorCode$~', '', $type->name) . "ErrorCode";
 
                 $fields[static::CODE_NAME] = [
                     'type' => static::_set($type, $config),

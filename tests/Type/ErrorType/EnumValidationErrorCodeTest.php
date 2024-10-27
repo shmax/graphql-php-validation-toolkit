@@ -13,7 +13,7 @@ enum ColorErrorCode
     case badHue;
 }
 
-enum PersonErrorCode
+enum Person
 {
     case PersonNotFound;
     case Retired;
@@ -52,6 +52,38 @@ final class EnumValidationErrorCodeTest extends TestBase
 
         ');
     }
+
+    /**
+     * Append "ErrorCode" to the enum name even if the user doesn't
+     */
+    public function testEnumNameCorrection(): void
+    {
+        $this->_checkSchema(ValidationErrorType::create([
+            'validate' => static fn() => null,
+            'type' => Type::id(),
+            'errorCodes' => Person::class
+        ]), '
+            schema {
+              mutation: PersonValidationError
+            }
+
+            "Validation error"
+            type PersonValidationError {
+              "An enumerated error code."
+              _code: PersonErrorCode
+            
+              "An error message."
+              _msg: String
+            }
+            
+            enum PersonErrorCode {
+              PersonNotFound
+              Retired
+            }
+
+        ');
+    }
+
 
     /**
      * Test validation error for a scalar type with a custom error code that is wrapped in a list
