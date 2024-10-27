@@ -134,12 +134,6 @@ class ValidationErrorType extends ObjectType
         return static::_set($type, $config);
     }
 
-    static protected function empty(mixed $value): bool
-    {
-        return !isset($value);
-    }
-
-
     /**
      * @param ValidatedFieldConfig $config
      * @param mixed $value
