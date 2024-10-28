@@ -114,7 +114,11 @@ class ValidationErrorType extends ObjectType
         $resolvedType = self::_resolveType($config['type']);
 
         if ($resolvedType instanceof InputObjectType) {
-            $type = new InputObjectValidationErrorType($config, $path);
+            try {
+                $type = new InputObjectValidationErrorType($config, $path);
+            } catch (OverlySpecializedValidationErrorType $e) {
+                $type = static::create(array_merge($config, ['type' => Type::id()]));
+            }
         } else if ($resolvedType instanceof ListOfType) {
             try {
                 $type = new ListOfValidationErrorType($config, $path);

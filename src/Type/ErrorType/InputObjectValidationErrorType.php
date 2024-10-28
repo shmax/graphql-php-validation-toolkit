@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
 
 /**
  * @phpstan-import-type ValidationErrorConfig from ValidationErrorType
@@ -114,7 +115,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                 throw new NoValidatationFoundException();
             }
             if (empty($this->config['isRoot'])) {
-                $this->name = $this->_leafName($this->config, []);
+                throw new OverlySpecializedValidationErrorType();
             }
         }
 

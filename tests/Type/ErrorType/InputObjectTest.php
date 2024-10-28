@@ -118,7 +118,7 @@ final class InputObjectTest extends TestBase
                   mutation: ValidationError
                 }
                 
-                "Validation error for UpdateBook"
+                "Validation error"
                 type ValidationError {
                   "A numeric error code. 0 on success, non-zero on failure."
                   _code: Int
