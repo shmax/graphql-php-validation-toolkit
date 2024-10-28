@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 
 /**
@@ -117,7 +118,11 @@ class ValidationErrorType extends ObjectType
         if ($resolvedType instanceof InputObjectType) {
             $type = new InputObjectValidationErrorType($config, $path);
         } else if ($resolvedType instanceof ListOfType) {
-            $type = new ListOfValidationErrorType($config, $path);
+            try {
+                $type = new ListOfValidationErrorType($config, $path);
+            } catch (OverlySpecializedValidationErrorType $e) {
+                $type = static::create(array_merge($config, ['type' => Type::id()]));
+            }
         } else if ($resolvedType instanceof NonNull) {
             $config['type'] = static::_resolveType($config['type'], true);
             $type = static::create($config, $path);
@@ -189,7 +194,7 @@ class ValidationErrorType extends ObjectType
 
     protected static function isScalarType(Type $type): bool
     {
-        return $type instanceof ScalarType;
+        return $type instanceof ScalarType || $type instanceof EnumType;
     }
 
     static protected function _resolveType(Type|callable $type, bool $resolveWrapped = false): Type

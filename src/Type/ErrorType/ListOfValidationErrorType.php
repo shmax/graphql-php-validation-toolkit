@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 
 /**
@@ -50,7 +51,7 @@ class ListOfValidationErrorType extends ValidationErrorType
                 $errorCodes = $type->config['errorCodes'] ?? null;
             }
 
-            if (!$errorCodes && ($type instanceof ScalarType) && $validate) {
+            if (!$errorCodes && static::isScalarType($type) && $validate) {
                 $errorType = TypeRegistry::listItemValidationError();
             } else {
                 $errorType = static::create([
@@ -74,8 +75,8 @@ class ListOfValidationErrorType extends ValidationErrorType
         } catch (NoValidatationFoundException $e) {
             if (empty($config['required']) && !isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
                 throw $e;
-            } else {
-                $this->name = parent::_leafName($this->config);
+            } else if (!isset($config[static::ITEMS_NAME]['validate'])) {
+                throw new OverlySpecializedValidationErrorType();
             }
         }
     }
@@ -116,7 +117,7 @@ class ListOfValidationErrorType extends ValidationErrorType
                 }
 
                 // Validate scalar or complex types
-                if ($wrappedType instanceof ScalarType) {
+                if (static::isScalarType($wrappedType)) {
                     $err = static::_formatValidationResult($validate($subValue));
                 } else {
                     $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue);

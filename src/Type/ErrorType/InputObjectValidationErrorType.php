@@ -59,6 +59,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                 if (is_callable($isRequired)) {
                     $isRequired = $isRequired();
                 }
+                $namedType = Type::getNamedType(static::_resolveType($config['type']));
                 if ($isRequired && empty($value[$key])) {
                     if ($isRequired === true) {
                         $validationResult = static::_formatValidationResult([1, "$key is required"]);
@@ -69,7 +70,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                     $validate = $config['validate'] ?? null;
                     if (isset($config['validate']) && $fieldErrorType instanceof ValidationErrorType) {
                         $validationResult = static::_formatValidationResult($validate($value[$key]));
-                    } else {
+                    } else if ($fieldErrorType instanceof ListOfValidationErrorType || $fieldErrorType instanceof InputObjectValidationErrorType) {
                         $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
                         $diff = array_diff_key($validationResult ?? [], array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                     }

@@ -41,7 +41,7 @@ final class ListOf extends TestBase
               mutation: ValidationError
             }
             
-            "Validation error for UpsertSku"
+            "Validation error"
             type ValidationError {
               "A numeric error code. 0 on success, non-zero on failure."
               _code: Int
