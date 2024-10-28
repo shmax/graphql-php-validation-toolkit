@@ -4,7 +4,6 @@ namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
