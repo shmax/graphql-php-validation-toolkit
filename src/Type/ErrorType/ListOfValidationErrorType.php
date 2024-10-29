@@ -8,9 +8,11 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
 use GraphQlPhpValidationToolkit\TypeRegistry;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  */
 class ListOfValidationErrorType extends ValidationErrorType
 {
@@ -32,6 +34,10 @@ class ListOfValidationErrorType extends ValidationErrorType
         ];
     }
 
+    /**
+     * @throws NoValidatationFoundException
+     * @throws OverlySpecializedValidationErrorType
+     */
     protected function __construct(array $config, array $path)
     {
         parent::__construct($config, $path);
@@ -55,7 +61,6 @@ class ListOfValidationErrorType extends ValidationErrorType
             } else {
                 $errorType = static::create([
                     'type' => $type,
-                    'typeSetter' => $config['typeSetter'] ?? null,
                     'validate' => $validate,
                     'errorCodes' => $errorCodes,
                     'fields' => [
@@ -80,7 +85,14 @@ class ListOfValidationErrorType extends ValidationErrorType
         }
     }
 
-    protected function _validate(array $arg, mixed $value, array &$res): void
+    /**
+     * @param ValidatedFieldConfig $arg
+     * @param mixed $value
+     * @param array<mixed> $res
+     * @param ValidatedFieldConfig $config
+     * @return void
+     */
+    protected function _validate(array $arg, mixed $value, array &$res, array $config): void
     {
         $this->_validateListOfType($arg, $value, $res, [0]);
     }

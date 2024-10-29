@@ -21,9 +21,7 @@ use GraphQlPhpValidationToolkit\TypeRegistry;
  *   type?: Type,
  *   errorCodes?: class-string<\UnitEnum>|null,
  *   fields?: array<string,mixed>,
- *   validate?: null|callable(mixed $value): mixed,
- *   isRoot?: bool,
- *   typeSetter?: callable|null,
+ *   validate?: null|callable(mixed $value): mixed
  * }
  * @phpstan-type Path array<string|int>
  * @phpstan-import-type ObjectConfig from ObjectType
@@ -37,27 +35,11 @@ class ValidationErrorType extends ObjectType
     protected const MESSAGE_NAME = '_msg';
 
     /**
-     * @param ValidatedFieldConfig $arg
-     * @param mixed $value
-     * @param array<mixed> $res ;
-     */
-
-    protected function _validate(array $arg, mixed $value, array &$res): void
-    {
-
-    }
-
-
-    /**
      * @phpstan-param ValidationErrorConfig $config
      * @phpstan-param Path $path
      */
     public function __construct(array $config, array $path = [])
     {
-//        $config['type'] = null;
-        if (!isset($config['type'])) {
-//            xdebug_break();
-        }
         $fields = $config['fields'] ?? [];
         $this->_addCodeAndMessageFields($config, $fields, $path);
 
@@ -68,7 +50,6 @@ class ValidationErrorType extends ObjectType
             'name' => $this->_generateName($path, $config),
             'description' => 'Validation error' . ($pathEnd ? ' for ' . ucfirst($pathEnd) : ''),
             'fields' => $fields,
-            'typeSetter' => $config['typeSetter'] ?? null,
         ]));
     }
 
@@ -142,17 +123,30 @@ class ValidationErrorType extends ObjectType
     }
 
     /**
-     * @param ValidatedFieldConfig $config
+     * @param ValidatedFieldConfig $field
      * @param mixed $value
+     * @param ValidatedFieldConfig $config
      *
      * @return mixed[]
      */
-    public function validate(array $config, $value): array
+    public function validate(array $field, $value, array $config): array
     {
         $res = [];
-        $this->_validate($config, $value, $res);
+        $this->_validate($field, $value, $res, $config);
         return $res;
     }
+
+    /**
+     * @param ValidatedFieldConfig $arg
+     * @param mixed $value
+     * @param array<mixed> $res
+     * @param ValidatedFieldConfig $config
+     */
+    protected function _validate(array $arg, mixed $value, array &$res, array $config): void
+    {
+
+    }
+
 
     /**
      * @param bool|array{int|\UnitEnum, string} $requiredValue

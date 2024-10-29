@@ -19,6 +19,7 @@ use GraphQL\Type\Definition\Type;
  *   validName?: string,
  *   required?: bool|array<int,string>|callable(): bool|array<int|string>,
  *   resultName?: string,
+ *   validationMode?: "partial"|"full",
  *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
  *   validate?: callable(mixed $value): mixed,
@@ -28,9 +29,6 @@ use GraphQL\Type\Definition\Type;
  */
 class ValidatedFieldDefinition extends FieldDefinition
 {
-    /** @var callable */
-    protected $typeSetter;
-
     protected ValidationErrorType $userErrorsType;
 
     protected string $validFieldName;
@@ -38,40 +36,40 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected string $resultFieldName;
 
     /**
-     * @phpstan-param ValidatedFieldConfig $config
+     * @phpstan-param ValidatedFieldConfig $field
      */
-    public function __construct(array $config)
+    public function __construct(array $field)
     {
-        $args = $config['args'];
-        $name = $config['name'] ?? \lcfirst($this->tryInferName());
+        $args = $field['args'];
+        $name = $field['name'] ?? \lcfirst($this->tryInferName());
 
-        $this->validFieldName = $config['validName'] ?? '_valid';
-        $this->resultFieldName = $config['resultName'] ?? '_result';
+        $this->validFieldName = $field['validName'] ?? '_valid';
+        $this->resultFieldName = $field['resultName'] ?? '_result';
 
 
-        parent::__construct([
-            'type' => fn() => $this->userErrorsType = static::_createUserErrorsType($name, $args, $config),
+        parent::__construct(array_merge([
+            'validationMode' => $field['validationMode'] ?? 'full'
+        ], [
+            'type' => fn() => $this->userErrorsType = static::_createUserErrorsType($name, $args, $field),
             'args' => $args,
             'name' => $name,
-            'resolve' => function ($value, $args1, $context, $info) use ($config, $args) {
+            'resolve' => function ($value, $args1, $context, $info) use ($field, $args) {
                 // validate inputs
-                $config['type'] = new InputObjectType([
+                $field['type'] = new InputObjectType([
                     'name' => '',
                     'fields' => $args,
                 ]);
-                $config['isRoot'] = true;
 
-
-                $result = $errors = $this->userErrorsType->validate($config, $args1);
+                $result = $errors = $this->userErrorsType->validate($field, $args1, $this->config);
                 $result[$this->validFieldName] = empty($errors);
 
                 if (!empty($result[$this->validFieldName])) {
-                    $result[$this->resultFieldName] = $config['resolve']($value, $args1, $context, $info);
+                    $result[$this->resultFieldName] = $field['resolve']($value, $args1, $context, $info);
                 }
 
                 return $result;
             },
-        ]);
+        ]));
     }
 
     /**
@@ -82,7 +80,6 @@ class ValidatedFieldDefinition extends FieldDefinition
     {
         $validationErrorType = ValidationErrorType::create([
             'errorCodes' => $config['errorCodes'] ?? null,
-            'isRoot' => true,
             'fields' => [
                 $this->resultFieldName => [
                     'type' => $config['type'],
@@ -102,7 +99,6 @@ class ValidatedFieldDefinition extends FieldDefinition
                 'fields' => $args,
                 'name' => '',
             ]),
-            'typeSetter' => $config['typeSetter'] ?? null,
         ], [$name]);
 
         $validationErrorType->name = \ucfirst($name) . 'Result';

@@ -4,16 +4,17 @@ namespace GraphQlPhpValidationToolkit\Type\ErrorType;
 
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
 /**
  * @phpstan-import-type ValidationErrorConfig from ValidationErrorType
  * @phpstan-import-type Path from ValidationErrorType
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
  */
 class InputObjectValidationErrorType extends ValidationErrorType
 {
@@ -21,6 +22,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
      * @param ValidationErrorConfig $config
      * @param Path $path
      * @throws NoValidatationFoundException
+     * @throws OverlySpecializedValidationErrorType
      */
     protected function __construct(array $config, array $path)
     {
@@ -30,50 +32,55 @@ class InputObjectValidationErrorType extends ValidationErrorType
         $this->config['fields'] = array_merge($this->config['fields'], $errorFields);
     }
 
-    protected function _validate(array $arg, mixed $value, array &$res): void
+    /**
+     * @param ValidatedFieldConfig $field
+     * @param mixed $value
+     * @param array<mixed> $res
+     * @param ValidatedFieldConfig $config
+     */
+    protected function _validate(array $field, mixed $value, array &$res, array $config): void
     {
-        if (is_callable($arg['validate'] ?? null)) {
-            $result = static::_formatValidationResult($arg['validate']($value));
+        if (is_callable($field['validate'] ?? null)) {
+            $result = static::_formatValidationResult($field['validate']($value));
 
             if (isset($result) && $result[static::CODE_NAME] !== 0) {
                 $res = $result;
             }
         }
 
-        $arg['type'] = static::_resolveType($arg['type']);
-        $type = Type::getNamedType(self::_resolveType($arg['type']));
+        $field['type'] = static::_resolveType($field['type']);
+        $type = Type::getNamedType(self::_resolveType($field['type']));
         assert($type instanceof InputObjectType);
 
         $fields = $type->getFields();
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $key => $subfield) {
             /**
              * @var ValidationErrorConfig
              */
-            $config = $field->config;
+            $subfieldConfig = $subfield->config;
             $fieldErrorType = $this->config['fields'][$key]['type'] ?? null;
 
             if ($fieldErrorType) {
                 $diff = [];
                 $validationResult = null;
                 $isKeyPresent = array_key_exists($key, $value);
-                $isRequired = $config['required'] ?? false;
+                $isRequired = $subfieldConfig['required'] ?? false;
                 if (is_callable($isRequired)) {
                     $isRequired = $isRequired();
                 }
-                $namedType = Type::getNamedType(static::_resolveType($config['type']));
-                if ($isRequired && empty($value[$key])) {
+                if ($isRequired && empty($value[$key]) && ($config['validationMode'] == 'full' || $isKeyPresent)) {
                     if ($isRequired === true) {
                         $validationResult = static::_formatValidationResult([1, "$key is required"]);
                     } else if (is_array($isRequired)) {
                         $validationResult = static::_formatValidationResult($isRequired);
                     }
                 } else if ($isKeyPresent) {
-                    $validate = $config['validate'] ?? null;
-                    if (isset($config['validate']) && $fieldErrorType instanceof ValidationErrorType) {
+                    $validate = $subfieldConfig['validate'] ?? null;
+                    if (isset($subfieldConfig['validate']) && $fieldErrorType instanceof ValidationErrorType) {
                         $validationResult = static::_formatValidationResult($validate($value[$key]));
                     } else if ($fieldErrorType instanceof ListOfValidationErrorType || $fieldErrorType instanceof InputObjectValidationErrorType) {
-                        $validationResult = $fieldErrorType->validate($config, $value[$key] ?? null);
-                        $diff = array_diff_key($validationResult ?? [], array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+                        $validationResult = $fieldErrorType->validate($subfieldConfig, $value[$key] ?? null, $config);
+                        $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                     }
                 }
 
@@ -89,6 +96,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
      * @param Path $path
      * @return array<string, UnnamedFieldDefinitionConfig>
      * @throws NoValidatationFoundException
+     * @throws OverlySpecializedValidationErrorType
      */
     protected function getErrorFields($config, array $path): array
     {
@@ -98,7 +106,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
         foreach ($type->getFields() as $key => $field) {
             $fieldConfig = $field->config;
             try {
-                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType(), 'typeSetter' => $config['typeSetter'] ?? null]), array_merge($path, [$key]));
+                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType()]), array_merge($path, [$key]));
             } catch (NoValidatationFoundException $e) {
                 // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.
                 continue;
@@ -114,9 +122,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
             if (!isset($this->config['validate'])) {
                 throw new NoValidatationFoundException();
             }
-            if (empty($this->config['isRoot'])) {
-                throw new OverlySpecializedValidationErrorType();
-            }
+            throw new OverlySpecializedValidationErrorType();
         }
 
         return $fields;
