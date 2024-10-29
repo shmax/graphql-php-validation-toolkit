@@ -12,7 +12,8 @@ use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
- * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidatedFieldDefinitionConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidationSettings from ValidatedFieldDefinition
  */
 class ListOfValidationErrorType extends ValidationErrorType
 {
@@ -86,13 +87,14 @@ class ListOfValidationErrorType extends ValidationErrorType
     }
 
     /**
-     * @param ValidatedFieldConfig $arg
+     * @param ValidatedFieldDefinitionConfig $arg
      * @param mixed $value
      * @param array<mixed> $res
-     * @param ValidatedFieldConfig $config
+     * @param ValidationSettings $settings
+     *
      * @return void
      */
-    protected function _validate(array $arg, mixed $value, array &$res, array $config): void
+    protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
     {
         $this->_validateListOfType($arg, $value, $res, [0]);
     }

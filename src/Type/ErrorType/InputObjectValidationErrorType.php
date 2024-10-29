@@ -14,31 +14,32 @@ use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
  * @phpstan-import-type Path from ValidationErrorType
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
- * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidatedFieldDefinitionConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidationSettings from ValidatedFieldDefinition
  */
 class InputObjectValidationErrorType extends ValidationErrorType
 {
     /**
-     * @param ValidationErrorConfig $config
+     * @param ValidatedFieldDefinitionConfig $fieldConfig
      * @param Path $path
      * @throws NoValidatationFoundException
      * @throws OverlySpecializedValidationErrorType
      */
-    protected function __construct(array $config, array $path)
+    protected function __construct(array $fieldConfig, array $path)
     {
-        parent::__construct($config, $path);
+        parent::__construct($fieldConfig, $path);
 
-        $errorFields = $this->getErrorFields($config, $path);
+        $errorFields = $this->getErrorFields($fieldConfig, $path);
         $this->config['fields'] = array_merge($this->config['fields'], $errorFields);
     }
 
     /**
-     * @param ValidatedFieldConfig $field
+     * @param ValidatedFieldDefinitionConfig $field
      * @param mixed $value
      * @param array<mixed> $res
-     * @param ValidatedFieldConfig $config
+     * @param ValidationSettings $settings
      */
-    protected function _validate(array $field, mixed $value, array &$res, array $config): void
+    protected function _validate(array $field, mixed $value, array &$res, array $settings): void
     {
         if (is_callable($field['validate'] ?? null)) {
             $result = static::_formatValidationResult($field['validate']($value));
@@ -68,7 +69,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                 if (is_callable($isRequired)) {
                     $isRequired = $isRequired();
                 }
-                if ($isRequired && empty($value[$key]) && ($config['validationMode'] == 'full' || $isKeyPresent)) {
+                if ($isRequired && empty($value[$key]) && ($settings['validationMode'] == 'full' || $isKeyPresent)) {
                     if ($isRequired === true) {
                         $validationResult = static::_formatValidationResult([1, "$key is required"]);
                     } else if (is_array($isRequired)) {
@@ -79,7 +80,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                     if (isset($subfieldConfig['validate']) && $fieldErrorType instanceof ValidationErrorType) {
                         $validationResult = static::_formatValidationResult($validate($value[$key]));
                     } else if ($fieldErrorType instanceof ListOfValidationErrorType || $fieldErrorType instanceof InputObjectValidationErrorType) {
-                        $validationResult = $fieldErrorType->validate($subfieldConfig, $value[$key] ?? null, $config);
+                        $validationResult = $fieldErrorType->validate($subfieldConfig, $value[$key] ?? null, $settings);
                         $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
                     }
                 }
@@ -92,21 +93,21 @@ class InputObjectValidationErrorType extends ValidationErrorType
     }
 
     /**
-     * @param ValidationErrorConfig $config
+     * @param ValidatedFieldDefinitionConfig $fieldConfig
      * @param Path $path
      * @return array<string, UnnamedFieldDefinitionConfig>
      * @throws NoValidatationFoundException
      * @throws OverlySpecializedValidationErrorType
      */
-    protected function getErrorFields($config, array $path): array
+    protected function getErrorFields(array $fieldConfig, array $path): array
     {
-        $type = $config['type'];
+        $type = $fieldConfig['type'];
         assert($type instanceof InputObjectType);
         $fields = [];
-        foreach ($type->getFields() as $key => $field) {
-            $fieldConfig = $field->config;
+        foreach ($type->getFields() as $key => $subfield) {
+            $subfieldConfig = $subfield->config;
             try {
-                $newType = self::create(array_merge($fieldConfig, ['type' => $field->getType()]), array_merge($path, [$key]));
+                $newType = self::create(array_merge($subfieldConfig, ['type' => $subfield->getType()]), array_merge($path, [$key]));
             } catch (NoValidatationFoundException $e) {
                 // continue. we'll finish building all fields, and throw our own error at the end if we don't wind up with anything.
                 continue;

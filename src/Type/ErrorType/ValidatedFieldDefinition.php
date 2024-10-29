@@ -13,14 +13,22 @@ use GraphQL\Type\Definition\Type;
  * @phpstan-import-type ArgumentType from InputObjectField
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type FieldResolver from Executor
- * @phpstan-type ValidatedFieldConfig array{
- *   typeSetter?: callable,
+ * @phpstan-type ValidationSettings array{
+ *    typeSetter?: callable,
+ *    args: array<UnnamedArgumentConfig>,
+ *    validName?: string,
+ *    resultName?: string,
+ *    validationMode?: "partial"|"full",
+ *    name?: string,
+ *    required?: bool|array<int,string>|callable(): bool|array<int|string>,
+ *    resolve?: FieldResolver|null,
+ *    validate?: callable(mixed $value): mixed,
+ *    errorCodes?: class-string<\UnitEnum>|null,
+ *    type: Type
+ *  }
+ * @phpstan-type ValidatedFieldDefinitionConfig array{
  *   name?: string,
- *   validName?: string,
  *   required?: bool|array<int,string>|callable(): bool|array<int|string>,
- *   resultName?: string,
- *   validationMode?: "partial"|"full",
- *   args: array<UnnamedArgumentConfig>,
  *   resolve?: FieldResolver|null,
  *   validate?: callable(mixed $value): mixed,
  *   errorCodes?: class-string<\UnitEnum>|null,
@@ -36,9 +44,9 @@ class ValidatedFieldDefinition extends FieldDefinition
     protected string $resultFieldName;
 
     /**
-     * @phpstan-param ValidatedFieldConfig $field
+     * @param ValidationSettings $field
      */
-    public function __construct(array $field)
+    public function __construct($field)
     {
         $args = $field['args'];
         $name = $field['name'] ?? \lcfirst($this->tryInferName());
@@ -50,7 +58,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         parent::__construct(array_merge([
             'validationMode' => $field['validationMode'] ?? 'full'
         ], [
-            'type' => fn() => $this->userErrorsType = static::_createUserErrorsType($name, $args, $field),
+            'type' => fn() => $this->userErrorsType = static::_createUserErrorsType($name, $field),
             'args' => $args,
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($field, $args) {
@@ -73,16 +81,16 @@ class ValidatedFieldDefinition extends FieldDefinition
     }
 
     /**
-     * @phpstan-param array<UnnamedArgumentConfig> $args
-     * @phpstan-param ValidatedFieldConfig $config
+     * @phpstan-param ValidationSettings $settings
      */
-    protected function _createUserErrorsType(string $name, array $args, array $config): ValidationErrorType
+    protected function _createUserErrorsType(string $name, array $settings): ValidationErrorType
     {
+        $args = $settings['args'];
         $validationErrorType = ValidationErrorType::create([
-            'errorCodes' => $config['errorCodes'] ?? null,
+            'errorCodes' => $settings['errorCodes'] ?? null,
             'fields' => [
                 $this->resultFieldName => [
-                    'type' => $config['type'],
+                    'type' => $settings['type'],
                     'description' => 'The payload, if any',
                     'resolve' => fn($value) => $value[$this->resultFieldName] ?? null
                 ],
@@ -94,7 +102,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                     },
                 ],
             ],
-            'validate' => $config['validate'] ?? null,
+            'validate' => $settings['validate'] ?? null,
             'type' => new InputObjectType([
                 'fields' => $args,
                 'name' => '',

@@ -25,7 +25,8 @@ use GraphQlPhpValidationToolkit\TypeRegistry;
  * }
  * @phpstan-type Path array<string|int>
  * @phpstan-import-type ObjectConfig from ObjectType
- * @phpstan-import-type ValidatedFieldConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidatedFieldDefinitionConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidationSettings from ValidatedFieldDefinition
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  * @phpstan-import-type FieldDefinitionConfig from FieldDefinition
  */
@@ -87,7 +88,7 @@ class ValidationErrorType extends ObjectType
     /**
      * Factory method to create the appropriate type (InputObjectType, ListOfType, NonNull, or scalar).
      *
-     * @phpstan-param ValidationErrorConfig $config
+     * @phpstan-param ValidatedFieldDefinitionConfig $config
      * @phpstan-param Path $path
      */
     public static function create(array $config, array $path = []): self
@@ -123,26 +124,26 @@ class ValidationErrorType extends ObjectType
     }
 
     /**
-     * @param ValidatedFieldConfig $field
+     * @param ValidatedFieldDefinitionConfig $field
      * @param mixed $value
-     * @param ValidatedFieldConfig $config
+     * @param ValidationSettings $settings
      *
      * @return mixed[]
      */
-    public function validate(array $field, $value, array $config): array
+    public function validate(array $field, $value, array $settings): array
     {
         $res = [];
-        $this->_validate($field, $value, $res, $config);
+        $this->_validate($field, $value, $res, $settings);
         return $res;
     }
 
     /**
-     * @param ValidatedFieldConfig $arg
+     * @param ValidatedFieldDefinitionConfig $arg
      * @param mixed $value
      * @param array<mixed> $res
-     * @param ValidatedFieldConfig $config
+     * @param ValidationSettings $settings
      */
-    protected function _validate(array $arg, mixed $value, array &$res, array $config): void
+    protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
     {
 
     }
