@@ -80,11 +80,11 @@ checking their `args` and wrapped types for more `validate` callbacks. Every fie
 one--that has
 a `validate` callback will be represented by a custom, generated type with the following queryable fields:
 
-| Field   | Type                                 | Description                                                                                                                               |
-|---------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `_code` | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type. |
-| `_msg`  | `string`                             | A plain, natural language description of the error.                                                                                       |
-| `items` | `[<path>_<field-name>Error]`         | An `items` field will be added when the arg type is `ListOfType`                                                                          
+| Field    | Type                                 | Description                                                                                                                               |
+|----------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `_code`  | `int` &vert; `<field-name>ErrorCode` | This will resolve to `0` for a valid field, otherwise `1`. If `errorCodes` were provided, then this will be a custom generated Enum type. |
+| `_msg`   | `string`                             | A plain, natural language description of the error.                                                                                       |
+| `_items` | `[<path>_<field-name>Error]`         | An `items` field will be added when the arg type is `ListOfType`                                                                          
 
 The top-level `<field-name>Error` will have a few additional fields:
 
@@ -101,7 +101,7 @@ mutation {
         authorId: 1
     ) {
         _valid
-        result {
+        _result {
             id
             name
         }
@@ -137,6 +137,12 @@ If the value is valid, return `0`, otherwise `1`.
   ]	  
 ])
 ```
+
+### The `validationMode` property ('full' or 'partial')
+
+By default, the validator will walk over all fields it discovers and validate their `required` status even if the value
+is not provided (useful when creating a record). You can set it to 'partial' if you would rather it ignore any values
+not explicitly passed-in (useful when updating a record).
 
 ### The `required` property
 
