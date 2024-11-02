@@ -36,6 +36,12 @@ class ValidationErrorType extends ObjectType
     protected const MESSAGE_NAME = '_msg';
 
     /**
+     * @var callable|null
+     */
+    protected static $_typeSetter = null;
+
+
+    /**
      * @phpstan-param ValidationErrorConfig $config
      * @phpstan-param Path $path
      */
@@ -206,11 +212,6 @@ class ValidationErrorType extends ObjectType
 
         return $type;
     }
-
-    /**
-     * @var callable|null
-     */
-    protected static $_typeSetter = null;
 
     public static function setTypeSetter(callable|null $typeSetter): void
     {
