@@ -82,7 +82,7 @@ class ValidationErrorType extends ObjectType
             $prefix .= "ListItem";
         }
 
-        return "{$prefix}ValidationError";
+        return $config['nameOverride'] ?? "{$prefix}ValidationError";
     }
 
     /**
@@ -114,7 +114,7 @@ class ValidationErrorType extends ObjectType
             if (!isset($config['validate']) && empty($config['required'])) {
                 throw new NoValidatationFoundException();
             }
-            if (!isset($config['errorCodes'])) {
+            if (!isset($config['errorCodes']) && empty($config['fields'])) {
                 $type = TypeRegistry::validationError();
             } else {
                 $type = new ValidationErrorType($config, $path);

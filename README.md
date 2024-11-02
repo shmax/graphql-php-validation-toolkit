@@ -243,7 +243,8 @@ enum AuthorErrors {
 
 ### Managing Created Types
 
-This library will create new types as needed. If you are using some kind of type manager to store and retrieve types,
+This library will create new types as needed and store them statically in TypeRegistry, but if you would prefer to use
+your own type manager to store and retrieve types,
 you can integrate it by providing a `typeSetter` callback. Make sure it returns the type that was set:
 
 ```php

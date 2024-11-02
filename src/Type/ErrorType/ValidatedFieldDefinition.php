@@ -87,6 +87,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     {
         $args = $settings['args'];
         $validationErrorType = ValidationErrorType::create([
+            'nameOverride' => \ucfirst($name) . 'Result',
             'errorCodes' => $settings['errorCodes'] ?? null,
             'fields' => [
                 $this->resultFieldName => [
@@ -109,7 +110,6 @@ class ValidatedFieldDefinition extends FieldDefinition
             ]),
         ], [$name]);
 
-        $validationErrorType->name = \ucfirst($name) . 'Result';
         return $validationErrorType;
     }
 
