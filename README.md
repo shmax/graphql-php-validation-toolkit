@@ -245,14 +245,14 @@ enum AuthorErrors {
 
 This library will create new types as needed and store them statically in TypeRegistry, but if you would prefer to use
 your own type manager to store and retrieve types,
-you can integrate it by providing a `typeSetter` callback. Make sure it returns the type that was set:
+you can integrate it by providing a passing it to the static `ValidationErrorType::setTypeSetter` method. Make sure it
+returns the type that was set:
 
 ```php
-new ValidatedFieldDefinition([
-    'typeSetter' => static function ($type) {
-        return Types::set($type);
-    },
-]);
+
+ValidationErrorType::setTypeSetter(static function ($type) {
+  return MyTypeRegistry::set($type);
+});
 ``` 
 
 ## Examples

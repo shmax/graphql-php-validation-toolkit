@@ -19,6 +19,7 @@ abstract class TestBase extends TestCase
     {
         parent::setUp();
         TypeRegistry::clearTypes();
+        ValidationErrorType::setTypeSetter(null);
     }
 
     protected function _checkSchema(Type $field, string $expected): void

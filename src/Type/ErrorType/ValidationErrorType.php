@@ -120,7 +120,7 @@ class ValidationErrorType extends ObjectType
                 $type = new ValidationErrorType($config, $path);
             }
         }
-        return static::_set($type, $config);
+        return static::_set($type);
     }
 
     /**
@@ -208,15 +208,25 @@ class ValidationErrorType extends ObjectType
     }
 
     /**
+     * @var callable|null
+     */
+    protected static $_typeSetter = null;
+
+    public static function setTypeSetter(callable|null $typeSetter): void
+    {
+        static::$_typeSetter = $typeSetter;
+    }
+
+
+    /**
      * @template T of Type
      * @param T $type
-     * @param ValidationErrorConfig $config
      * @return T
      */
-    static protected function _set(Type $type, array $config): Type
+    static protected function _set(Type $type): Type
     {
-        if (\is_callable($config['typeSetter'] ?? null)) {
-            return $config['typeSetter']($type);
+        if (\is_callable(static::$_typeSetter)) {
+            return call_user_func(static::$_typeSetter, $type);
         } else {
             return TypeRegistry::set($type);
         }
@@ -242,7 +252,7 @@ class ValidationErrorType extends ObjectType
                 $type->name = preg_replace('~ErrorCode$~', '', $type->name) . "ErrorCode";
 
                 $fields[static::CODE_NAME] = [
-                    'type' => static::_set($type, $config),
+                    'type' => static::_set($type),
                     'description' => 'An enumerated error code.',
                 ];
             } else {
