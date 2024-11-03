@@ -22,14 +22,6 @@ class TypeRegistry
         static::$types = [];
     }
 
-    /**
-     * @throws Exception
-     */
-    public static function get(string $classname): callable
-    {
-        return static fn() => static::byClass($classname, static::cacheName($classname));
-    }
-
     public static function set(Type $type): callable|Type
     {
         // @phpstan-ignore-next-line
@@ -39,14 +31,6 @@ class TypeRegistry
         }
 
         return self::$types[$cachedName];
-    }
-
-    protected static function byClass(string $classname, string $cacheName): Type
-    {
-        return static::fromCache($cacheName, function () use ($classname) {
-            assert(class_exists($classname));
-            return new $classname();
-        });
     }
 
     public static function fromCache(string $cachename, callable $getter): Type
