@@ -149,7 +149,6 @@ class ValidationErrorType extends ObjectType
      * @param array<mixed> $res
      * @param ValidationSettings $settings
      *
-     * @codeCoverageIgnore
      */
     protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
     {
