@@ -94,9 +94,9 @@ class ListOfValidationErrorType extends ValidationErrorType
      *
      * @return void
      */
-    protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
+    public function validate(array $arg, mixed $value, array $settings): array
     {
-        $this->_validateListOfType($arg, $value, $res, [0], $settings);
+        return $this->_validateListOfType($arg, $value, [0], $settings);
     }
 
     protected function _leafName(array $config): string
@@ -111,8 +111,9 @@ class ListOfValidationErrorType extends ValidationErrorType
      * @param Array<string|int> $path
      * @param ValidationSettings $settings
      */
-    protected function _validateListOfType(array $config, array $value, array &$res, array $path, array $settings): void
+    protected function _validateListOfType(array $config, array $value, array $path, array $settings): array
     {
+        $res = [];
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
         $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type'] ?? null;
@@ -126,27 +127,31 @@ class ListOfValidationErrorType extends ValidationErrorType
                 // If the wrapped type is a list, recursively validate each item
                 if ($wrappedType instanceof ListOfType) {
                     $newPath = [...$path, 0]; // Append 0 for list path
-                    $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $res, $newPath, $settings);
-                    continue; // Skip to the next iteration
-                }
-
-                // Validate scalar or complex types
-                if (static::isScalarType($wrappedType)) {
-                    $err = static::_formatValidationResult($validate($subValue));
+                    $err = $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $newPath, $settings);
+                    if (isset($err[static::ITEMS_NAME])) {
+                        $res[static::ITEMS_NAME] = array_merge($res[static::ITEMS_NAME] ?? [], $err[static::ITEMS_NAME]);
+                    }
                 } else {
-                    $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue, $settings);
-                }
+                    // Validate scalar or complex types
+                    if (static::isScalarType($wrappedType)) {
+                        $err = static::_formatValidationResult($validate($subValue));
+                    } else {
+                        $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue, $settings);
+                    }
 
-                // Check for errors and add to results if necessary
-                if ($err) {
-                    $diff = array_diff_key($err, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+                    // Check for errors and add to results if necessary
+                    if ($err) {
+                        $diff = array_diff_key($err, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
 
-                    if (!empty($diff) || ($err[static::CODE_NAME] ?? 0) !== 0) {
-                        $err[static::PATH_NAME] = $path;
-                        $res[static::ITEMS_NAME][] = $err;
+                        if (!empty($diff) || ($err[static::CODE_NAME] ?? 0) !== 0) {
+                            $err[static::PATH_NAME] = $path;
+                            $res[static::ITEMS_NAME][] = $err;
+                        }
                     }
                 }
             }
         }
+
+        return $res;
     }
 }

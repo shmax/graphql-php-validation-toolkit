@@ -6,7 +6,7 @@ use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ValidatedFieldDefinition;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 final class ValidateCallbackExceptionTest extends TestBase

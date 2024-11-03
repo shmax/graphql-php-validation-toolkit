@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\Validation;
+namespace GraphQlPhpValidationToolkit\Tests\Validation;
 
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
-use PHPUnit\Framework\Attributes\TestDox;
 
 final class ListOfScalarValidationTest extends TestBase
 {

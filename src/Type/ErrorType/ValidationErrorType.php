@@ -138,39 +138,7 @@ class ValidationErrorType extends ObjectType
      */
     public function validate(array $field, $value, array $settings): array
     {
-        $res = [];
-        $this->_validate($field, $value, $res, $settings);
-        return $res;
-    }
-
-    /**
-     * @param ValidatedFieldDefinitionConfig $arg
-     * @param mixed $value
-     * @param array<mixed> $res
-     * @param ValidationSettings $settings
-     *
-     */
-    protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
-    {
-
-    }
-
-
-    /**
-     * @param bool|array{int|\UnitEnum, string} $requiredValue
-     * @return bool
-     */
-    static function isRequired($requiredValue): bool
-    {
-        if (is_callable($requiredValue)) {
-            $requiredValue = $requiredValue();
-        }
-
-        if (is_bool($requiredValue)) {
-            return $requiredValue;
-        }
-
-        return $requiredValue[0] !== 0;
+        return [0];
     }
 
     /**
@@ -246,10 +214,6 @@ class ValidationErrorType extends ObjectType
             if (isset($config['errorCodes'])) {
                 // error code. By default, this is an int, but if the user supplies the optional `errorCodes`
                 // enum property, then it takes that type
-
-                if (!isset($config['validate']) && empty($config['required'])) {
-                    throw new \Exception('If you specify errorCodes, you must also provide a \'validate\' callback, or mark the field as \'required\'');
-                }
                 $type = new PhpEnumType($config['errorCodes']);
                 $type->name = preg_replace('~ErrorCode$~', '', $type->name) . "ErrorCode";
 

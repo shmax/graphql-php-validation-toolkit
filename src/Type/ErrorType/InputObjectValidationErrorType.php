@@ -38,8 +38,9 @@ class InputObjectValidationErrorType extends ValidationErrorType
      * @param array<mixed> $res
      * @param ValidationSettings $settings
      */
-    protected function _validate(array $field, mixed $value, array &$res, array $settings): void
+    public function validate(array $field, mixed $value, array $settings): array
     {
+        $res = [];
         if (is_callable($field['validate'] ?? null)) {
             $result = static::_formatValidationResult($field['validate']($value));
 
@@ -89,6 +90,8 @@ class InputObjectValidationErrorType extends ValidationErrorType
                 }
             }
         }
+
+        return $res;
     }
 
     /**

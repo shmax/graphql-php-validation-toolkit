@@ -1,15 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\Validation;
+namespace GraphQlPhpValidationToolkit\Tests\Validation\ErrorFormats;
 
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
-use PHPUnit\Framework\TestCase;
 
 enum BookError
 {
@@ -17,7 +16,7 @@ enum BookError
     case invalidIsbn;
 }
 
-final class ErrorFormats extends TestBase
+final class ErrorFormatsTest extends TestBase
 {
     public function testIntCodeType(): void
     {
@@ -106,6 +105,59 @@ final class ErrorFormats extends TestBase
                 '_result' => null
             ]
         );
+    }
+
+    public function testInvalidValidateResponse(): void
+    {
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+            'mutation' => new ObjectType([
+                'name' => 'Mutation',
+                'fields' => static function () {
+                    return [
+                        "whatever" => new ValidatedFieldDefinition([
+                            'name' => 'updateBook',
+                            'type' => Type::boolean(),
+                            'args' => [
+                                'bookId' => [
+                                    'type' => Type::id(),
+                                    'errorCodes' => BookError::class,
+                                    'validate' => function ($bookId) {
+                                        return "invalid"; // wrong! should be an int, or an array
+                                    },
+                                ],
+                            ],
+                            'resolve' => static function ($value): bool {
+                                return (bool)$value;
+                            },
+                        ])
+                    ];
+                },
+            ]),
+        ]);
+
+        $res = GraphQL::executeQuery(
+            $schema,
+            Utils::nowdoc('
+                mutation UpdateBook(
+                    $bookId:ID
+                ) {
+                    updateBook (bookId: $bookId) {
+                        bookId {
+                            _code
+                            _msg
+                        }
+                        _valid
+                        _result
+                    }
+                }
+            '),
+            [],
+            null,
+            ['bookId' => null]
+        );
+
+        static::assertEquals($res->errors[0]->getMessage(), "Invalid response from the validate callback");
     }
 
     public function testIntCodeTypeAndMessage(): void

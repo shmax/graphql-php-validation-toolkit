@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type\Validation;
+namespace GraphQlPhpValidationToolkit\Tests\Validation;
 
 use GraphQL\Tests\Type\FieldDefinition;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 

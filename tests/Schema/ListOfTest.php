@@ -3,11 +3,9 @@
 namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\ListOf;
 
 use GraphQL\Tests\Utils;
-use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum PersonErrorCode

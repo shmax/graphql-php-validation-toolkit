@@ -1,15 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace GraphQlPhpValidationToolkit\Tests\Type;
+namespace GraphQlPhpValidationToolkit\Tests;
 
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
-use GraphQlPhpValidationToolkit\Tests\Utils;
-use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 

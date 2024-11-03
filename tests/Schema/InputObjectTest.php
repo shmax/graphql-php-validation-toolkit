@@ -4,7 +4,7 @@ namespace GraphQlPhpValidationToolkit\Tests\Type\ErrorType\InputObjectTest;
 
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
 enum StreetErrorCode
