@@ -33,14 +33,6 @@ class TypeRegistry
         return self::$types[$cachedName];
     }
 
-    public static function fromCache(string $cachename, callable $getter): Type
-    {
-        if (!isset(static::$types[$cachename])) {
-            static::$types[$cachename] = $getter();
-        }
-        return static::$types[$cachename];
-    }
-
     public static function cacheName(string $classname): string
     {
         $parts = explode("\\", $classname);

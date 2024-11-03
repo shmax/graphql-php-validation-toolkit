@@ -9,6 +9,7 @@ use GraphQL\Type\Schema;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 final class ScalarValidationTest extends TestBase
@@ -28,6 +29,7 @@ final class ScalarValidationTest extends TestBase
     ];
 
 
+    #[TestDox("It validates a nullable scalar value")]
     public function testNullableScalarValidationOnNullValueSuccess(): void
     {
         $this->_checkValidation(

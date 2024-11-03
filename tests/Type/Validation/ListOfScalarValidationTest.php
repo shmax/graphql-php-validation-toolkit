@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
+use PHPUnit\Framework\Attributes\TestDox;
 
 final class ListOfScalarValidationTest extends TestBase
 {
@@ -60,7 +61,6 @@ final class ListOfScalarValidationTest extends TestBase
         );
     }
 
-    #[TestDox("It calculates correctly when given positive numbers")]
     public function testListOfListOfStringTypeValid(): void
     {
         $this->_checkValidation(
