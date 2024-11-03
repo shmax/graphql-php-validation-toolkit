@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
-final class NonNull extends TestBase
+final class NonNullTest extends TestBase
 {
     public function testStringWrappedType(): void
     {

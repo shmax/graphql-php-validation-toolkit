@@ -9,7 +9,7 @@ use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Tests\Utils;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
-final class InputObjectValidation extends TestBase
+final class InputObjectValidationTest extends TestBase
 {
     /** @var mixed[] */
     protected $data = [

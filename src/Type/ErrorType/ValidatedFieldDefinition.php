@@ -54,7 +54,6 @@ class ValidatedFieldDefinition extends FieldDefinition
         $this->validFieldName = $field['validName'] ?? '_valid';
         $this->resultFieldName = $field['resultName'] ?? '_result';
 
-
         parent::__construct(array_merge([
             'validationMode' => $field['validationMode'] ?? 'full'
         ], [

@@ -96,7 +96,7 @@ class ListOfValidationErrorType extends ValidationErrorType
      */
     protected function _validate(array $arg, mixed $value, array &$res, array $settings): void
     {
-        $this->_validateListOfType($arg, $value, $res, [0]);
+        $this->_validateListOfType($arg, $value, $res, [0], $settings);
     }
 
     protected function _leafName(array $config): string
@@ -109,8 +109,9 @@ class ListOfValidationErrorType extends ValidationErrorType
      * @param mixed[] $value
      * @param array<mixed> $res
      * @param Array<string|int> $path
+     * @param ValidationSettings $settings
      */
-    protected function _validateListOfType(array $config, array $value, array &$res, array $path): void
+    protected function _validateListOfType(array $config, array $value, array &$res, array $path, array $settings): void
     {
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
         $wrappedType = $config['type']->getWrappedType();
@@ -125,7 +126,7 @@ class ListOfValidationErrorType extends ValidationErrorType
                 // If the wrapped type is a list, recursively validate each item
                 if ($wrappedType instanceof ListOfType) {
                     $newPath = [...$path, 0]; // Append 0 for list path
-                    $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $res, $newPath);
+                    $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $res, $newPath, $settings);
                     continue; // Skip to the next iteration
                 }
 
@@ -133,7 +134,7 @@ class ListOfValidationErrorType extends ValidationErrorType
                 if (static::isScalarType($wrappedType)) {
                     $err = static::_formatValidationResult($validate($subValue));
                 } else {
-                    $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue);
+                    $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue, $settings);
                 }
 
                 // Check for errors and add to results if necessary

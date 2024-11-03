@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQlPhpValidationToolkit\Tests\Type\TestBase;
 use GraphQlPhpValidationToolkit\Type\ErrorType\ValidationErrorType;
 
-final class ValidateCallbackException extends TestBase
+final class ValidateCallbackExceptionTest extends TestBase
 {
     public function testIdThrows(): void
     {

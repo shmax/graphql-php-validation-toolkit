@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+namespace GraphQlPhpValidationToolkit\Tests\Type\Validation\ValidationModeTest;
 
 use GraphQL\Tests\Type\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -24,7 +25,7 @@ enum Animal
 /**
  * Test the 'validationMode' config property
  */
-final class ValidationMode extends TestBase
+final class ValidationModeTest extends TestBase
 {
     /** @var mixed[] */
     protected $data = [

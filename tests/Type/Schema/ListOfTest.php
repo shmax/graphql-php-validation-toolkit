@@ -15,7 +15,7 @@ enum PersonErrorCode
     case unknownPerson;
 }
 
-final class ListOf extends TestBase
+final class ListOfTest extends TestBase
 {
     public function testScalarTypeWithNoValidation(): void
     {

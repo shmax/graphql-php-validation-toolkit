@@ -21,7 +21,7 @@ enum Animal
     case bird;
 }
 
-final class RequiredFieldsValidation extends TestBase
+final class RequiredFieldsValidationTest extends TestBase
 {
     /** @var mixed[] */
     protected $data = [
