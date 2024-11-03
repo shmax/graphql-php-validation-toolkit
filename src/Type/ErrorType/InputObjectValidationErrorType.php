@@ -7,7 +7,6 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
 use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
-use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
 /**
  * @phpstan-import-type ValidationErrorConfig from ValidationErrorType
