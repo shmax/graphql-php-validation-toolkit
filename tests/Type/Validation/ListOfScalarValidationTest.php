@@ -60,6 +60,7 @@ final class ListOfScalarValidationTest extends TestBase
         );
     }
 
+    #[TestDox("It calculates correctly when given positive numbers")]
     public function testListOfListOfStringTypeValid(): void
     {
         $this->_checkValidation(
