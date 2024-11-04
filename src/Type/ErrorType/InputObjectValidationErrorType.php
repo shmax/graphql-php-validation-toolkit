@@ -35,8 +35,9 @@ class InputObjectValidationErrorType extends ValidationErrorType
     /**
      * @param ValidatedFieldDefinitionConfig $field
      * @param mixed $value
-     * @param array<mixed> $res
      * @param ValidationSettings $settings
+     *
+     * @return array<mixed>
      */
     public function validate(array $field, mixed $value, array $settings): array
     {

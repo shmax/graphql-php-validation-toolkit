@@ -2,6 +2,7 @@
 
 namespace GraphQlPhpValidationToolkit\Tests\Validation;
 
+use GraphQL\Type\Definition\Type;
 use GraphQlPhpValidationToolkit\Tests\TestBase;
 use GraphQlPhpValidationToolkit\TypeRegistry;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -12,7 +13,7 @@ final class ValidationErrorTest extends TestBase
     public function testNullableScalarValidationOnNullValueSuccess(): void
     {
         $validationError = TypeRegistry::validationError();
-        $res = $validationError->validate([], null, []);
+        $res = $validationError->validate(['type' => Type::id()], null, ['type' => Type::id(), 'args' => []]);
 
         static::assertEquals($res[0], 0);
 

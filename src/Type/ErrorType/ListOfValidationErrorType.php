@@ -89,10 +89,9 @@ class ListOfValidationErrorType extends ValidationErrorType
     /**
      * @param ValidatedFieldDefinitionConfig $arg
      * @param mixed $value
-     * @param array<mixed> $res
      * @param ValidationSettings $settings
      *
-     * @return void
+     * @return array<mixed>
      */
     public function validate(array $arg, mixed $value, array $settings): array
     {
@@ -107,9 +106,10 @@ class ListOfValidationErrorType extends ValidationErrorType
     /**
      * @param array<string, mixed> $config
      * @param mixed[] $value
-     * @param array<mixed> $res
      * @param Array<string|int> $path
      * @param ValidationSettings $settings
+     *
+     * @return array<mixed>
      */
     protected function _validateListOfType(array $config, array $value, array $path, array $settings): array
     {
