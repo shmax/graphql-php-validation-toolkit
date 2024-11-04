@@ -57,7 +57,7 @@ class ValidatedFieldDefinition extends FieldDefinition
         parent::__construct(array_merge([
             'validationMode' => $field['validationMode'] ?? 'full'
         ], [
-            'type' => fn() => $this->userErrorsType = static::_createUserErrorsType($name, $field),
+            'type' => fn() => $this->userErrorsType = static::_createResultType($name, $field),
             'args' => $args,
             'name' => $name,
             'resolve' => function ($value, $args1, $context, $info) use ($field, $args) {
@@ -82,7 +82,7 @@ class ValidatedFieldDefinition extends FieldDefinition
     /**
      * @phpstan-param ValidationSettings $settings
      */
-    protected function _createUserErrorsType(string $name, array $settings): ValidationErrorType
+    protected function _createResultType(string $name, array $settings): ValidationErrorType
     {
         $args = $settings['args'];
         $validationErrorType = ValidationErrorType::create([
@@ -107,7 +107,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 'fields' => $args,
                 'name' => '',
             ]),
-        ], [$name]);
+        ]);
 
         return $validationErrorType;
     }
