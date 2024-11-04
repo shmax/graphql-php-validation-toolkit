@@ -107,7 +107,7 @@ class ValidatedFieldDefinition extends FieldDefinition
                 'fields' => $args,
                 'name' => '',
             ]),
-        ]);
+        ], [$name]);
 
         return $validationErrorType;
     }

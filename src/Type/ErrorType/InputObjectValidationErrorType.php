@@ -81,7 +81,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                     if ($fieldErrorType instanceof ListOfValidationErrorType || $fieldErrorType instanceof InputObjectValidationErrorType) {
                         $validationResult = $fieldErrorType->validate($subfieldConfig, $value[$key] ?? null, $settings);
                         $diff = array_diff_key($validationResult, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
-                    } else if ($validate) {
+                    } else if (isset($validate)) {
                         $validationResult = static::_formatValidationResult($validate($value[$key]));
                     }
                 }

@@ -66,6 +66,9 @@ class ValidationErrorType extends ObjectType
      */
     protected function _generateName(array $path, array $config): string
     {
+        if (isset($config['nameOverride'])) {
+            return $config['nameOverride'];
+        }
         $namespace = ($config['type'] ?? null) instanceof ScalarType ? null : $this->_nameFromPath($path);
         $leafName = $this->_leafName($config);
         $name = implode("_", array_filter([$namespace, $leafName]));
@@ -88,7 +91,7 @@ class ValidationErrorType extends ObjectType
             $prefix .= "ListItem";
         }
 
-        return $config['nameOverride'] ?? "{$prefix}ValidationError";
+        return "{$prefix}ValidationError";
     }
 
     /**
