@@ -15,7 +15,7 @@ final class ValidationErrorTest extends TestBase
         $validationError = TypeRegistry::validationError();
         $res = $validationError->validate(['type' => Type::id()], null, ['type' => Type::id(), 'args' => []]);
 
-        static::assertEquals($res[0], 0);
+        static::assertEquals($res, []);
 
     }
 }

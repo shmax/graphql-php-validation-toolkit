@@ -141,7 +141,7 @@ class ValidationErrorType extends ObjectType
      */
     public function validate(array $field, $value, array $settings): array
     {
-        return [0];
+        return [];
     }
 
     /**
