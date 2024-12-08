@@ -239,7 +239,7 @@ class ValidationErrorType extends ObjectType
                 'type' => Type::string(),
                 'description' => 'An error message.',
                 'resolve' => static function ($error) {
-                    return $error[static::MESSAGE_NAME] ?? '';
+                    return $error[static::MESSAGE_NAME] ?? null;
                 },
             ];
         } else {
