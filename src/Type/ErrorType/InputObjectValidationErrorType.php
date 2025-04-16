@@ -43,7 +43,11 @@ class InputObjectValidationErrorType extends ValidationErrorType
     {
         $res = [];
         if (is_callable($field['validate'] ?? null)) {
-            $result = static::_formatValidationResult($field['validate']($value));
+            $rawResult = $field['validate']($value);
+            if ($rawResult === false) {
+                return $res;
+            }
+            $result = static::_formatValidationResult($rawResult);
 
             if (isset($result) && $result[static::CODE_NAME] !== 0) {
                 $res = $result;

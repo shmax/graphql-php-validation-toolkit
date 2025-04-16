@@ -115,6 +115,11 @@ class ListOfValidationErrorType extends ValidationErrorType
     {
         $res = [];
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
+
+        if ($validate === false) {
+            return $res;
+        }
+
         $wrappedType = $config['type']->getWrappedType();
         $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type'] ?? null;
         $wrappedErrorType = $wrappedErrorType?->getWrappedType();
