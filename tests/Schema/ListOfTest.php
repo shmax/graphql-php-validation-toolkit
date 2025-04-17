@@ -150,7 +150,6 @@ final class ListOfTest extends TestBase
         $type = ValidationErrorType::create([
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
-                'validate' => static fn($value) => null,
                 'fields' => [
                     'authorId' => [
                         'type' => Type::id(),
@@ -182,12 +181,6 @@ final class ListOfTest extends TestBase
             type upsertSku_ListItemValidationError {
               "A path describing this item\'s location in the nested array"
               _path: [Int]
-            
-              "A numeric error code. 0 on success, non-zero on failure."
-              _code: Int
-            
-              "An error message."
-              _msg: String
             
               "Error for authorId"
               authorId: ValidationError

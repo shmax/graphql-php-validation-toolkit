@@ -215,29 +215,9 @@ final class ValidateCallbackExceptionTest extends TestBase
     }
 
     public function testListOfInputObjectThrows(): void
-
     {
         $this->expectExceptionMessage("You must provide at least one 'validate' callback or mark at least one field as 'required'.");
         ValidationErrorType::create([
-            'type' => Type::listOf(new InputObjectType([
-                'name' => 'updateBook',
-                'fields' => [
-                    'authorId' => [
-                        'type' => Type::id(),
-                    ],
-                    'publisherId' => [
-                        'type' => Type::string(),
-                    ]
-                ],
-            ])),
-        ], ['upsertSku']);
-    }
-
-    public function testItemValidationOnListOfInputObjectThrows(): void
-    {
-        $this->expectExceptionMessage("'items' is only supported for scalar types");
-        ValidationErrorType::create([
-            'items' => ['validate' => static fn() => null],
             'type' => Type::listOf(new InputObjectType([
                 'name' => 'updateBook',
                 'fields' => [

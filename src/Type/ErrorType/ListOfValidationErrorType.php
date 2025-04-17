@@ -45,15 +45,10 @@ class ListOfValidationErrorType extends ValidationErrorType
         assert($config['type'] instanceof ListOfType);
         $type = $config['type']->getInnermostType();
         try {
+            $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
             if (static::isScalarType($type)) {
-                $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
                 $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
             } else {
-                if (isset($config[static::ITEMS_NAME])) {
-                    throw new \Exception("'items' is only supported for scalar types");
-                }
-
-                $validate = $type->config['validate'] ?? null;
                 $errorCodes = $type->config['errorCodes'] ?? null;
             }
 
@@ -116,9 +111,6 @@ class ListOfValidationErrorType extends ValidationErrorType
         $res = [];
         $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
 
-        if ($validate === false) {
-            return $res;
-        }
 
         $wrappedType = $config['type']->getWrappedType();
         $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type'] ?? null;
@@ -137,10 +129,15 @@ class ListOfValidationErrorType extends ValidationErrorType
                         $res[static::ITEMS_NAME] = array_merge($res[static::ITEMS_NAME] ?? [], $err[static::ITEMS_NAME]);
                     }
                 } else {
-                    // Validate scalar or complex types
-                    if (static::isScalarType($wrappedType)) {
-                        $err = static::_formatValidationResult($validate($subValue));
-                    } else {
+                    $err = null;
+                    if (isset($validate)) {
+                        $rawResult = $validate($subValue);
+                        if ($rawResult === false) {
+                            continue;
+                        }
+                        $err = static::_formatValidationResult($rawResult);
+                    }
+                    if (empty($err)) {
                         $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue, $settings);
                     }
 

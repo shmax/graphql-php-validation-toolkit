@@ -170,4 +170,77 @@ final class InputObjectValidationTest extends TestBase
             ]
         );
     }
+
+    public function testInputObjectValidationShortCircuit(): void
+    {
+        $this->_checkValidation(
+            new ValidatedFieldDefinition([
+                'name' => 'updateBook',
+                'type' => Type::boolean(),
+                'validate' => static function ($info) {
+                    // return false at the field validation level to give all children a free pass (ie don't validate them)
+                    return false;
+                },
+                'args' => [
+                    'title' => [
+                        'type' => Type::string(),
+                        'description' => 'Enter a book title, no more than 10 characters in length',
+                        'validate' => static function (string $title) {
+                            if (\strlen($title) > 10) {
+                                return [1, 'book title must be less than 10 characters'];
+                            }
+
+                            return 0;
+                        },
+                    ],
+                    'author' => [
+                        'type' => Type::id(),
+                        'description' => 'Provide a valid author id',
+                        'validate' => function (string $authorId) {
+                            if (!isset($this->data['people'][$authorId])) {
+                                return [1, 'We have no record of that author'];
+                            }
+
+                            return 0;
+                        },
+                    ],
+                ],
+                'resolve' => static function ($value): bool {
+                    return !$value;
+                },
+            ]),
+            Utils::nowdoc('
+                mutation UpdateBook($title: String, $author: ID) {
+                    updateBook (
+                        author: $author, title: $title
+                    ) {
+                        _valid
+                        _code
+                        _msg
+                        title {
+                            _code
+                            _msg
+                        }
+                        author {
+                            _code
+                            _msg
+                        }
+                        _result
+                    }
+                }
+            '),
+            [
+                'title' => 'The Catcher in the Rye',
+                'author' => '',
+            ],
+            [
+                '_valid' => true,
+                '_code' => null,
+                '_msg' => null,
+                'title' => null,
+                'author' => null,
+                '_result' => true,
+            ]
+        );
+    }
 }
