@@ -88,22 +88,20 @@ abstract class TestBase extends TestCase
         });
 
         $typeMap = array_map(function ($type) {
-            $type->description = null;
-
             return Utils::toNowDoc(SchemaPrinter::printType($type), 8);
         }, $types);
 
-        if (!empty($this->outputPath)) {
-            $lines = preg_split('/\\n/', Utils::varExport($typeMap, true));
-            assert($lines !== false);
-            $numLines = \count($lines);
-            for ($i = 0; $i < $numLines; ++$i) {
-
-                $lines[$i] = str_repeat(' ', 12) . $lines[$i];
-            }
-
-            file_put_contents($this->outputPath . 'schema.php', implode("\n", $lines));
-        }
+//        if (!empty($this->outputPath)) {
+//            $lines = preg_split('/\\n/', Utils::varExport($typeMap, true));
+//            assert($lines !== false);
+//            $numLines = \count($lines);
+//            for ($i = 0; $i < $numLines; ++$i) {
+//
+//                $lines[$i] = str_repeat(' ', 12) . $lines[$i];
+//            }
+//
+//            file_put_contents($this->outputPath . 'schema.php', implode("\n", $lines));
+//        }
 
         foreach ($expectedMap as $typeName => $expected) {
             $actual = SchemaPrinter::printType($types[$typeName]);

@@ -74,7 +74,7 @@ class InputObjectValidationErrorType extends ValidationErrorType
                 if (is_callable($isRequired)) {
                     $isRequired = $isRequired();
                 }
-                if ($isRequired && empty($value[$key]) && ($settings['validationMode'] == 'full' || $isKeyPresent)) {
+                if ($isRequired && empty($value[$key]) && ($settings['validationMode'] === 'full' || $isKeyPresent)) {
                     if ($isRequired === true) {
                         $validationResult = static::_formatValidationResult([1, "$key is required"]);
                     } else if (is_array($isRequired)) {

@@ -46,9 +46,10 @@ class ListOfValidationErrorType extends ValidationErrorType
         $type = $config['type']->getInnermostType();
         try {
             $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
+            $errorCodes = null;
             if (static::isScalarType($type)) {
                 $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
-            } else {
+            } else if (property_exists($type, 'config')) {
                 $errorCodes = $type->config['errorCodes'] ?? null;
             }
 
@@ -157,3 +158,4 @@ class ListOfValidationErrorType extends ValidationErrorType
         return $res;
     }
 }
+

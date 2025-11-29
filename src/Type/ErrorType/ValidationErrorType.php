@@ -18,6 +18,7 @@ use GraphQlPhpValidationToolkit\TypeRegistry;
 
 /**
  * @phpstan-type ValidationErrorConfig array{
+ *   name?: string,
  *   type?: Type,
  *   errorCodes?: class-string<\UnitEnum>|null,
  *   fields?: array<string,mixed>,
@@ -48,7 +49,8 @@ class ValidationErrorType extends ObjectType
     public function __construct(array $config, array $path = [])
     {
         $fields = $config['fields'] ?? [];
-        $this->_addCodeAndMessageFields($config, $fields, $path);
+        // _addCodeAndMessageFields now returns the modified fields array
+        $fields = $this->_addCodeAndMessageFields($config, $fields, $path);
 
         $pathEnd = end($path);
 //        assert($pathEnd != false);
@@ -71,7 +73,10 @@ class ValidationErrorType extends ObjectType
         }
         $namespace = ($config['type'] ?? null) instanceof ScalarType ? null : $this->_nameFromPath($path);
         $leafName = $this->_leafName($config);
-        $name = implode("_", array_filter([$namespace, $leafName]));
+        // avoid loose comparison semantics by providing an explicit callback to array_filter
+        $name = implode("_", array_filter([$namespace, $leafName], function ($v) {
+            return $v !== null && $v !== '';
+        }));
         return $name;
     }
 
@@ -207,11 +212,14 @@ class ValidationErrorType extends ObjectType
 
     /**
      * @param ValidationErrorConfig $config
-     * @param array<FieldDefinitionConfig> $fields
-     * @param Path $path
+     * @param array<string|int,FieldDefinitionConfig>|non-empty-array<string|int,FieldDefinitionConfig> $fields
+     * @phpstan-param array<string|int,FieldDefinitionConfig>|non-empty-array<string|int,FieldDefinitionConfig> $fields
+     * @phpstan-param Path $path
+     * @return array<string|int,FieldDefinitionConfig>|non-empty-array<string|int,FieldDefinitionConfig>
+     * @phpstan-return array<string|int,FieldDefinitionConfig>|non-empty-array<string|int,FieldDefinitionConfig>
      * @throws \Exception
      */
-    protected function _addCodeAndMessageFields(array $config, array &$fields, array $path): void
+    protected function _addCodeAndMessageFields(array $config, array $fields, array $path): array
     {
         if (isset($config['validate']) || !empty($config['required'])) {
             if (isset($config['errorCodes'])) {
@@ -250,6 +258,7 @@ class ValidationErrorType extends ObjectType
             }
 
         }
+        return $fields;
     }
 
     /**
