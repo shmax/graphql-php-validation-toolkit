@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests\Type\ValidatedFieldDefinition;
+namespace GraphQlPhpValidationToolkit\Tests\Validation;
 
 use GraphQL\GraphQL;
-use GraphQL\Tests\Utils;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ValidatedFieldDefinition;
 use GraphQL\Type\Schema;
-use PHPUnit\Framework\TestCase;
+use GraphQlPhpValidationToolkit\Tests\TestBase;
+use GraphQlPhpValidationToolkit\Tests\Utils;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
 
-final class ScalarValidationTest extends TestCase
+final class NonNullScalarValidationTest extends TestBase
 {
     /** @var Type */
     protected $bookType;
@@ -31,19 +31,20 @@ final class ScalarValidationTest extends TestCase
         ],
     ];
 
-    /** @var ObjectType */
-    protected $query;
-
     /** @var Schema */
     protected $schema;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->personType = new ObjectType([
             'name' => 'Person',
             'fields' => [
                 'firstName' => [
                     'type' => Type::string(),
+                    'phoneNumbers' => [
+                        'type' => Type::listOf(Type::string()),
+                    ],
                 ],
             ],
         ]);
@@ -66,10 +67,7 @@ final class ScalarValidationTest extends TestCase
             ],
         ]);
 
-        $this->query = new ObjectType(['name' => 'Query', 'fields' => []]);
-
         $this->schema = new Schema([
-            'query' => $this->query,
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
                 'fields' => function () {
@@ -79,7 +77,7 @@ final class ScalarValidationTest extends TestCase
                             'type' => $this->bookType,
                             'args' => [
                                 'bookId' => [
-                                    'type' => Type::id(),
+                                    'type' => Type::nonNull(Type::id()),
                                     'validate' => function ($bookId) {
                                         if (isset($this->data['books'][$bookId])) {
                                             return 0;
@@ -89,8 +87,8 @@ final class ScalarValidationTest extends TestCase
                                     },
                                 ],
                             ],
-                            'resolve' => static function ($value): bool {
-                                return (bool) $value;
+                            'resolve' => function ($value, $args): array {
+                                return $this->data['books'][$args['bookId']];
                             },
                         ]),
                     ];
@@ -99,23 +97,21 @@ final class ScalarValidationTest extends TestCase
         ]);
     }
 
-    public function testNullableScalarValidationOnNullValueSuccess(): void
+    public function testNonNullScalarValidationSuccess(): void
     {
         $res = GraphQL::executeQuery(
             $this->schema,
             Utils::nowdoc('
                 mutation UpdateBook(
-                    $bookId:ID
+                    $bookId:ID!
                 ) {
                     updateBook (bookId: $bookId) {
-                        valid
-                        suberrors {
-                            bookId {
-                                code
-                                msg
-                            }
+                        _valid
+                        bookId {
+                            _code
+                            _msg
                         }
-                        result {
+                        _result {
                             title
                         }
                     }
@@ -123,10 +119,38 @@ final class ScalarValidationTest extends TestCase
             '),
             [],
             null,
-            ['bookId' => null]
+            ['bookId' => 1]
+        );
+
+        static::assertTrue($res->data['updateBook']['_valid']);
+    }
+
+    public function testNonNullScalarValidationFail(): void
+    {
+        $res = GraphQL::executeQuery(
+            $this->schema,
+            Utils::nowdoc('
+                mutation UpdateBook(
+                        $bookId:ID!
+                    ) {
+                        updateBook (bookId: $bookId) {
+                            _valid
+                            bookId {
+                                _code
+                                _msg
+                            }
+                            _result {
+                                title
+                            }
+                        }
+                    }
+            '),
+            [],
+            null,
+            ['bookId' => 37]
         );
 
         static::assertEmpty($res->errors);
-        static::assertFalse($res->data['updateBook']['valid']);
+        static::assertFalse($res->data['updateBook']['_valid']);
     }
 }

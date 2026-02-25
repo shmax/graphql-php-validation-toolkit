@@ -1,22 +1,26 @@
-# Validation of InputObjects (or Objects) 
+# Validation of InputObjects (or Objects)
 
-You can add validate lists of compound types, such as InputObject. You can specify a `validate` callback on the `ListOf` field to be applied to each item in the list, and if the compound object has any `validate` callbacks on its own fields, they will be called as well.
-
+You can add validate lists of compound types, such as InputObject. You can specify a `validate` callback on the `ListOf`
+field to be applied to each item in the list, and if the compound object has any `validate` callbacks on its own fields,
+they will be called as well.
 
 ### Run locally
+
 ```
 php -S localhost:8000 ./index.php
 ```
 
 ### Install ChromeiQL plug-in for Chrome
+
 1. Install from [here](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij?hl=en)
 2. Enter "http://localhost:8000" in the text field at the top and press the "Set Endpoint" button
 3. Be sure to inspect the "Docs" flyout to get familiar with the dynamically-generated types
 
 ### Try mutation with valid input
+
 ```
 mutation {
-	updateAuthors(
+  updateAuthors(
     authors: [{
       id:1,
       firstName: "Stephen",
@@ -27,27 +31,24 @@ mutation {
       lastName: "Clarke"
     }]
   ) {
-    valid
-    suberrors {
-      authors {
-        path
-        suberrors {
-          id {
-            code
-            msg
-          }
-          firstName {
-            code
-            msg
-          }
-          lastName {
-            code
-            msg
-          }
+    _valid
+    authors {
+      _items {
+        id {
+          _code
+          _msg
+        }
+        firstName {
+          _code
+          _msg
+        }
+        lastName {
+          _code
+          _msg
         }
       }
     }
-    result {
+    _result {
       firstName
       lastName
     }
@@ -56,11 +57,12 @@ mutation {
 ```
 
 ### Try mutation with invalid input
+
 ```
 mutation {
 	updateAuthors(
     authors: [{
-      id:1,
+      id:-1,
       firstName: "Richard",
       lastName: "Matheson"
     },{
@@ -69,27 +71,25 @@ mutation {
       lastName: "Jones"
     }]
   ) {
-    valid
-    suberrors {
-      authors {
-        path
-        suberrors {
-          id {
-            code
-            msg
-          }
-          firstName {
-            code
-            msg
-          }
-          lastName {
-            code
-            msg
-          }
+    _valid
+    authors {
+      _items {
+        _path
+        id {
+          _code
+          _msg
+        }
+        firstName {
+          _code
+          _msg
+        }
+        lastName {
+          _code
+          _msg
         }
       }
     }
-    result {
+    _result {
       firstName
       lastName
     }

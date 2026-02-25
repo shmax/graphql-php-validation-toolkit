@@ -1,0 +1,161 @@
+<?php
+
+namespace GraphQlPhpValidationToolkit\Type\ErrorType;
+
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\Type;
+use GraphQlPhpValidationToolkit\Exception\NoValidatationFoundException;
+use GraphQlPhpValidationToolkit\Exception\OverlySpecializedValidationErrorType;
+use GraphQlPhpValidationToolkit\TypeRegistry;
+use GraphQlPhpValidationToolkit\Type\ErrorType\ValidatedFieldDefinition;
+
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ * @phpstan-import-type ValidatedFieldDefinitionConfig from ValidatedFieldDefinition
+ * @phpstan-import-type ValidationSettings from ValidatedFieldDefinition
+ */
+class ListOfValidationErrorType extends ValidationErrorType
+{
+    public const ITEMS_NAME = 'items';
+
+    public const PATH_NAME = '_path';
+
+    /**
+     * @return UnnamedFieldDefinitionConfig
+     */
+    static function pathFieldConfig(): array
+    {
+        return [
+            'type' => Type::listOf(Type::int()),
+            'description' => 'A path describing this item\'s location in the nested array',
+            'resolve' => static function ($value) {
+                return $value[static::PATH_NAME];
+            },
+        ];
+    }
+
+    /**
+     * @throws NoValidatationFoundException
+     * @throws OverlySpecializedValidationErrorType
+     */
+    protected function __construct(array $config, array $path)
+    {
+        parent::__construct($config, $path);
+        assert($config['type'] instanceof ListOfType);
+        $type = $config['type']->getInnermostType();
+        try {
+            $validate = $config[static::ITEMS_NAME]['validate'] ?? null;
+            $errorCodes = null;
+            if (static::isScalarType($type)) {
+                $errorCodes = $config[static::ITEMS_NAME]['errorCodes'] ?? null;
+            } else if (property_exists($type, 'config')) {
+                $errorCodes = $type->config['errorCodes'] ?? null;
+            }
+
+            if (!$errorCodes && static::isScalarType($type) && $validate) {
+                $errorType = TypeRegistry::listItemValidationError();
+            } else {
+                $errorType = static::create([
+                    'type' => $type,
+                    'validate' => $validate,
+                    'errorCodes' => $errorCodes,
+                    'fields' => [
+                        static::PATH_NAME => static::pathFieldConfig(),
+                    ],
+                ], $path);
+            }
+
+            $this->config['fields']['_' . static::ITEMS_NAME] = [
+                'type' => Type::listOf($errorType),
+                'description' => 'Validation errors for each ' . $type->name() . ' in the list',
+                'resolve' => static function ($value) {
+                    return $value[static::ITEMS_NAME] ?? [];
+                },
+            ];
+        } catch (NoValidatationFoundException $e) {
+            if (empty($config['required']) && !isset($config['validate']) && !isset($config[static::ITEMS_NAME]['validate'])) {
+                throw $e;
+            } else if (!isset($config[static::ITEMS_NAME]['validate'])) {
+                throw new OverlySpecializedValidationErrorType();
+            }
+        }
+    }
+
+    /**
+     * @param ValidatedFieldDefinitionConfig $arg
+     * @param mixed $value
+     * @param ValidationSettings $settings
+     *
+     * @return array<mixed>
+     */
+    public function validate(array $arg, mixed $value, array $settings): array
+    {
+        return $this->_validateListOfType($arg, $value, [0], $settings);
+    }
+
+    protected function _leafName(array $config): string
+    {
+        return "ListOf" . parent::_leafName($config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param mixed[] $value
+     * @param Array<string|int> $path
+     * @param ValidationSettings $settings
+     *
+     * @return array<mixed>
+     */
+    protected function _validateListOfType(array $config, array $value, array $path, array $settings): array
+    {
+        $res = [];
+        $validate = $this->config[static::ITEMS_NAME]['validate'] ?? null;
+
+
+        $wrappedType = $config['type']->getWrappedType();
+        $wrappedErrorType = $this->config['fields']['_' . static::ITEMS_NAME]['type'] ?? null;
+        $wrappedErrorType = $wrappedErrorType?->getWrappedType();
+
+        if (isset($wrappedErrorType)) {
+            foreach ($value as $idx => $subValue) {
+                // Update the path with the current index
+                $path[\count($path) - 1] = $idx;
+
+                // If the wrapped type is a list, recursively validate each item
+                if ($wrappedType instanceof ListOfType) {
+                    $newPath = [...$path, 0]; // Append 0 for list path
+                    $err = $this->_validateListOfType(['type' => $wrappedType, 'validate' => $validate], $subValue, $newPath, $settings);
+                    if (isset($err[static::ITEMS_NAME])) {
+                        $res[static::ITEMS_NAME] = array_merge($res[static::ITEMS_NAME] ?? [], $err[static::ITEMS_NAME]);
+                    }
+                } else {
+                    $err = null;
+                    if (isset($validate)) {
+                        $rawResult = $validate($subValue);
+                        if ($rawResult === false) {
+                            continue;
+                        }
+                        $err = static::_formatValidationResult($rawResult);
+                    }
+                    if (empty($err)) {
+                        $err = $wrappedErrorType->validate(['type' => $wrappedType], $subValue, $settings);
+                    }
+
+                    // Check for errors and add to results if necessary
+                    if ($err) {
+                        $diff = array_diff_key($err, array_flip([static::CODE_NAME, static::MESSAGE_NAME]));
+
+                        if (!empty($diff) || ($err[static::CODE_NAME] ?? 0) !== 0) {
+                            $err[static::PATH_NAME] = $path;
+                            $res[static::ITEMS_NAME][] = $err;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $res;
+    }
+}
+
